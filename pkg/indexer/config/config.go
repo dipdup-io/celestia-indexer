@@ -1,4 +1,4 @@
-package indexer
+package config
 
 type Config struct {
 	Name         string `yaml:"name" validate:"omitempty"`

@@ -2,22 +2,28 @@ package indexer
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/receiver"
+	"sync"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"sync"
 )
 
 type Indexer struct {
-	cfg Config
-	wg  *sync.WaitGroup
-	log zerolog.Logger
+	cfg      config.Config
+	receiver *receiver.Receiver
+	wg       *sync.WaitGroup
+	log      zerolog.Logger
 }
 
-func New(cfg Config) *Indexer {
+func New(cfg config.Config) *Indexer {
+
 	return &Indexer{
-		cfg: cfg,
-		wg:  new(sync.WaitGroup),
-		log: log.With().Str("module", "indexer").Logger(),
+		cfg:      cfg,
+		receiver: receiver.New(cfg),
+		wg:       new(sync.WaitGroup),
+		log:      log.With().Str("module", "indexer").Logger(),
 	}
 }
 

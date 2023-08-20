@@ -3,6 +3,7 @@ module github.com/dipdup-io/celestia-indexer
 go 1.21
 
 require (
+	github.com/dipdup-io/workerpool v0.0.3
 	github.com/dipdup-net/go-lib v0.3.1
 	github.com/dipdup-net/indexer-sdk v0.0.0-20230819120445-392cbc4cfb65
 	github.com/go-testfixtures/testfixtures/v3 v3.9.0
