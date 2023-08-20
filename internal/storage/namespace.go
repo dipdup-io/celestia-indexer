@@ -15,9 +15,9 @@ type Namespace struct {
 	bun.BaseModel `bun:"namespace" comment:"Table with celestia namespaces."`
 
 	ID          uint64 `bun:"id,type:bigint,pk,notnull" comment:"Unique internal identity"`
-	Version     byte   `comment:"Namespace version"`
-	NamespaceID []byte `comment:"Namespace identity"`
-	Size        uint64 `comment:"Namespace size"`
+	Version     byte   `bun:"version"                   comment:"Namespace version"`
+	NamespaceID []byte `bun:"namespace_id"              comment:"Namespace identity"`
+	Size        uint64 `bun:"size"                      comment:"Namespace size"`
 }
 
 // TableName -
