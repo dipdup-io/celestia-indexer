@@ -22,7 +22,7 @@ type Message struct {
 	Position uint64         `comment:"Position in transaction"`
 	Type     MsgType        `bun:",type:msg_type" comment:"Message type"`
 	TxId     *uint64        `comment:"Parent transaction id"`
-	Data     map[string]any `comment:"Message data"`
+	Data     map[string]any `bun:"type:jsonb" comment:"Message data"`
 }
 
 // TableName -
