@@ -14,10 +14,10 @@ type INamespace interface {
 type Namespace struct {
 	bun.BaseModel `bun:"namespace" comment:"Table with celestia namespaces."`
 
-	ID        uint64 `bun:"id,type:bigint,pk,notnull" comment:"Unique internal identity"`
-	Version   byte   `comment:"Namespace version"`
-	Namespace []byte `comment:"Namespace identity"`
-	Size      uint64 `comment:"Namespace size"`
+	ID          uint64 `bun:"id,type:bigint,pk,notnull" comment:"Unique internal identity"`
+	Version     byte   `comment:"Namespace version"`
+	NamespaceID []byte `comment:"Namespace identity"`
+	Size        uint64 `comment:"Namespace size"`
 }
 
 // TableName -

@@ -1,13 +1,9 @@
 package storage
 
-// Sattus -
+// Status -
 type Status string
 
 const (
-	StatusUnknown MsgType = "unknown"
+	StatusSuccess Status = "success"
+	StatusFailed  Status = "failed"
 )
-
-// NewTxKind -
-func NewStatus(value int64) Status {
-	return Status(StatusUnknown)
-}

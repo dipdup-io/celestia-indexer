@@ -132,6 +132,17 @@ func createTypes(ctx context.Context, conn *database.Bun) error {
 		); err != nil {
 			return err
 		}
+		if _, err := tx.ExecContext(
+			ctx,
+			`DO $$
+			BEGIN
+				IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status') THEN
+					CREATE TYPE status AS ENUM ('success', 'failed');
+				END IF;
+			END$$;`,
+		); err != nil {
+			return err
+		}
 		return nil
 	})
 }
