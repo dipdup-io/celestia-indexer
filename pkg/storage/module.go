@@ -34,9 +34,9 @@ func NewModule(pg postgres.Storage, opts ...ModuleOption) Module {
 		state: storage.State{
 			Name: defaultIndexerName,
 		},
-		log: log.With().Str("module", "storage").Logger(),
-		wg:  new(sync.WaitGroup),
+		wg: new(sync.WaitGroup),
 	}
+	m.log = log.With().Str("module", m.Name()).Logger()
 
 	for i := range opts {
 		opts[i](&m)
@@ -47,7 +47,7 @@ func NewModule(pg postgres.Storage, opts ...ModuleOption) Module {
 
 // Name -
 func (Module) Name() string {
-	return "storage_module"
+	return "storage"
 }
 
 func (module Module) initState(ctx context.Context) error {
