@@ -87,6 +87,7 @@ func (s *ModuleTestSuite) TestBlockLast() {
 		Hash:         hash,
 		VersionBlock: "11",
 		VersionApp:   "1",
+		Time:         time.Date(2023, 7, 4, 3, 11, 26, 0, time.UTC),
 	})
 	time.Sleep(time.Second)
 
@@ -97,6 +98,11 @@ func (s *ModuleTestSuite) TestBlockLast() {
 	s.Require().EqualValues("11", block.VersionBlock)
 	s.Require().EqualValues(0, block.TxCount)
 	s.Require().Equal(hash, block.Hash)
+
+	state, err := s.storage.State.ByName(ctx, testIndexerName)
+	s.Require().NoError(err)
+	s.Require().Equal(testIndexerName, state.Name)
+	s.Require().EqualValues(1001, state.LastHeight)
 
 	s.Require().NoError(module.Close())
 }

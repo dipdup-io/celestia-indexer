@@ -21,7 +21,7 @@ const defaultIndexerName = "celestia-indexer"
 type Module struct {
 	storage postgres.Storage
 	input   *modules.Input
-	state   storage.State
+	state   *storage.State
 	log     zerolog.Logger
 	wg      *sync.WaitGroup
 }
@@ -31,7 +31,7 @@ func NewModule(pg postgres.Storage, opts ...ModuleOption) Module {
 	m := Module{
 		storage: pg,
 		input:   modules.NewInput(InputName),
-		state: storage.State{
+		state: &storage.State{
 			Name: defaultIndexerName,
 		},
 		wg: new(sync.WaitGroup),
@@ -50,13 +50,13 @@ func (Module) Name() string {
 	return "storage"
 }
 
-func (module Module) initState(ctx context.Context) error {
+func (module *Module) initState(ctx context.Context) error {
 	module.log.Info().Msg("loading current state from database...")
 
 	state, err := module.storage.State.ByName(ctx, module.state.Name)
 	switch {
 	case err == nil:
-		module.state = state
+		module.state = &state
 		module.log.Info().
 			Str("indexer_name", module.state.Name).
 			Uint64("height", module.state.LastHeight).
@@ -66,7 +66,7 @@ func (module Module) initState(ctx context.Context) error {
 
 	case module.storage.State.IsNoRows(err):
 		module.log.Info().Msg("state is not found. creating empty state...")
-		return module.storage.State.Update(ctx, &module.state)
+		return module.storage.State.Update(ctx, module.state)
 
 	default:
 		return errors.Wrap(err, "state loading")
@@ -74,7 +74,7 @@ func (module Module) initState(ctx context.Context) error {
 }
 
 // Start -
-func (module Module) Start(ctx context.Context) {
+func (module *Module) Start(ctx context.Context) {
 	if err := module.initState(ctx); err != nil {
 		module.log.Err(err).Msg("error during storage module initialization")
 		return
@@ -84,7 +84,7 @@ func (module Module) Start(ctx context.Context) {
 	go module.listen(ctx)
 }
 
-func (module Module) listen(ctx context.Context) {
+func (module *Module) listen(ctx context.Context) {
 	defer module.wg.Done()
 
 	module.log.Info().Msg("module started")
@@ -112,7 +112,7 @@ func (module Module) listen(ctx context.Context) {
 }
 
 // Close -
-func (module Module) Close() error {
+func (module *Module) Close() error {
 	module.log.Info().Msg("closing module...")
 	module.wg.Wait()
 
@@ -120,12 +120,12 @@ func (module Module) Close() error {
 }
 
 // Output -
-func (module Module) Output(name string) (*modules.Output, error) {
+func (module *Module) Output(name string) (*modules.Output, error) {
 	return nil, errors.Wrap(modules.ErrUnknownOutput, name)
 }
 
 // Input -
-func (module Module) Input(name string) (*modules.Input, error) {
+func (module *Module) Input(name string) (*modules.Input, error) {
 	if name != InputName {
 		return nil, errors.Wrap(modules.ErrUnknownInput, name)
 	}
@@ -133,7 +133,7 @@ func (module Module) Input(name string) (*modules.Input, error) {
 }
 
 // AttachTo -
-func (module Module) AttachTo(name string, input *modules.Input) error {
+func (module *Module) AttachTo(name string, input *modules.Input) error {
 	output, err := module.Output(name)
 	if err != nil {
 		return err
@@ -143,7 +143,7 @@ func (module Module) AttachTo(name string, input *modules.Input) error {
 	return nil
 }
 
-func (module Module) updateState(block storage.Block) {
+func (module *Module) updateState(block storage.Block) {
 	if block.Id <= module.state.LastHeight {
 		return
 	}
@@ -154,7 +154,7 @@ func (module Module) updateState(block storage.Block) {
 	// TODO: update rest fields
 }
 
-func (module Module) saveBlock(ctx context.Context, block storage.Block) error {
+func (module *Module) saveBlock(ctx context.Context, block storage.Block) error {
 	module.log.Info().Uint64("height", block.Id).Msg("saving block...")
 	tx, err := postgres.BeginTransaction(ctx, module.storage.Transactable)
 	if err != nil {
@@ -201,7 +201,7 @@ func (module Module) saveBlock(ctx context.Context, block storage.Block) error {
 	// TODO: save addresses and namespaces
 
 	module.updateState(block)
-	if err := module.storage.State.Update(ctx, &module.state); err != nil {
+	if err := tx.Update(ctx, module.state); err != nil {
 		return tx.HandleError(ctx, err)
 	}
 
