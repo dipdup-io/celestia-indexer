@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/dipdup-io/celestia-indexer/internal/indexer"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -41,7 +41,7 @@ func main() {
 	<-notifyCtx.Done()
 	cancel()
 
-	if err := indexerModule.Stop(); err != nil {
+	if err := indexerModule.Close(); err != nil {
 		log.Panic().Err(err).Msg("stopping indexer")
 	}
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dipdup-io/celestia-indexer/internal/indexer"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer"
 	"github.com/dipdup-net/go-lib/config"
 )
 

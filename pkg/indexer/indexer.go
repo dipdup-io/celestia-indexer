@@ -26,7 +26,7 @@ func (i *Indexer) Start(ctx context.Context) error {
 	return nil
 }
 
-func (i *Indexer) Stop() error {
+func (i *Indexer) Close() error {
 	i.log.Info().Msg("stopping indexer...")
 	i.wg.Wait()
 
