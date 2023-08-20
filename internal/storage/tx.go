@@ -19,7 +19,7 @@ type Tx struct {
 
 	Id            uint64          `bun:"id,type:bigint,pk,notnull" comment:"Unique internal id"`
 	Height        uint64          `bun:",notnull"                  comment:"The number (height) of this block"`
-	Time          time.Time       `bun:"time"                      comment:"The time of block"`
+	Time          time.Time       `bun:"time,pk,notnull"           comment:"The time of block"`
 	Position      uint64          `bun:"position"                  comment:"Position in block"`
 	GasWanted     uint64          `bun:"gas_wanted"                comment:"Gas wanted"`
 	GasUsed       uint64          `bun:"gas_used"                  comment:"Gas used"`

@@ -84,7 +84,7 @@ func createIndices(ctx context.Context, conn *database.Bun) error {
 		}
 
 		// Tx
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS tx_height_idx ON fee USING BRIN (height)`); err != nil {
+		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS tx_height_idx ON tx USING BRIN (height)`); err != nil {
 			return err
 		}
 
@@ -99,7 +99,7 @@ func createIndices(ctx context.Context, conn *database.Bun) error {
 		}
 
 		// Namespace
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS namespace_idx ON namespace (namespace)`); err != nil {
+		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS namespace_idx ON namespace (namespace_id)`); err != nil {
 			return err
 		}
 
@@ -126,7 +126,7 @@ func createTypes(ctx context.Context, conn *database.Bun) error {
 			`DO $$
 			BEGIN
 				IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'event_type') THEN
-					CREATE TYPE event_type AS ENUM ('coin_received', 'coinbase', ,'coin_spent', 'burn', 'mint', 'message', 'proposer_reward', 'rewards', 'commission', 'liveness', 'attestation_request', 'transfer', 'pay_for_blobs', 'redelegate', 'withdraw_rewards', 'withdraw_commission', 'create_validator', 'delegate', 'edit_validator', 'unbond', 'tx', 'unknown');
+					CREATE TYPE event_type AS ENUM ('coin_received', 'coinbase', 'coin_spent', 'burn', 'mint', 'message', 'proposer_reward', 'rewards', 'commission', 'liveness', 'attestation_request', 'transfer', 'pay_for_blobs', 'redelegate', 'withdraw_rewards', 'withdraw_commission', 'create_validator', 'delegate', 'edit_validator', 'unbond', 'tx', 'unknown');
 				END IF;
 			END$$;`,
 		); err != nil {

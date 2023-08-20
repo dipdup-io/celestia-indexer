@@ -3,27 +3,35 @@ module github.com/dipdup-io/celestia-indexer
 go 1.21
 
 require (
-	github.com/dipdup-net/go-lib v0.3.0
+	github.com/dipdup-net/go-lib v0.3.1
 	github.com/dipdup-net/indexer-sdk v0.0.0-20230819120445-392cbc4cfb65
+	github.com/go-testfixtures/testfixtures/v3 v3.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.30.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/cobra v1.7.0
+	github.com/stretchr/testify v1.8.4
 	github.com/uptrace/bun v1.1.14
 )
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
+	github.com/ClickHouse/ch-go v0.58.0 // indirect
+	github.com/ClickHouse/clickhouse-go/v2 v2.13.0 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/containerd/containerd v1.7.3 // indirect
 	github.com/cpuguy83/dockercfg v0.3.1 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/docker v24.0.5+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+	github.com/go-faster/city v1.0.1 // indirect
+	github.com/go-faster/errors v0.6.1 // indirect
 	github.com/go-pg/pg/v10 v10.11.1 // indirect
 	github.com/go-pg/zerochecker v0.2.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -56,6 +64,10 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
 	github.com/opencontainers/runc v1.1.9 // indirect
+	github.com/paulmach/orb v0.10.0 // indirect
+	github.com/pierrec/lz4/v4 v4.1.18 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/testcontainers/testcontainers-go v0.22.0 // indirect
@@ -66,6 +78,8 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser v0.1.2 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	go.opentelemetry.io/otel v1.16.0 // indirect
+	go.opentelemetry.io/otel/trace v1.16.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea // indirect
 	golang.org/x/mod v0.12.0 // indirect

@@ -76,7 +76,7 @@ func (module Module) initState(ctx context.Context) error {
 // Start -
 func (module Module) Start(ctx context.Context) {
 	if err := module.initState(ctx); err != nil {
-		log.Err(err).Msg("error during storage module initialization")
+		module.log.Err(err).Msg("error during storage module initialization")
 		return
 	}
 
@@ -87,7 +87,7 @@ func (module Module) Start(ctx context.Context) {
 func (module Module) listen(ctx context.Context) {
 	defer module.wg.Done()
 
-	log.Info().Msg("module started")
+	module.log.Info().Msg("module started")
 
 	for {
 		select {
@@ -100,7 +100,7 @@ func (module Module) listen(ctx context.Context) {
 			}
 			block, ok := msg.(storage.Block)
 			if !ok {
-				module.log.Warn().Msgf("invalid message type: %T", block)
+				module.log.Warn().Msgf("invalid message type: %T", msg)
 				continue
 			}
 
@@ -113,7 +113,7 @@ func (module Module) listen(ctx context.Context) {
 
 // Close -
 func (module Module) Close() error {
-	log.Info().Msg("closing module...")
+	module.log.Info().Msg("closing module...")
 	module.wg.Wait()
 
 	return module.input.Close()
@@ -144,18 +144,18 @@ func (module Module) AttachTo(name string, input *modules.Input) error {
 }
 
 func (module Module) updateState(block storage.Block) {
-	if block.Height <= module.state.LastHeight {
+	if block.Id <= module.state.LastHeight {
 		return
 	}
 
-	module.state.LastHeight = block.Height
+	module.state.LastHeight = block.Id
 	module.state.LastTime = block.Time
 	module.state.TotalTx += block.TxCount
 	// TODO: update rest fields
 }
 
 func (module Module) saveBlock(ctx context.Context, block storage.Block) error {
-	log.Info().Uint64("height", block.Height).Msg("saving block...")
+	module.log.Info().Uint64("height", block.Id).Msg("saving block...")
 	tx, err := postgres.BeginTransaction(ctx, module.storage.Transactable)
 	if err != nil {
 		return err
@@ -208,6 +208,6 @@ func (module Module) saveBlock(ctx context.Context, block storage.Block) error {
 	if err := tx.Flush(ctx); err != nil {
 		return tx.HandleError(ctx, err)
 	}
-	log.Info().Uint64("height", block.Height).Msg("block saved")
+	module.log.Info().Uint64("height", block.Id).Msg("block saved")
 	return nil
 }
