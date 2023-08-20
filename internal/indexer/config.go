@@ -1,9 +1,10 @@
 package indexer
 
 type Config struct {
-	Name    string `yaml:"name" validate:"omitempty"`
-	Timeout uint64 `yaml:"timeout" validate:"omitempty"`
-	Node    *Node  `yaml:"node" validate:"omitempty"`
+	Name         string `yaml:"name" validate:"omitempty"`
+	Timeout      uint64 `yaml:"timeout" validate:"omitempty"`
+	ThreadsCount uint32 `yaml:"threads_count" validate:"omitempty,min=1"`
+	Node         *Node  `yaml:"node" validate:"omitempty"`
 }
 
 type Node struct {

@@ -5,6 +5,7 @@ log_level: ${LOG_LEVEL:-info}
 indexer:
   name: ${INDEXER_NAME:-dipdup_celestia_indexer}
   timeout: ${INDEXER_REQUEST_TIMEOUT:-10}
+  threads_count: ${INDEXER_THREADS_COUNT:-1}
   node:
     url: ${CELESTIA_NODE_URL}
     requests_per_second: ${CELESTIA_NODE_RPS:-5}
