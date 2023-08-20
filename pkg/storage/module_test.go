@@ -83,7 +83,7 @@ func (s *ModuleTestSuite) TestBlockLast() {
 	s.Require().NoError(err)
 
 	module.input.Push(storage.Block{
-		Id:           1001,
+		Height:       1001,
 		Hash:         hash,
 		VersionBlock: "11",
 		VersionApp:   "1",
@@ -93,7 +93,7 @@ func (s *ModuleTestSuite) TestBlockLast() {
 
 	block, err := s.storage.Blocks.Last(ctx)
 	s.Require().NoError(err)
-	s.Require().EqualValues(1001, block.Id)
+	s.Require().EqualValues(1001, block.Height)
 	s.Require().EqualValues("1", block.VersionApp)
 	s.Require().EqualValues("11", block.VersionBlock)
 	s.Require().EqualValues(0, block.TxCount)

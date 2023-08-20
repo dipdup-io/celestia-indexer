@@ -148,7 +148,7 @@ func (module *Module) updateState(block storage.Block) {
 		return
 	}
 
-	module.state.LastHeight = block.Id
+	module.state.LastHeight = block.Height
 	module.state.LastTime = block.Time
 	module.state.TotalTx += block.TxCount
 	// TODO: update rest fields

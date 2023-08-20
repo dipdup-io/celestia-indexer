@@ -123,7 +123,7 @@ func (s *StorageTestSuite) TestBlockLast() {
 
 	block, err := s.storage.Blocks.Last(ctx)
 	s.Require().NoError(err)
-	s.Require().EqualValues(1000, block.Id)
+	s.Require().EqualValues(1000, block.Height)
 	s.Require().EqualValues("1", block.VersionApp)
 	s.Require().EqualValues("11", block.VersionBlock)
 	s.Require().EqualValues(0, block.TxCount)
