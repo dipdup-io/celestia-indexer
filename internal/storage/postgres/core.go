@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	models "github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-net/go-lib/config"
 	"github.com/dipdup-net/go-lib/database"
@@ -76,30 +77,56 @@ func createIndices(ctx context.Context, conn *database.Bun) error {
 	log.Info().Msg("creating indexes...")
 	return conn.DB().RunInTx(ctx, &sql.TxOptions{}, func(ctx context.Context, tx bun.Tx) error {
 		// Address
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS address_hash_idx ON address (hash)`); err != nil {
-			return err
-		}
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS address_height_idx ON address USING BRIN (height)`); err != nil {
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Address)(nil)).
+			Index("address_height_idx").
+			Column("height").
+			Using("BRIN").
+			Exec(ctx); err != nil {
 			return err
 		}
 
 		// Tx
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS tx_height_idx ON tx USING BRIN (height)`); err != nil {
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Tx)(nil)).
+			Index("tx_height_idx").
+			Column("height").
+			Using("BRIN").
+			Exec(ctx); err != nil {
 			return err
 		}
 
 		// Event
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS event_height_idx ON event USING BRIN (height)`); err != nil {
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Event)(nil)).
+			Index("event_height_idx").
+			Column("height").
+			Using("BRIN").
+			Exec(ctx); err != nil {
 			return err
 		}
 
 		// Message
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS message_height_idx ON message USING BRIN (height)`); err != nil {
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Message)(nil)).
+			Index("message_height_idx").
+			Column("height").
+			Using("BRIN").
+			Exec(ctx); err != nil {
 			return err
 		}
 
 		// Namespace
-		if _, err := tx.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS namespace_idx ON namespace (namespace_id)`); err != nil {
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Namespace)(nil)).
+			Index("namespace_idx").
+			Column("namespace_id").
+			Exec(ctx); err != nil {
 			return err
 		}
 
