@@ -1,13 +1,23 @@
 package config
 
+import "github.com/dipdup-net/go-lib/config"
+
 type Config struct {
-	Name         string `yaml:"name" validate:"omitempty"`
-	Timeout      uint64 `yaml:"timeout" validate:"omitempty"`
-	ThreadsCount uint32 `yaml:"threads_count" validate:"omitempty,min=1"`
-	Node         *Node  `yaml:"node" validate:"omitempty"`
+	config.Config `yaml:",inline"`
+	LogLevel      string  `validate:"omitempty,oneof=debug trace info warn error fatal panic" yaml:"log_level"`
+	Indexer       Indexer `yaml:"indexer"`
 }
 
-type Node struct {
-	Url string `yaml:"url" validate:"omitempty,url"`
-	Rps uint64 `yaml:"requests_per_second" validate:"omitempty,min=1"`
+type Indexer struct {
+	Name         string `validate:"omitempty"       yaml:"name"`
+	Timeout      uint64 `validate:"omitempty"       yaml:"timeout"`
+	ThreadsCount uint32 `validate:"omitempty,min=1" yaml:"threads_count"`
+}
+
+// Substitute -
+func (c *Config) Substitute() error {
+	if err := c.Config.Substitute(); err != nil {
+		return err
+	}
+	return nil
 }

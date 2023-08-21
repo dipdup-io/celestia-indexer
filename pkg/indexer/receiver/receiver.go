@@ -2,11 +2,11 @@ package receiver
 
 import (
 	"context"
-	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"sync"
 	"time"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/workerpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -28,7 +28,7 @@ func New(cfg config.Config) *Receiver {
 		processing:   make(map[storage.Level]struct{}),
 		processingMx: new(sync.Mutex),
 		log:          log.With().Str("module", "receiver").Logger(),
-		timeout:      time.Duration(cfg.Timeout) * time.Second,
+		timeout:      time.Duration(cfg.Indexer.Timeout) * time.Second,
 		wg:           new(sync.WaitGroup),
 	}
 
@@ -36,7 +36,7 @@ func New(cfg config.Config) *Receiver {
 		receiver.timeout = 10 * time.Second
 	}
 
-	receiver.pool = workerpool.NewPool(receiver.worker, int(cfg.ThreadsCount))
+	receiver.pool = workerpool.NewPool(receiver.worker, int(cfg.Indexer.ThreadsCount))
 
 	return receiver
 }

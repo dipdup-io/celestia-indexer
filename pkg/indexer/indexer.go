@@ -2,10 +2,10 @@ package indexer
 
 import (
 	"context"
-	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
-	"github.com/dipdup-io/celestia-indexer/pkg/indexer/receiver"
 	"sync"
 
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/receiver"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

@@ -6,9 +6,6 @@ indexer:
   name: ${INDEXER_NAME:-dipdup_celestia_indexer}
   timeout: ${INDEXER_REQUEST_TIMEOUT:-10}
   threads_count: ${INDEXER_THREADS_COUNT:-1}
-  node:
-    url: ${CELESTIA_NODE_URL}
-    requests_per_second: ${CELESTIA_NODE_RPS:-5}
 
 database:
   kind: postgres
@@ -17,3 +14,9 @@ database:
   user: ${POSTGRES_USER}
   password: ${POSTGRES_PASSWORD}
   database: ${POSTGRES_DB:-celestia}
+
+datasources:
+  node:
+    kind: celestia_node_rpc
+    url: ${CELESTIA_NODE_URL}
+    rps: ${CELESTIA_NODE_RPS:-5}
