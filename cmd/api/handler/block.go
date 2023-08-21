@@ -37,7 +37,7 @@ func (handler *BlockHandler) Get(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, block)
+	return c.JSON(http.StatusOK, NewBlock(block))
 }
 
 func (handler *BlockHandler) List(c echo.Context) error {
@@ -54,7 +54,13 @@ func (handler *BlockHandler) List(c echo.Context) error {
 	if err := handleError(c, err, handler.block); err != nil {
 		return err
 	}
-	return returnArray(c, blocks)
+
+	response := make([]Block, len(blocks))
+	for i := range blocks {
+		response[i] = NewBlock(*blocks[i])
+	}
+
+	return returnArray(c, response)
 }
 
 func (handler *BlockHandler) GetEvents(c echo.Context) error {
@@ -70,5 +76,11 @@ func (handler *BlockHandler) GetEvents(c echo.Context) error {
 	if err := handleError(c, err, handler.events); err != nil {
 		return err
 	}
-	return returnArray(c, events)
+
+	response := make([]Event, len(events))
+	for i := range events {
+		response[i] = NewEvent(events[i])
+	}
+
+	return returnArray(c, response)
 }

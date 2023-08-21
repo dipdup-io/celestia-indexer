@@ -8,7 +8,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-// IMessage -
+//go:generate mockgen -source=$GOFILE -destination=mock/$GOFILE -package=mock -typed
 type IMessage interface {
 	storage.Table[*Message]
 

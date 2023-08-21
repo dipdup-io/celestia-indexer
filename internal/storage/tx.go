@@ -9,7 +9,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-// ITx -
+//go:generate mockgen -source=$GOFILE -destination=mock/$GOFILE -package=mock -typed
 type ITx interface {
 	storage.Table[*Tx]
 

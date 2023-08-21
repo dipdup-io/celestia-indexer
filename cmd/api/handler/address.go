@@ -39,8 +39,12 @@ func (handler *AddressHandler) Get(c echo.Context) error {
 	if err := handleError(c, err, handler.address); err != nil {
 		return err
 	}
+	response, err := NewAddress(address)
+	if err := handleError(c, err, handler.address); err != nil {
+		return err
+	}
 
-	return c.JSON(http.StatusOK, address)
+	return c.JSON(http.StatusOK, response)
 }
 
 func (handler *AddressHandler) List(c echo.Context) error {
@@ -57,5 +61,14 @@ func (handler *AddressHandler) List(c echo.Context) error {
 	if err := handleError(c, err, handler.address); err != nil {
 		return err
 	}
-	return returnArray(c, address)
+
+	response := make([]Address, len(address))
+	for i := range address {
+		response[i], err = NewAddress(*address[i])
+		if err := handleError(c, err, handler.address); err != nil {
+			return err
+		}
+	}
+
+	return returnArray(c, response)
 }

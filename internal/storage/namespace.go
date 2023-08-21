@@ -7,7 +7,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-// IAddress -
+//go:generate mockgen -source=$GOFILE -destination=mock/$GOFILE -package=mock -typed
 type INamespace interface {
 	storage.Table[*Namespace]
 

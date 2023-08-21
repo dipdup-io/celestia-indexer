@@ -21,4 +21,7 @@ adr:
 	@echo "Generating ADR"
 	@cp adr/adr-template.md adr/adr-$(NUM)-$(TITLE).md
 
+mock:
+	go generate ./internal/storage
+
 .PHONY: indexer api build lint test adr

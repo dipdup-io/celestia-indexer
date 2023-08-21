@@ -8,7 +8,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-// IEvent -
+//go:generate mockgen -source=$GOFILE -destination=mock/$GOFILE -package=mock -typed
 type IEvent interface {
 	storage.Table[*Event]
 
