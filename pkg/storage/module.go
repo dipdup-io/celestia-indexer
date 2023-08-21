@@ -171,9 +171,14 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 	}
 
 	var (
-		messages []any
-		events   []any
+		messages = make([]any, 0)
+		events   = make([]any, len(block.Events))
 	)
+
+	for i := range block.Events {
+		events[i] = &block.Events[i]
+	}
+
 	for i := range block.Txs {
 		for j := range block.Txs[i].Messages {
 			block.Txs[i].Messages[j].TxId = &block.Txs[i].Id

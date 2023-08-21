@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"context"
+
 	"github.com/dipdup-net/indexer-sdk/pkg/storage"
 	"github.com/shopspring/decimal"
 	"github.com/uptrace/bun"
@@ -9,6 +11,8 @@ import (
 // IAddress -
 type IAddress interface {
 	storage.Table[*Address]
+
+	ByHash(ctx context.Context, hash []byte) (Address, error)
 }
 
 // Address -

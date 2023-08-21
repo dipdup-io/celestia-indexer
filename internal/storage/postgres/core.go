@@ -97,6 +97,14 @@ func createIndices(ctx context.Context, conn *database.Bun) error {
 			Exec(ctx); err != nil {
 			return err
 		}
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Tx)(nil)).
+			Index("tx_hash_idx").
+			Column("hash").
+			Exec(ctx); err != nil {
+			return err
+		}
 
 		// Event
 		if _, err := tx.NewCreateIndex().
@@ -105,6 +113,15 @@ func createIndices(ctx context.Context, conn *database.Bun) error {
 			Index("event_height_idx").
 			Column("height").
 			Using("BRIN").
+			Exec(ctx); err != nil {
+			return err
+		}
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Event)(nil)).
+			Index("event_tx_id_idx").
+			Column("tx_id").
+			Where("tx_id IS NOT NULL").
 			Exec(ctx); err != nil {
 			return err
 		}
@@ -119,6 +136,15 @@ func createIndices(ctx context.Context, conn *database.Bun) error {
 			Exec(ctx); err != nil {
 			return err
 		}
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Message)(nil)).
+			Index("message_tx_id_idx").
+			Column("tx_id").
+			Where("tx_id IS NOT NULL").
+			Exec(ctx); err != nil {
+			return err
+		}
 
 		// Namespace
 		if _, err := tx.NewCreateIndex().
@@ -126,6 +152,14 @@ func createIndices(ctx context.Context, conn *database.Bun) error {
 			Model((*storage.Namespace)(nil)).
 			Index("namespace_idx").
 			Column("namespace_id").
+			Exec(ctx); err != nil {
+			return err
+		}
+		if _, err := tx.NewCreateIndex().
+			IfNotExists().
+			Model((*storage.Namespace)(nil)).
+			Index("namespace_version_idx").
+			Column("version").
 			Exec(ctx); err != nil {
 			return err
 		}

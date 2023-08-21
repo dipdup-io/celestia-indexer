@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"time"
 
 	"github.com/dipdup-net/indexer-sdk/pkg/storage"
@@ -10,6 +11,8 @@ import (
 // IMessage -
 type IMessage interface {
 	storage.Table[*Message]
+
+	ByTxId(ctx context.Context, txId uint64) ([]Message, error)
 }
 
 // Message -

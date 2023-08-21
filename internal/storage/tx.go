@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"time"
 
 	"github.com/dipdup-net/indexer-sdk/pkg/storage"
@@ -11,6 +12,8 @@ import (
 // ITx -
 type ITx interface {
 	storage.Table[*Tx]
+
+	ByHash(ctx context.Context, hash []byte) (Tx, error)
 }
 
 // Tx -

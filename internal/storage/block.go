@@ -13,6 +13,7 @@ type IBlock interface {
 	storage.Table[*Block]
 
 	Last(ctx context.Context) (Block, error)
+	ByHeight(ctx context.Context, height uint64) (Block, error)
 }
 
 // Block -
@@ -39,7 +40,8 @@ type Block struct {
 	EvidenceHash       []byte `bun:"evidence_hash"        comment:"Evidence hash"`
 	ProposerAddress    []byte `bun:"proposer_address"     comment:"Proposer address"`
 
-	Txs []Tx `bun:"rel:has-many"`
+	Txs    []Tx    `bun:"rel:has-many"`
+	Events []Event `bun:"rel:has-many"`
 }
 
 // TableName -
