@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler"
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/websocket"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
 	"github.com/dipdup-net/go-lib/config"
 	"github.com/labstack/echo-contrib/echoprometheus"
@@ -128,7 +129,7 @@ func initDatabase(cfg config.Database) postgres.Storage {
 	return db
 }
 
-func initHandlers(e *echo.Echo, cfg ApiConfig, db postgres.Storage) {
+func initHandlers(ctx context.Context, e *echo.Echo, cfg ApiConfig, db postgres.Storage) {
 	v1 := e.Group("v1")
 
 	stateHandlers := handler.NewStateHandler(db.State)
@@ -173,6 +174,10 @@ func initHandlers(e *echo.Echo, cfg ApiConfig, db postgres.Storage) {
 	if cfg.Prometheus {
 		v1.GET("/metrics", echoprometheus.NewHandler())
 	}
+
+	wsManager := websocket.NewManager()
+	v1.GET("/ws", wsManager.Handle)
+	go handler.ListenNotifications(ctx, wsManager, db.Notificator)
 
 	log.Info().Msg("API routes:")
 	for _, route := range e.Routes() {

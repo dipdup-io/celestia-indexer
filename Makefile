@@ -14,7 +14,7 @@ lint:
 	golangci-lint run
 
 test:
-	go test ./...
+	go test -p 8 ./...
 
 ## adr: Generate ADR from template. Must set NUM and TITLE parameters.
 adr:

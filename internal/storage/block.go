@@ -18,7 +18,7 @@ type IBlock interface {
 
 // Block -
 type Block struct {
-	bun.BaseModel `bun:"table:block" comment:"Table with celestia blocks."`
+	bun.BaseModel `bun:"table:block" comment:"Table with celestia blocks." json:"-"`
 
 	Id           uint64    `bun:",pk,notnull,autoincrement" comment:"Unique internal identity"`
 	Height       uint64    `bun:"height"                    comment:"The number (height) of this block"`
@@ -40,8 +40,8 @@ type Block struct {
 	EvidenceHash       []byte `bun:"evidence_hash"        comment:"Evidence hash"`
 	ProposerAddress    []byte `bun:"proposer_address"     comment:"Proposer address"`
 
-	Txs    []Tx    `bun:"rel:has-many"`
-	Events []Event `bun:"rel:has-many"`
+	Txs    []Tx    `bun:"rel:has-many" json:"-"`
+	Events []Event `bun:"rel:has-many" json:"-"`
 }
 
 // TableName -

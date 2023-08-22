@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -27,9 +26,11 @@ func main() {
 		return
 	}
 
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
 	db := initDatabase(cfg.Database)
 	e := initEcho(cfg.ApiConfig)
-	initHandlers(e, cfg.ApiConfig, db)
+	initHandlers(ctx, e, cfg.ApiConfig, db)
 
 	go func() {
 		if err := e.Start(cfg.ApiConfig.Bind); err != nil && errors.Is(err, http.ErrServerClosed) {
@@ -37,12 +38,9 @@ func main() {
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-	<-quit
+	<-ctx.Done()
+	cancel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}

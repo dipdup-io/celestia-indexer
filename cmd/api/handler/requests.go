@@ -1,6 +1,8 @@
 package handler
 
-import "github.com/dipdup-net/indexer-sdk/pkg/storage"
+import (
+	"github.com/dipdup-net/indexer-sdk/pkg/storage"
+)
 
 const (
 	asc  = "asc"
