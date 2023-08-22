@@ -181,7 +181,7 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 
 	for i := range block.Txs {
 		for j := range block.Txs[i].Messages {
-			block.Txs[i].Messages[j].TxId = &block.Txs[i].Id
+			block.Txs[i].Messages[j].TxId = block.Txs[i].Id
 			messages = append(messages, &block.Txs[i].Messages[j])
 		}
 

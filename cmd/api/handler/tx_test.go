@@ -223,7 +223,7 @@ func (s *TxTestSuite) TestGetMessage() {
 				Time:     testTime,
 				Position: 2,
 				Type:     storage.MsgTypeBeginRedelegate,
-				TxId:     testsuite.Ptr(uint64(1)),
+				TxId:     1,
 				Data: map[string]any{
 					"test": "value",
 				},

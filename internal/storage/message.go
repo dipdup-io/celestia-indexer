@@ -24,7 +24,7 @@ type Message struct {
 	Time     time.Time      `bun:"time,pk,notnull"           comment:"The time of block"`
 	Position uint64         `bun:"position"                  comment:"Position in transaction"`
 	Type     MsgType        `bun:",type:msg_type"            comment:"Message type"`
-	TxId     *uint64        `bun:"tx_id"                     comment:"Parent transaction id"`
+	TxId     uint64         `bun:"tx_id"                     comment:"Parent transaction id"`
 	Data     map[string]any `bun:"data,type:jsonb"           comment:"Message data"`
 }
 

@@ -37,13 +37,14 @@ func Create(ctx context.Context, cfg config.Database) (Storage, error) {
 	}
 
 	s := Storage{
-		Storage: strg,
-		Blocks:  NewBlocks(strg.Connection()),
-		Message: NewMessage(strg.Connection()),
-		Event:   NewEvent(strg.Connection()),
-		Address: NewAddress(strg.Connection()),
-		Tx:      NewTx(strg.Connection()),
-		State:   NewState(strg.Connection()),
+		Storage:   strg,
+		Blocks:    NewBlocks(strg.Connection()),
+		Message:   NewMessage(strg.Connection()),
+		Event:     NewEvent(strg.Connection()),
+		Address:   NewAddress(strg.Connection()),
+		Tx:        NewTx(strg.Connection()),
+		State:     NewState(strg.Connection()),
+		Namespace: NewNamespace(strg.Connection()),
 
 		PartitionManager: database.NewPartitionManager(strg.Connection(), database.PartitionByMonth),
 	}

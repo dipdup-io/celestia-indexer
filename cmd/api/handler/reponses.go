@@ -118,18 +118,15 @@ type Message struct {
 }
 
 func NewMessage(msg storage.Message) Message {
-	result := Message{
+	return Message{
 		Id:       msg.Id,
 		Height:   msg.Height,
 		Time:     msg.Time,
 		Position: msg.Position,
 		Type:     string(msg.Type),
+		TxId:     msg.TxId,
 		Data:     msg.Data,
 	}
-	if msg.TxId != nil {
-		result.TxId = *msg.TxId
-	}
-	return result
 }
 
 type State struct {
