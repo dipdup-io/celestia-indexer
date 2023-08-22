@@ -11,6 +11,7 @@ import (
 	"github.com/dipdup-net/go-lib/config"
 	"github.com/dipdup-net/go-lib/database"
 	"github.com/go-testfixtures/testfixtures/v3"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -248,6 +249,36 @@ func (s *StorageTestSuite) TestTxByHash() {
 	s.Require().Equal("memo", tx.Memo)
 	s.Require().Equal("sdk", tx.Codespace)
 	s.Require().Equal("80410", tx.Fee.String())
+}
+
+func (s *StorageTestSuite) TestNotify() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := s.storage.Notificator.Subscribe(ctx, "test")
+	s.Require().NoError(err)
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	var ticks int
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case msg := <-s.storage.Notificator.Listen():
+			log.Info().Str("msg", msg.Extra).Str("channel", msg.Channel).Msg("new message")
+			s.Require().Equal("test", msg.Channel)
+			s.Require().Equal("message", msg.Extra)
+			if ticks == 2 {
+				return
+			}
+		case <-ticker.C:
+			ticks++
+			err = s.storage.Notificator.Notify(ctx, "test", "message")
+			s.Require().NoError(err)
+		}
+	}
 }
 
 func TestSuiteStorage_Run(t *testing.T) {

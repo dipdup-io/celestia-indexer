@@ -42,7 +42,7 @@ func Create(ctx context.Context, cfg config.Database) (Storage, error) {
 		Tx:          NewTx(strg.Connection()),
 		State:       NewState(strg.Connection()),
 		Namespace:   NewNamespace(strg.Connection()),
-		Notificator: NewNotificator(strg.Connection().DB()),
+		Notificator: NewNotificator(cfg, strg.Connection().DB()),
 
 		PartitionManager: database.NewPartitionManager(strg.Connection(), database.PartitionByMonth),
 	}

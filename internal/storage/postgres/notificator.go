@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/dipdup-net/go-lib/config"
 	"github.com/lib/pq"
 	"github.com/uptrace/bun"
 )
@@ -11,7 +13,7 @@ import (
 const (
 	connectionName       = "celestia_notifications"
 	minReconnectInterval = 10 * time.Second
-	maxReconnectInterval = 20 * time.Second
+	maxReconnectInterval = time.Minute
 )
 
 type Notificator struct {
@@ -19,10 +21,18 @@ type Notificator struct {
 	l  *pq.Listener
 }
 
-func NewNotificator(db *bun.DB) *Notificator {
+func NewNotificator(cfg config.Database, db *bun.DB) *Notificator {
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		cfg.User,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database,
+	)
 	return &Notificator{
 		l: pq.NewListener(
-			connectionName,
+			connStr,
 			minReconnectInterval,
 			maxReconnectInterval,
 			nil,
