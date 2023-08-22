@@ -27,5 +27,5 @@ func (sh *StateHandler) Head(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	return c.JSON(http.StatusOK, state[0])
+	return c.JSON(http.StatusOK, NewState(*state[0]))
 }

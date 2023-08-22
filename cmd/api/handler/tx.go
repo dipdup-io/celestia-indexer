@@ -23,7 +23,7 @@ func NewTxHandler(tx storage.ITx, events storage.IEvent, messages storage.IMessa
 }
 
 type getTxRequest struct {
-	Hash string `param:"hash" validate:"required,len=hexadecimal,len=64"`
+	Hash string `param:"hash" validate:"required,hexadecimal,len=64"`
 }
 
 func (handler *TxHandler) Get(c echo.Context) error {
@@ -45,7 +45,7 @@ func (handler *TxHandler) Get(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, tx)
+	return c.JSON(http.StatusOK, NewTx(tx))
 }
 
 func (handler *TxHandler) List(c echo.Context) error {
@@ -62,7 +62,11 @@ func (handler *TxHandler) List(c echo.Context) error {
 	if err := handleError(c, err, handler.tx); err != nil {
 		return err
 	}
-	return returnArray(c, txs)
+	response := make([]Tx, len(txs))
+	for i := range txs {
+		response[i] = NewTx(*txs[i])
+	}
+	return returnArray(c, response)
 }
 
 func (handler *TxHandler) GetEvents(c echo.Context) error {
@@ -88,7 +92,11 @@ func (handler *TxHandler) GetEvents(c echo.Context) error {
 	if err := handleError(c, err, handler.tx); err != nil {
 		return err
 	}
-	return returnArray(c, events)
+	response := make([]Event, len(events))
+	for i := range events {
+		response[i] = NewEvent(events[i])
+	}
+	return returnArray(c, response)
 }
 
 func (handler *TxHandler) GetMessages(c echo.Context) error {
@@ -114,5 +122,9 @@ func (handler *TxHandler) GetMessages(c echo.Context) error {
 	if err := handleError(c, err, handler.tx); err != nil {
 		return err
 	}
-	return returnArray(c, messages)
+	response := make([]Message, len(messages))
+	for i := range messages {
+		response[i] = NewMessage(messages[i])
+	}
+	return returnArray(c, response)
 }

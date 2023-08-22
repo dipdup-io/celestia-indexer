@@ -40,11 +40,3 @@ func handleError(c echo.Context, err error, noRows NoRows) error {
 	}
 	return internalServerError(c, err)
 }
-
-func returnArray[T any](c echo.Context, arr []T) error {
-	if arr == nil {
-		return c.JSON(http.StatusOK, []any{})
-	}
-
-	return c.JSON(http.StatusOK, arr)
-}

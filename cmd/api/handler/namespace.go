@@ -21,7 +21,7 @@ func NewNamespaceHandler(namespace storage.INamespace) *NamespaceHandler {
 }
 
 type getNamespaceRequest struct {
-	Id string `param:"id" validate:"required,hexademical,len=56"`
+	Id string `param:"id" validate:"required,hexadecimal,len=56"`
 }
 
 func (handler *NamespaceHandler) Get(c echo.Context) error {
@@ -42,7 +42,13 @@ func (handler *NamespaceHandler) Get(c echo.Context) error {
 	if err := handleError(c, err, handler.namespace); err != nil {
 		return err
 	}
-	return returnArray(c, namespace)
+
+	response := make([]Namespace, len(namespace))
+	for i := range namespace {
+		response[i] = NewNamespace(namespace[i])
+	}
+
+	return returnArray(c, response)
 }
 
 type getNamespaceByHashRequest struct {
@@ -72,12 +78,12 @@ func (handler *NamespaceHandler) GetByHash(c echo.Context) error {
 	if err := handleError(c, err, handler.namespace); err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, namespace)
+	return c.JSON(http.StatusOK, NewNamespace(namespace))
 }
 
 type getNamespaceWithVersionRequest struct {
-	Id      string `param:"id"      validate:"required,hexademical"`
-	Version byte   `param:"version" validate:"required,hexademical"`
+	Id      string `param:"id"      validate:"required,hexadecimal,len=56"`
+	Version byte   `param:"version" validate:"required"`
 }
 
 func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
@@ -99,7 +105,7 @@ func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, namespace)
+	return c.JSON(http.StatusOK, NewNamespace(namespace))
 }
 
 func (handler *NamespaceHandler) List(c echo.Context) error {
@@ -116,5 +122,9 @@ func (handler *NamespaceHandler) List(c echo.Context) error {
 	if err := handleError(c, err, handler.namespace); err != nil {
 		return err
 	}
-	return returnArray(c, namespace)
+	response := make([]Namespace, len(namespace))
+	for i := range namespace {
+		response[i] = NewNamespace(*namespace[i])
+	}
+	return returnArray(c, response)
 }
