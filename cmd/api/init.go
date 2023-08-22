@@ -75,8 +75,6 @@ func initLogger(level string) error {
 func initEcho(cfg ApiConfig) *echo.Echo {
 	e := echo.New()
 	e.Validator = handler.NewCelestiaApiValidator()
-	e.Use(middleware.Gzip())
-	e.Use(middleware.Decompress())
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogURI:       true,
 		LogStatus:    true,
@@ -112,8 +110,7 @@ func initEcho(cfg ApiConfig) *echo.Echo {
 	}))
 
 	if cfg.Prometheus {
-		e.Use(echoprometheus.NewMiddleware("celestia-api"))
-		e.GET("/metrics", echoprometheus.NewHandler())
+		e.Use(echoprometheus.NewMiddleware("celestia_api"))
 	}
 	if cfg.RateLimit > 0 {
 		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(cfg.RateLimit))))
@@ -131,7 +128,7 @@ func initDatabase(cfg config.Database) postgres.Storage {
 	return db
 }
 
-func initHandlers(e *echo.Echo, db postgres.Storage) {
+func initHandlers(e *echo.Echo, cfg ApiConfig, db postgres.Storage) {
 	v1 := e.Group("v1")
 
 	stateHandlers := handler.NewStateHandler(db.State)
@@ -171,6 +168,10 @@ func initHandlers(e *echo.Echo, db postgres.Storage) {
 	namespaceByHashGroup := v1.Group("/namespace_by_hash")
 	{
 		namespaceByHashGroup.GET("/:hash", namespaceHandlers.GetByHash)
+	}
+
+	if cfg.Prometheus {
+		v1.GET("/metrics", echoprometheus.NewHandler())
 	}
 
 	log.Info().Msg("API routes:")
