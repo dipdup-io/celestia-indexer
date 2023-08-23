@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
+const (
 	// pongWait is how long we will await a pong response from client
 	pongWait = 10 * time.Second
 	// pingInterval has to be less than pongWait, We cant multiply by 0.9 to get 90% of time
