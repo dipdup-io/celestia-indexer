@@ -23,8 +23,10 @@ func (hf TxFilter) Filter(c *Client, msg responses.Tx) bool {
 	if fltr == nil {
 		return false
 	}
-	if _, ok := fltr.status[msg.Status]; !ok {
-		return false
+	if len(fltr.status) > 0 {
+		if _, ok := fltr.status[msg.Status]; !ok {
+			return false
+		}
 	}
 	return true
 }
