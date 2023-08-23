@@ -24,6 +24,17 @@ type getNamespaceRequest struct {
 	Id string `param:"id" validate:"required,hexadecimal,len=56"`
 }
 
+// Get godoc
+// @Summary Get namespace info
+// @Description Returns array of namespace versions
+// @Tags namespace
+// @ID get-namespace
+// @Param id path string true "Namespace id in hexadecimal" minlength(56) maxlength(56)
+// @Produce  json
+// @Success 200 {array} Namespace
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /v1/namespace/{id} [get]
 func (handler *NamespaceHandler) Get(c echo.Context) error {
 	req := new(getNamespaceRequest)
 	if err := c.Bind(req); err != nil {
@@ -55,6 +66,18 @@ type getNamespaceByHashRequest struct {
 	Hash string `param:"hash" validate:"required,base64"`
 }
 
+// GetByHash godoc
+// @Summary Get namespace info by base64
+// @Description Returns namespace by base64 encoded identity
+// @Tags namespace
+// @ID get-namespace-base64
+// @Param hash path string true "Base64-encoded namespace id and version"
+// @Produce  json
+// @Success 200 {object} Namespace
+// @Success 204
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /v1/namespace_by_hash/{hash} [get]
 func (handler *NamespaceHandler) GetByHash(c echo.Context) error {
 	req := new(getNamespaceByHashRequest)
 	if err := c.Bind(req); err != nil {
@@ -86,6 +109,19 @@ type getNamespaceWithVersionRequest struct {
 	Version byte   `param:"version" validate:"required"`
 }
 
+// GetWithVersion godoc
+// @Summary Get namespace info by id and version
+// @Description Returns namespace by version byte and namespace id
+// @Tags namespace
+// @ID get-namespace-by-version-and-id
+// @Param id      path string  true "Namespace id in hexadecimal" minlength(56) maxlength(56)
+// @Param version path integer true "Version of namespace"
+// @Produce  json
+// @Success 200 {object} Namespace
+// @Success 204
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /v1/namespace/{id}/{version} [get]
 func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
 	req := new(getNamespaceWithVersionRequest)
 	if err := c.Bind(req); err != nil {
@@ -108,6 +144,19 @@ func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
 	return c.JSON(http.StatusOK, NewNamespace(namespace))
 }
 
+// List godoc
+// @Summary List namespace info
+// @Description List namespace info
+// @Tags namespace
+// @ID list-namespace
+// @Param limit  query integer false "Count of requested entities" mininum(1) maximum(100)
+// @Param offset query integer false "Offset" mininum(1)
+// @Param sort   query string  false "Sort order" Enums(asc, desc)
+// @Produce json
+// @Success 200 {array} Block
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /v1/namespace [get]
 func (handler *NamespaceHandler) List(c echo.Context) error {
 	req := new(limitOffsetPagination)
 	if err := c.Bind(req); err != nil {

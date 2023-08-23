@@ -26,7 +26,8 @@ type Block struct {
 	VersionBlock string    `bun:"version_block"             comment:"Block version"`
 	VersionApp   string    `bun:"version_app"               comment:"App version"`
 
-	TxCount uint64 `bun:"tx_count" comment:"Count of transactions in block"`
+	TxCount     uint64 `bun:"tx_count"     comment:"Count of transactions in block"`
+	EventsCount uint64 `bun:"events_count" comment:"Count of events in begin and end of block"`
 
 	Hash               []byte `bun:"hash"                 comment:"Block hash"`
 	ParentHash         []byte `bun:"parent_hash"          comment:"Hash of parent block"`

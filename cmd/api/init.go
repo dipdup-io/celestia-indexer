@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
+	_ "github.com/dipdup-io/celestia-indexer/cmd/api/docs"
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler"
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/websocket"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
@@ -15,6 +18,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"golang.org/x/time/rate"
 )
 
@@ -83,18 +87,51 @@ func initEcho(cfg ApiConfig) *echo.Echo {
 		LogMethod:    true,
 		LogUserAgent: true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			log.Info().
-				Str("uri", v.URI).
-				Int("status", v.Status).
-				Dur("latency", v.Latency).
-				Str("method", v.Method).
-				Str("user-agent", v.UserAgent).
-				Str("ip", c.RealIP()).
-				Msg("request")
+			switch {
+			case v.Status == http.StatusOK || v.Status == http.StatusNoContent:
+				log.Info().
+					Str("uri", v.URI).
+					Int("status", v.Status).
+					Dur("latency", v.Latency).
+					Str("method", v.Method).
+					Str("user-agent", v.UserAgent).
+					Str("ip", c.RealIP()).
+					Msg("request")
+			case v.Status >= 500:
+				log.Error().
+					Str("uri", v.URI).
+					Int("status", v.Status).
+					Dur("latency", v.Latency).
+					Str("method", v.Method).
+					Str("user-agent", v.UserAgent).
+					Str("ip", c.RealIP()).
+					Msg("request")
+			default:
+				log.Warn().
+					Str("uri", v.URI).
+					Int("status", v.Status).
+					Dur("latency", v.Latency).
+					Str("method", v.Method).
+					Str("user-agent", v.UserAgent).
+					Str("ip", c.RealIP()).
+					Msg("request")
+			}
 
 			return nil
 		},
 	}))
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Skipper: func(c echo.Context) bool {
+			if strings.Contains(c.Request().URL.Path, "swagger") {
+				return true
+			}
+			if strings.Contains(c.Request().URL.Path, "metrics") {
+				return true
+			}
+			return false
+		},
+	}))
+	e.Use(middleware.Decompress())
 	e.Use(middleware.BodyLimit("2M"))
 	e.Use(middleware.CSRF())
 	e.Use(middleware.Recover())
@@ -166,14 +203,14 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg ApiConfig, db postgres.
 		namespaceGroup.GET("/:id", namespaceHandlers.Get)
 		namespaceGroup.GET("/:id/:version", namespaceHandlers.GetWithVersion)
 	}
-	namespaceByHashGroup := v1.Group("/namespace_by_hash")
-	{
-		namespaceByHashGroup.GET("/:hash", namespaceHandlers.GetByHash)
-	}
+
+	v1.GET("/namespace_by_hash/:hash", namespaceHandlers.GetByHash)
 
 	if cfg.Prometheus {
 		v1.GET("/metrics", echoprometheus.NewHandler())
 	}
+
+	v1.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	wsManager := websocket.NewManager()
 	v1.GET("/ws", wsManager.Handle)

@@ -80,7 +80,7 @@ func (s *BlockTestSuite) TestGet() {
 	s.Require().EqualValues(100, block.Height)
 	s.Require().Equal("1", block.VersionApp)
 	s.Require().Equal("11", block.VersionBlock)
-	s.Require().Equal(testBlock.Hash, block.Hash)
+	s.Require().Equal("0001020304050607", block.Hash)
 	s.Require().Equal(testTime, block.Time)
 }
 
@@ -124,7 +124,7 @@ func (s *BlockTestSuite) TestList() {
 	s.Require().EqualValues(100, blocks[0].Height)
 	s.Require().Equal("1", blocks[0].VersionApp)
 	s.Require().Equal("11", blocks[0].VersionBlock)
-	s.Require().Equal(testBlock.Hash, blocks[0].Hash)
+	s.Require().Equal("0001020304050607", blocks[0].Hash)
 	s.Require().Equal(testTime, blocks[0].Time)
 }
 
