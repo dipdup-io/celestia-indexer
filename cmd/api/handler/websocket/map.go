@@ -37,8 +37,8 @@ func (m Map[K, V]) Range(handler func(key K, value V) (error, bool)) error {
 	if handler == nil {
 		return nil
 	}
-	m.mx.RLock()
-	defer m.mx.RUnlock()
+	m.mx.Lock()
+	defer m.mx.Unlock()
 
 	for k, v := range m.m {
 		err, br := handler(k, v)

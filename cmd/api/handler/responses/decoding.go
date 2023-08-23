@@ -1,4 +1,4 @@
-package handler
+package responses
 
 import "github.com/btcsuite/btcutil/bech32"
 

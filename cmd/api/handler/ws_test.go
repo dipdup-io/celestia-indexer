@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	ws "github.com/dipdup-io/celestia-indexer/cmd/api/handler/websocket"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
@@ -24,13 +25,25 @@ import (
 func TestWebsocket(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	listener := mock.NewMockListener(ctrl)
+	listenerFactory := mock.NewMockListenerFactory(ctrl)
+	headListener := mock.NewMockListener(ctrl)
+	txListener := mock.NewMockListener(ctrl)
+
+	listenerFactory.EXPECT().CreateListener().Return(headListener).MaxTimes(1)
+	listenerFactory.EXPECT().CreateListener().Return(txListener).MaxTimes(1)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	msgChannel := make(chan *pq.Notification, 10)
-	listener.EXPECT().Listen().Return(msgChannel).AnyTimes()
-	listener.EXPECT().Subscribe(gomock.Any(), storage.ChannelHead).Return(nil)
+	headChannel := make(chan *pq.Notification, 10)
+	headListener.EXPECT().Listen().Return(headChannel).AnyTimes()
+	txChannel := make(chan *pq.Notification, 10)
+	txListener.EXPECT().Listen().Return(txChannel).AnyTimes()
+
+	headListener.EXPECT().Subscribe(gomock.Any(), storage.ChannelHead).Return(nil).MaxTimes(1)
+	txListener.EXPECT().Subscribe(gomock.Any(), storage.ChannelTx).Return(nil).MaxTimes(1)
+
+	headListener.EXPECT().Close().Return(nil).MaxTimes(1)
+	txListener.EXPECT().Close().Return(nil).MaxTimes(1)
 
 	go func() {
 		ticker := time.NewTicker(time.Second)
@@ -57,21 +70,20 @@ func TestWebsocket(t *testing.T) {
 				})
 				require.NoError(t, err)
 
-				msgChannel <- &pq.Notification{
+				headChannel <- &pq.Notification{
 					Channel: storage.ChannelHead,
 					Extra:   string(payload),
 				}
 			}
 		}
 	}()
+	manager := ws.NewManager(listenerFactory)
+	manager.Start(ctx)
 
 	server := httptest.NewServer(http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			e := echo.New()
 			c := e.NewContext(r, w)
-			manager := ws.NewManager()
-			go ListenNotifications(ctx, manager, listener)
-
 			err := manager.Handle(c)
 			require.NoError(t, err, "handle")
 			<-ctx.Done()
@@ -111,8 +123,17 @@ func TestWebsocket(t *testing.T) {
 			})
 			require.NoError(t, err, "send unsubscribe message")
 
+			err = dialed.Close()
+			require.NoError(t, err, "closing connection")
+
+			time.Sleep(time.Second)
 			cancel()
-			close(msgChannel)
+
+			err = manager.Close()
+			require.NoError(t, err, "closing manager")
+
+			close(headChannel)
+			close(txChannel)
 			return
 		default:
 			err := dialed.SetReadDeadline(time.Now().Add(time.Second * 3))
@@ -121,14 +142,14 @@ func TestWebsocket(t *testing.T) {
 			_, msg, err := dialed.ReadMessage()
 			require.NoError(t, err, err)
 
-			var block storage.Block
+			var block responses.Block
 			err = json.Unmarshal(msg, &block)
 			require.NoError(t, err, err)
 
 			require.Greater(t, block.Id, uint64(0))
 			require.Greater(t, block.Height, uint64(0))
 			require.False(t, block.Time.IsZero())
-			require.Len(t, block.Hash, 32)
+			require.Len(t, block.Hash, 64)
 
 			log.Info().
 				Uint64("height", block.Height).

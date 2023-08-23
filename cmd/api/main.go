@@ -49,6 +49,10 @@ func main() {
 	<-ctx.Done()
 	cancel()
 
+	if err := wsManager.Close(); err != nil {
+		e.Logger.Fatal(err)
+	}
+
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}

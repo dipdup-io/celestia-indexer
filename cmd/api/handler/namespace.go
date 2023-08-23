@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"net/http"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -54,9 +55,9 @@ func (handler *NamespaceHandler) Get(c echo.Context) error {
 		return err
 	}
 
-	response := make([]Namespace, len(namespace))
+	response := make([]responses.Namespace, len(namespace))
 	for i := range namespace {
-		response[i] = NewNamespace(namespace[i])
+		response[i] = responses.NewNamespace(namespace[i])
 	}
 
 	return returnArray(c, response)
@@ -101,7 +102,7 @@ func (handler *NamespaceHandler) GetByHash(c echo.Context) error {
 	if err := handleError(c, err, handler.namespace); err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, NewNamespace(namespace))
+	return c.JSON(http.StatusOK, responses.NewNamespace(namespace))
 }
 
 type getNamespaceWithVersionRequest struct {
@@ -141,7 +142,7 @@ func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, NewNamespace(namespace))
+	return c.JSON(http.StatusOK, responses.NewNamespace(namespace))
 }
 
 // List godoc
@@ -171,9 +172,9 @@ func (handler *NamespaceHandler) List(c echo.Context) error {
 	if err := handleError(c, err, handler.namespace); err != nil {
 		return err
 	}
-	response := make([]Namespace, len(namespace))
+	response := make([]responses.Namespace, len(namespace))
 	for i := range namespace {
-		response[i] = NewNamespace(*namespace[i])
+		response[i] = responses.NewNamespace(*namespace[i])
 	}
 	return returnArray(c, response)
 }

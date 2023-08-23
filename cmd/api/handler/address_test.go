@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
 	"github.com/labstack/echo/v4"
@@ -55,7 +56,7 @@ func (s *AddressTestSuite) TestGet() {
 	c.SetParamNames("hash")
 	c.SetParamValues(testAddress)
 
-	hash, err := DecodeAddress(testAddress)
+	hash, err := responses.DecodeAddress(testAddress)
 	s.Require().NoError(err)
 
 	s.address.EXPECT().
@@ -70,7 +71,7 @@ func (s *AddressTestSuite) TestGet() {
 	s.Require().NoError(s.handler.Get(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var address Address
+	var address responses.Address
 	err = json.NewDecoder(rec.Body).Decode(&address)
 	s.Require().NoError(err)
 	s.Require().EqualValues(1, address.Id)
@@ -102,7 +103,7 @@ func (s *AddressTestSuite) TestList() {
 	c := s.echo.NewContext(req, rec)
 	c.SetPath("/address")
 
-	hash, err := DecodeAddress(testAddress)
+	hash, err := responses.DecodeAddress(testAddress)
 	s.Require().NoError(err)
 
 	s.address.EXPECT().
@@ -119,7 +120,7 @@ func (s *AddressTestSuite) TestList() {
 	s.Require().NoError(s.handler.List(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var address []Address
+	var address []responses.Address
 	err = json.NewDecoder(rec.Body).Decode(&address)
 	s.Require().NoError(err)
 	s.Require().Len(address, 1)

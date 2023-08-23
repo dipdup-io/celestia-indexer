@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
 	testsuite "github.com/dipdup-io/celestia-indexer/internal/test_suite"
@@ -86,7 +87,7 @@ func (s *TxTestSuite) TestGet() {
 	s.Require().NoError(s.handler.Get(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var tx Tx
+	var tx responses.Tx
 	err := json.NewDecoder(rec.Body).Decode(&tx)
 	s.Require().NoError(err)
 	s.Require().EqualValues(1, tx.Id)
@@ -137,7 +138,7 @@ func (s *TxTestSuite) TestList() {
 	s.Require().NoError(s.handler.List(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var txs []Tx
+	var txs []responses.Tx
 	err := json.NewDecoder(rec.Body).Decode(&txs)
 	s.Require().NoError(err)
 	s.Require().Len(txs, 1)
@@ -190,7 +191,7 @@ func (s *TxTestSuite) TestGetEvents() {
 	s.Require().NoError(s.handler.GetEvents(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var events []Event
+	var events []responses.Event
 	err := json.NewDecoder(rec.Body).Decode(&events)
 	s.Require().NoError(err)
 	s.Require().Len(events, 1)
@@ -233,7 +234,7 @@ func (s *TxTestSuite) TestGetMessage() {
 	s.Require().NoError(s.handler.GetMessages(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var msgs []Message
+	var msgs []responses.Message
 	err := json.NewDecoder(rec.Body).Decode(&msgs)
 	s.Require().NoError(err)
 	s.Require().Len(msgs, 1)

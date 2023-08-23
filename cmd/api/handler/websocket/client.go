@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
@@ -22,69 +21,72 @@ var (
 	pingInterval = (pongWait * 9) / 10
 )
 
-type client struct {
+type Client struct {
 	id      uint64
 	ws      *websocket.Conn
 	manager *Manager
 	filters *filters
 	ch      chan any
-	close   chan struct{}
 	wg      *sync.WaitGroup
 }
 
-type filters struct {
-	head bool
-}
-
-func newClient(id uint64, ws *websocket.Conn, manager *Manager) *client {
-	return &client{
+func newClient(id uint64, ws *websocket.Conn, manager *Manager) *Client {
+	return &Client{
 		id:      id,
 		ws:      ws,
 		manager: manager,
-		filters: new(filters),
+		filters: newFilters(),
 		ch:      make(chan any, 1024),
-		close:   make(chan struct{}),
 		wg:      new(sync.WaitGroup),
 	}
 }
 
-func (c *client) Add(msg Subscribe) error {
+func (c *Client) ApplyFilters(msg Subscribe) error {
 	switch msg.Channel {
 	case ChannelHead:
 		c.filters.head = true
+	case ChannelTx:
+		var fltr TransactionFilters
+		if err := json.Unmarshal(msg.Filters, &fltr); err != nil {
+			return err
+		}
+		if err := c.filters.tx.Fill(fltr); err != nil {
+			return err
+		}
 	default:
 		return errors.Wrap(ErrUnknownChannel, msg.Channel)
 	}
 	return nil
 }
 
-func (c *client) Remove(msg Unsubscribe) error {
+func (c *Client) DetachFilters(msg Unsubscribe) error {
 	switch msg.Channel {
 	case ChannelHead:
 		c.filters.head = false
+	case ChannelTx:
+		c.filters.tx = nil
 	default:
 		return errors.Wrap(ErrUnknownChannel, msg.Channel)
 	}
 	return nil
 }
 
-func (c *client) Notify(msg any) {
+func (c *Client) Notify(msg any) {
 	c.ch <- msg
 }
 
-func (c *client) Close() error {
+func (c *Client) Close() error {
 	c.wg.Wait()
 
 	if err := c.ws.Close(); err != nil {
 		return err
 	}
 
-	close(c.close)
 	close(c.ch)
 	return nil
 }
 
-func (c *client) WriteMessages(ctx context.Context, log echo.Logger) {
+func (c *Client) WriteMessages(ctx context.Context, log echo.Logger) {
 	c.wg.Add(1)
 	defer c.wg.Done()
 
@@ -94,9 +96,6 @@ func (c *client) WriteMessages(ctx context.Context, log echo.Logger) {
 	for {
 		select {
 		case <-ctx.Done():
-			return
-
-		case <-c.close:
 			return
 
 		case <-ticker.C:
@@ -113,27 +112,18 @@ func (c *client) WriteMessages(ctx context.Context, log echo.Logger) {
 				return
 			}
 
-			switch typ := msg.(type) {
-			case storage.Block:
-				if c.filters.head {
-					if err := c.ws.WriteJSON(typ); err != nil {
-						log.Errorf("send head: %s", err)
-					}
-				}
-			default:
-				log.Errorf("unknown message type from notification: %T", msg)
+			if err := c.ws.WriteJSON(msg); err != nil {
+				log.Errorf("send head: %s", err)
 			}
 		}
 	}
 }
 
-func (c *client) ReadMessages(ctx context.Context, ws *websocket.Conn, sub *client, log echo.Logger) {
+func (c *Client) ReadMessages(ctx context.Context, ws *websocket.Conn, sub *Client, log echo.Logger) {
 	c.wg.Add(1)
 	defer func() {
-		c.manager.clients.Delete(sub.id)
 		c.wg.Done()
-		c.close <- struct{}{}
-		c.Close()
+		c.manager.clients.Delete(sub.id)
 	}()
 
 	if err := c.ws.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
@@ -163,11 +153,11 @@ func (c *client) ReadMessages(ctx context.Context, ws *websocket.Conn, sub *clie
 }
 
 // pongHandler is used to handle PongMessages for the Client
-func (c *client) pongHandler(pongMsg string) error {
+func (c *Client) pongHandler(pongMsg string) error {
 	return c.ws.SetReadDeadline(time.Now().Add(pongWait))
 }
 
-func (c *client) read(ctx context.Context, ws *websocket.Conn) error {
+func (c *Client) read(ctx context.Context, ws *websocket.Conn) error {
 	var msg Message
 	if err := c.ws.ReadJSON(&msg); err != nil {
 		return err
@@ -183,19 +173,28 @@ func (c *client) read(ctx context.Context, ws *websocket.Conn) error {
 	}
 }
 
-func (c *client) handleSubscribeMessage(ctx context.Context, msg Message) error {
+func (c *Client) handleSubscribeMessage(ctx context.Context, msg Message) error {
 	var subscribeMsg Subscribe
 	if err := json.UnmarshalContext(ctx, msg.Body, &subscribeMsg); err != nil {
 		return err
 	}
 
-	return c.Add(subscribeMsg)
+	if err := c.ApplyFilters(subscribeMsg); err != nil {
+		return err
+	}
+
+	c.manager.AddClientToChannel(subscribeMsg.Channel, c)
+	return nil
 }
 
-func (c *client) handleUnsubscribeMessage(ctx context.Context, msg Message) error {
+func (c *Client) handleUnsubscribeMessage(ctx context.Context, msg Message) error {
 	var unsubscribeMsg Unsubscribe
 	if err := json.UnmarshalContext(ctx, msg.Body, &unsubscribeMsg); err != nil {
 		return err
 	}
-	return c.Remove(unsubscribeMsg)
+	if err := c.DetachFilters(unsubscribeMsg); err != nil {
+		return err
+	}
+	c.manager.RemoveClientFromChannel(unsubscribeMsg.Channel, c)
+	return nil
 }

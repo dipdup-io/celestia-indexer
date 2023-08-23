@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
 	"github.com/labstack/echo/v4"
@@ -68,7 +69,7 @@ func (s *NamespaceTestSuite) TestGet() {
 	s.Require().NoError(s.handler.Get(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var namespace []Namespace
+	var namespace []responses.Namespace
 	err := json.NewDecoder(rec.Body).Decode(&namespace)
 	s.Require().NoError(err)
 	s.Require().Len(namespace, 1)
@@ -111,7 +112,7 @@ func (s *NamespaceTestSuite) TestList() {
 	s.Require().NoError(s.handler.List(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var namespaces []Namespace
+	var namespaces []responses.Namespace
 	err := json.NewDecoder(rec.Body).Decode(&namespaces)
 	s.Require().NoError(err)
 	s.Require().Len(namespaces, 1)
@@ -137,7 +138,7 @@ func (s *NamespaceTestSuite) TestGetWithVersion() {
 	s.Require().NoError(s.handler.GetWithVersion(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var namespace Namespace
+	var namespace responses.Namespace
 	err := json.NewDecoder(rec.Body).Decode(&namespace)
 	s.Require().NoError(err)
 	s.Require().EqualValues(1, namespace.ID)
@@ -162,7 +163,7 @@ func (s *NamespaceTestSuite) TestGetByHash() {
 	s.Require().NoError(s.handler.GetByHash(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var namespace Namespace
+	var namespace responses.Namespace
 	err := json.NewDecoder(rec.Body).Decode(&namespace)
 	s.Require().NoError(err)
 	s.Require().EqualValues(1, namespace.ID)

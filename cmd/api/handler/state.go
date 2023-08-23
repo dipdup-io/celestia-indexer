@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	sdk "github.com/dipdup-net/indexer-sdk/pkg/storage"
 	"github.com/labstack/echo/v4"
@@ -38,5 +39,5 @@ func (sh *StateHandler) Head(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	return c.JSON(http.StatusOK, NewState(*state[0]))
+	return c.JSON(http.StatusOK, responses.NewState(*state[0]))
 }

@@ -231,5 +231,15 @@ func (module *Module) notify(ctx context.Context, block storage.Block) error {
 	if err := module.storage.Notificator.Notify(ctx, storage.ChannelHead, string(data)); err != nil {
 		return err
 	}
+
+	for i := range block.Txs {
+		data, err := json.MarshalContext(ctx, block.Txs[i], json.UnorderedMap())
+		if err != nil {
+			return err
+		}
+		if err := module.storage.Notificator.Notify(ctx, storage.ChannelTx, string(data)); err != nil {
+			return err
+		}
+	}
 	return nil
 }

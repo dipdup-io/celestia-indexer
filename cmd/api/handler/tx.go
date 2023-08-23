@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"net/http"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/labstack/echo/v4"
 )
@@ -57,7 +58,7 @@ func (handler *TxHandler) Get(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, NewTx(tx))
+	return c.JSON(http.StatusOK, responses.NewTx(tx))
 }
 
 // List godoc
@@ -87,9 +88,9 @@ func (handler *TxHandler) List(c echo.Context) error {
 	if err := handleError(c, err, handler.tx); err != nil {
 		return err
 	}
-	response := make([]Tx, len(txs))
+	response := make([]responses.Tx, len(txs))
 	for i := range txs {
-		response[i] = NewTx(*txs[i])
+		response[i] = responses.NewTx(*txs[i])
 	}
 	return returnArray(c, response)
 }
@@ -128,9 +129,9 @@ func (handler *TxHandler) GetEvents(c echo.Context) error {
 	if err := handleError(c, err, handler.tx); err != nil {
 		return err
 	}
-	response := make([]Event, len(events))
+	response := make([]responses.Event, len(events))
 	for i := range events {
-		response[i] = NewEvent(events[i])
+		response[i] = responses.NewEvent(events[i])
 	}
 	return returnArray(c, response)
 }
@@ -169,9 +170,9 @@ func (handler *TxHandler) GetMessages(c echo.Context) error {
 	if err := handleError(c, err, handler.tx); err != nil {
 		return err
 	}
-	response := make([]Message, len(messages))
+	response := make([]responses.Message, len(messages))
 	for i := range messages {
-		response[i] = NewMessage(messages[i])
+		response[i] = responses.NewMessage(messages[i])
 	}
 	return returnArray(c, response)
 }

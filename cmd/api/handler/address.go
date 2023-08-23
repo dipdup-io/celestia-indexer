@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/labstack/echo/v4"
 )
@@ -42,7 +43,7 @@ func (handler *AddressHandler) Get(c echo.Context) error {
 		return badRequestError(c, err)
 	}
 
-	hash, err := DecodeAddress(req.Hash)
+	hash, err := responses.DecodeAddress(req.Hash)
 	if err != nil {
 		return badRequestError(c, err)
 	}
@@ -51,7 +52,7 @@ func (handler *AddressHandler) Get(c echo.Context) error {
 	if err := handleError(c, err, handler.address); err != nil {
 		return err
 	}
-	response, err := NewAddress(address)
+	response, err := responses.NewAddress(address)
 	if err := handleError(c, err, handler.address); err != nil {
 		return err
 	}
@@ -87,9 +88,9 @@ func (handler *AddressHandler) List(c echo.Context) error {
 		return err
 	}
 
-	response := make([]Address, len(address))
+	response := make([]responses.Address, len(address))
 	for i := range address {
-		response[i], err = NewAddress(*address[i])
+		response[i], err = responses.NewAddress(*address[i])
 		if err := handleError(c, err, handler.address); err != nil {
 			return err
 		}

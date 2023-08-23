@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/labstack/echo/v4"
 )
@@ -49,7 +50,7 @@ func (handler *BlockHandler) Get(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, NewBlock(block))
+	return c.JSON(http.StatusOK, responses.NewBlock(block))
 }
 
 // List godoc
@@ -80,9 +81,9 @@ func (handler *BlockHandler) List(c echo.Context) error {
 		return err
 	}
 
-	response := make([]Block, len(blocks))
+	response := make([]responses.Block, len(blocks))
 	for i := range blocks {
-		response[i] = NewBlock(*blocks[i])
+		response[i] = responses.NewBlock(*blocks[i])
 	}
 
 	return returnArray(c, response)
@@ -113,9 +114,9 @@ func (handler *BlockHandler) GetEvents(c echo.Context) error {
 		return err
 	}
 
-	response := make([]Event, len(events))
+	response := make([]responses.Event, len(events))
 	for i := range events {
-		response[i] = NewEvent(events[i])
+		response[i] = responses.NewEvent(events[i])
 	}
 
 	return returnArray(c, response)

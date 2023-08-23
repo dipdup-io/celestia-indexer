@@ -9,6 +9,7 @@ const (
 // channels
 const (
 	ChannelHead = "head"
+	ChannelTx   = "tx"
 )
 
 type Message struct {
@@ -23,4 +24,8 @@ type Subscribe struct {
 
 type Unsubscribe struct {
 	Channel string `json:"channel" validate:"required,oneof=head"`
+}
+
+type TransactionFilters struct {
+	Status []string `json:"status,omitempty"`
 }

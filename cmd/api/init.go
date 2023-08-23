@@ -212,12 +212,20 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg ApiConfig, db postgres.
 
 	v1.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	wsManager := websocket.NewManager()
-	v1.GET("/ws", wsManager.Handle)
-	go handler.ListenNotifications(ctx, wsManager, db.Notificator)
+	initWebsocket(ctx, db, v1)
 
 	log.Info().Msg("API routes:")
 	for _, route := range e.Routes() {
 		log.Info().Msgf("[%s] %s -> %s", route.Method, route.Path, route.Name)
 	}
+}
+
+var (
+	wsManager *websocket.Manager
+)
+
+func initWebsocket(ctx context.Context, db postgres.Storage, group *echo.Group) {
+	wsManager = websocket.NewManager(db)
+	wsManager.Start(ctx)
+	group.GET("/ws", wsManager.Handle)
 }

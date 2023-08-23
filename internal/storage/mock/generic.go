@@ -12,6 +12,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	storage "github.com/dipdup-io/celestia-indexer/internal/storage"
 	pq "github.com/lib/pq"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -100,6 +101,44 @@ func (m *MockListener) EXPECT() *MockListenerMockRecorder {
 	return m.recorder
 }
 
+// Close mocks base method.
+func (m *MockListener) Close() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Close")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockListenerMockRecorder) Close() *ListenerCloseCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockListener)(nil).Close))
+	return &ListenerCloseCall{Call: call}
+}
+
+// ListenerCloseCall wrap *gomock.Call
+type ListenerCloseCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *ListenerCloseCall) Return(arg0 error) *ListenerCloseCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *ListenerCloseCall) Do(f func() error) *ListenerCloseCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *ListenerCloseCall) DoAndReturn(f func() error) *ListenerCloseCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Listen mocks base method.
 func (m *MockListener) Listen() chan *pq.Notification {
 	m.ctrl.T.Helper()
@@ -177,6 +216,67 @@ func (c *ListenerSubscribeCall) Do(f func(context.Context, ...string) error) *Li
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *ListenerSubscribeCall) DoAndReturn(f func(context.Context, ...string) error) *ListenerSubscribeCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// MockListenerFactory is a mock of ListenerFactory interface.
+type MockListenerFactory struct {
+	ctrl     *gomock.Controller
+	recorder *MockListenerFactoryMockRecorder
+}
+
+// MockListenerFactoryMockRecorder is the mock recorder for MockListenerFactory.
+type MockListenerFactoryMockRecorder struct {
+	mock *MockListenerFactory
+}
+
+// NewMockListenerFactory creates a new mock instance.
+func NewMockListenerFactory(ctrl *gomock.Controller) *MockListenerFactory {
+	mock := &MockListenerFactory{ctrl: ctrl}
+	mock.recorder = &MockListenerFactoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockListenerFactory) EXPECT() *MockListenerFactoryMockRecorder {
+	return m.recorder
+}
+
+// CreateListener mocks base method.
+func (m *MockListenerFactory) CreateListener() storage.Listener {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateListener")
+	ret0, _ := ret[0].(storage.Listener)
+	return ret0
+}
+
+// CreateListener indicates an expected call of CreateListener.
+func (mr *MockListenerFactoryMockRecorder) CreateListener() *ListenerFactoryCreateListenerCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateListener", reflect.TypeOf((*MockListenerFactory)(nil).CreateListener))
+	return &ListenerFactoryCreateListenerCall{Call: call}
+}
+
+// ListenerFactoryCreateListenerCall wrap *gomock.Call
+type ListenerFactoryCreateListenerCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *ListenerFactoryCreateListenerCall) Return(arg0 storage.Listener) *ListenerFactoryCreateListenerCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *ListenerFactoryCreateListenerCall) Do(f func() storage.Listener) *ListenerFactoryCreateListenerCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *ListenerFactoryCreateListenerCall) DoAndReturn(f func() storage.Listener) *ListenerFactoryCreateListenerCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
 	"github.com/labstack/echo/v4"
@@ -66,7 +67,7 @@ func (s *StateTestSuite) TestHead() {
 	s.Require().NoError(s.handler.Head(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var state State
+	var state responses.State
 	err := json.NewDecoder(rec.Body).Decode(&state)
 	s.Require().NoError(err)
 	s.Require().EqualValues(1, state.Id)

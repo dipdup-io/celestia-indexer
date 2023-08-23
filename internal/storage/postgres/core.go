@@ -14,6 +14,8 @@ import (
 type Storage struct {
 	*postgres.Storage
 
+	cfg config.Database
+
 	Blocks      models.IBlock
 	Tx          models.ITx
 	Message     models.IMessage
@@ -34,6 +36,7 @@ func Create(ctx context.Context, cfg config.Database) (Storage, error) {
 	}
 
 	s := Storage{
+		cfg:         cfg,
 		Storage:     strg,
 		Blocks:      NewBlocks(strg.Connection()),
 		Message:     NewMessage(strg.Connection()),
@@ -70,4 +73,8 @@ func initDatabase(ctx context.Context, conn *database.Bun) error {
 	}
 
 	return createIndices(ctx, conn)
+}
+
+func (s Storage) CreateListener() models.Listener {
+	return NewNotificator(s.cfg, s.Notificator.db)
 }

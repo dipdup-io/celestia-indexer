@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"io"
 
 	"github.com/lib/pq"
 )
@@ -23,10 +24,18 @@ type Notificator interface {
 
 //go:generate mockgen -source=$GOFILE -destination=mock/$GOFILE -package=mock -typed
 type Listener interface {
+	io.Closer
+
 	Subscribe(ctx context.Context, channels ...string) error
 	Listen() chan *pq.Notification
 }
 
+//go:generate mockgen -source=$GOFILE -destination=mock/$GOFILE -package=mock -typed
+type ListenerFactory interface {
+	CreateListener() Listener
+}
+
 const (
 	ChannelHead = "head"
+	ChannelTx   = "tx"
 )

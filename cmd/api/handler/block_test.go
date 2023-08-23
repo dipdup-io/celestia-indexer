@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
 	"github.com/labstack/echo/v4"
@@ -73,7 +74,7 @@ func (s *BlockTestSuite) TestGet() {
 	s.Require().NoError(s.handler.Get(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var block Block
+	var block responses.Block
 	err := json.NewDecoder(rec.Body).Decode(&block)
 	s.Require().NoError(err)
 	s.Require().EqualValues(1, block.Id)
@@ -116,7 +117,7 @@ func (s *BlockTestSuite) TestList() {
 	s.Require().NoError(s.handler.List(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var blocks []Block
+	var blocks []responses.Block
 	err := json.NewDecoder(rec.Body).Decode(&blocks)
 	s.Require().NoError(err)
 	s.Require().Len(blocks, 1)
@@ -155,7 +156,7 @@ func (s *BlockTestSuite) TestGetEvents() {
 	s.Require().NoError(s.handler.GetEvents(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var events []Event
+	var events []responses.Event
 	err := json.NewDecoder(rec.Body).Decode(&events)
 	s.Require().NoError(err)
 	s.Require().Len(events, 1)
