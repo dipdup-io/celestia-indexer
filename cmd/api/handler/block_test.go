@@ -11,6 +11,7 @@ import (
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
+	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
@@ -24,6 +25,7 @@ var (
 		VersionBlock: "11",
 		VersionApp:   "1",
 		Time:         testTime,
+		MessageTypes: types.NewMsgTypeBitMask(types.MsgTypeSend),
 	}
 
 	testTime = time.Date(2023, 8, 1, 1, 1, 0, 0, time.UTC)
@@ -83,6 +85,7 @@ func (s *BlockTestSuite) TestGet() {
 	s.Require().Equal("11", block.VersionBlock)
 	s.Require().Equal("0001020304050607", block.Hash)
 	s.Require().Equal(testTime, block.Time)
+	s.Require().Equal([]string{string(types.MsgTypeSend)}, block.MessageTypes)
 }
 
 func (s *BlockTestSuite) TestGetInvalidBlockHeight() {
@@ -127,6 +130,7 @@ func (s *BlockTestSuite) TestList() {
 	s.Require().Equal("11", blocks[0].VersionBlock)
 	s.Require().Equal("0001020304050607", blocks[0].Hash)
 	s.Require().Equal(testTime, blocks[0].Time)
+	s.Require().Equal([]string{string(types.MsgTypeSend)}, blocks[0].MessageTypes)
 }
 
 func (s *BlockTestSuite) TestGetEvents() {
@@ -145,7 +149,7 @@ func (s *BlockTestSuite) TestGetEvents() {
 				Height:   100,
 				Time:     testTime,
 				Position: 2,
-				Type:     storage.EventTypeBurn,
+				Type:     types.EventTypeBurn,
 				TxId:     nil,
 				Data: map[string]any{
 					"test": "value",
@@ -164,5 +168,5 @@ func (s *BlockTestSuite) TestGetEvents() {
 	s.Require().EqualValues(100, events[0].Height)
 	s.Require().EqualValues(2, events[0].Position)
 	s.Require().Equal(testTime, events[0].Time)
-	s.Require().Equal(string(storage.EventTypeBurn), events[0].Type)
+	s.Require().Equal(string(types.EventTypeBurn), events[0].Type)
 }

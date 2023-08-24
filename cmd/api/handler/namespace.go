@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"net/http"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/blob"
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/labstack/echo/v4"
@@ -13,11 +14,13 @@ import (
 
 type NamespaceHandler struct {
 	namespace storage.INamespace
+	blob      blob.Receiver
 }
 
-func NewNamespaceHandler(namespace storage.INamespace) *NamespaceHandler {
+func NewNamespaceHandler(namespace storage.INamespace, blob blob.Receiver) *NamespaceHandler {
 	return &NamespaceHandler{
 		namespace: namespace,
+		blob:      blob,
 	}
 }
 
@@ -26,16 +29,17 @@ type getNamespaceRequest struct {
 }
 
 // Get godoc
-// @Summary Get namespace info
-// @Description Returns array of namespace versions
-// @Tags namespace
-// @ID get-namespace
-// @Param id path string true "Namespace id in hexadecimal" minlength(56) maxlength(56)
-// @Produce  json
-// @Success 200 {array} Namespace
-// @Failure 400 {object} Error
-// @Failure 500 {object} Error
-// @Router /v1/namespace/{id} [get]
+//
+//	@Summary		Get namespace info
+//	@Description	Returns array of namespace versions
+//	@Tags			namespace
+//	@ID				get-namespace
+//	@Param			id	path	string	true	"Namespace id in hexadecimal"	minlength(56)	maxlength(56)
+//	@Produce		json
+//	@Success		200	{array}		responses.Namespace
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/v1/namespace/{id} [get]
 func (handler *NamespaceHandler) Get(c echo.Context) error {
 	req := new(getNamespaceRequest)
 	if err := c.Bind(req); err != nil {
@@ -68,17 +72,18 @@ type getNamespaceByHashRequest struct {
 }
 
 // GetByHash godoc
-// @Summary Get namespace info by base64
-// @Description Returns namespace by base64 encoded identity
-// @Tags namespace
-// @ID get-namespace-base64
-// @Param hash path string true "Base64-encoded namespace id and version"
-// @Produce  json
-// @Success 200 {object} Namespace
-// @Success 204
-// @Failure 400 {object} Error
-// @Failure 500 {object} Error
-// @Router /v1/namespace_by_hash/{hash} [get]
+//
+//	@Summary		Get namespace info by base64
+//	@Description	Returns namespace by base64 encoded identity
+//	@Tags			namespace
+//	@ID				get-namespace-base64
+//	@Param			hash	path	string	true	"Base64-encoded namespace id and version"
+//	@Produce		json
+//	@Success		200	{object}	responses.Namespace
+//	@Success		204
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/v1/namespace_by_hash/{hash} [get]
 func (handler *NamespaceHandler) GetByHash(c echo.Context) error {
 	req := new(getNamespaceByHashRequest)
 	if err := c.Bind(req); err != nil {
@@ -111,18 +116,19 @@ type getNamespaceWithVersionRequest struct {
 }
 
 // GetWithVersion godoc
-// @Summary Get namespace info by id and version
-// @Description Returns namespace by version byte and namespace id
-// @Tags namespace
-// @ID get-namespace-by-version-and-id
-// @Param id      path string  true "Namespace id in hexadecimal" minlength(56) maxlength(56)
-// @Param version path integer true "Version of namespace"
-// @Produce  json
-// @Success 200 {object} Namespace
-// @Success 204
-// @Failure 400 {object} Error
-// @Failure 500 {object} Error
-// @Router /v1/namespace/{id}/{version} [get]
+//
+//	@Summary		Get namespace info by id and version
+//	@Description	Returns namespace by version byte and namespace id
+//	@Tags			namespace
+//	@ID				get-namespace-by-version-and-id
+//	@Param			id		path	string	true	"Namespace id in hexadecimal"	minlength(56)	maxlength(56)
+//	@Param			version	path	integer	true	"Version of namespace"
+//	@Produce		json
+//	@Success		200	{object}	responses.Namespace
+//	@Success		204
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/v1/namespace/{id}/{version} [get]
 func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
 	req := new(getNamespaceWithVersionRequest)
 	if err := c.Bind(req); err != nil {
@@ -146,18 +152,19 @@ func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
 }
 
 // List godoc
-// @Summary List namespace info
-// @Description List namespace info
-// @Tags namespace
-// @ID list-namespace
-// @Param limit  query integer false "Count of requested entities" mininum(1) maximum(100)
-// @Param offset query integer false "Offset" mininum(1)
-// @Param sort   query string  false "Sort order" Enums(asc, desc)
-// @Produce json
-// @Success 200 {array} Block
-// @Failure 400 {object} Error
-// @Failure 500 {object} Error
-// @Router /v1/namespace [get]
+//
+//	@Summary		List namespace info
+//	@Description	List namespace info
+//	@Tags			namespace
+//	@ID				list-namespace
+//	@Param			limit	query	integer	false	"Count of requested entities"	mininum(1)	maximum(100)
+//	@Param			offset	query	integer	false	"Offset"						mininum(1)
+//	@Param			sort	query	string	false	"Sort order"					Enums(asc, desc)
+//	@Produce		json
+//	@Success		200	{array}		responses.Block
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/v1/namespace [get]
 func (handler *NamespaceHandler) List(c echo.Context) error {
 	req := new(limitOffsetPagination)
 	if err := c.Bind(req); err != nil {
@@ -177,4 +184,39 @@ func (handler *NamespaceHandler) List(c echo.Context) error {
 		response[i] = responses.NewNamespace(*namespace[i])
 	}
 	return returnArray(c, response)
+}
+
+type getBlobRequest struct {
+	Hash   string `param:"hash"   validate:"required,base64"`
+	Height uint64 `param:"height" validation:"omitempty,min=1"`
+}
+
+// GetBlob godoc
+//
+//	@Summary		Get namespace blob on height
+//	@Description	Returns blob (bytes array)
+//	@Tags			namespace
+//	@ID				get-namespace-blob
+//	@Param			hash	path	string	true	"Base64-encoded namespace id and version"
+//	@Param			height	path	integer	true	"Block heigth"	minimum(1)
+//	@Produce		json
+//	@Success		200	{array}		Blob
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/v1/namespace_by_hash/{hash}/{height} [get]
+func (handler *NamespaceHandler) GetBlob(c echo.Context) error {
+	req := new(getBlobRequest)
+	if err := c.Bind(req); err != nil {
+		return badRequestError(c, err)
+	}
+	if err := c.Validate(req); err != nil {
+		return badRequestError(c, err)
+	}
+
+	blobs, err := handler.blob.Blobs(c.Request().Context(), req.Height, req.Hash)
+	if err != nil {
+		return badRequestError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, blobs)
 }

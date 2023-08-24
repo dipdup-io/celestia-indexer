@@ -58,7 +58,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Address"
+                                "$ref": "#/definitions/responses.Address"
                             }
                         }
                     },
@@ -103,7 +103,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Address"
+                            "$ref": "#/definitions/responses.Address"
                         }
                     },
                     "204": {
@@ -166,7 +166,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Block"
+                                "$ref": "#/definitions/responses.Block"
                             }
                         }
                     },
@@ -210,7 +210,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Block"
+                            "$ref": "#/definitions/responses.Block"
                         }
                     },
                     "204": {
@@ -258,7 +258,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Event"
+                                "$ref": "#/definitions/responses.Event"
                             }
                         }
                     },
@@ -292,7 +292,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.State"
+                            "$ref": "#/definitions/responses.State"
                         }
                     },
                     "204": {
@@ -355,7 +355,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Block"
+                                "$ref": "#/definitions/responses.Block"
                             }
                         }
                     },
@@ -402,7 +402,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Namespace"
+                                "$ref": "#/definitions/responses.Namespace"
                             }
                         }
                     },
@@ -454,7 +454,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Namespace"
+                            "$ref": "#/definitions/responses.Namespace"
                         }
                     },
                     "204": {
@@ -499,7 +499,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Namespace"
+                            "$ref": "#/definitions/responses.Namespace"
                         }
                     },
                     "204": {
@@ -554,6 +554,36 @@ const docTemplate = `{
                         "description": "Sort order",
                         "name": "sort",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "success",
+                            "failed"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated status list",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "WithdrawValidatorCommission",
+                            "WithdrawDelegatorReward",
+                            "EditValidator",
+                            "BeginRedelegate",
+                            "CreateValidator",
+                            "Delegate",
+                            "Undelegate",
+                            "Unjail",
+                            "Send",
+                            "CreateVestingAccount",
+                            "CreatePeriodicVestingAccount",
+                            "PayForBlobs"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated message types list",
+                        "name": "msg_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -562,7 +592,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Tx"
+                                "$ref": "#/definitions/responses.Tx"
                             }
                         }
                     },
@@ -607,7 +637,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Tx"
+                            "$ref": "#/definitions/responses.Tx"
                         }
                     },
                     "204": {
@@ -656,7 +686,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Event"
+                                "$ref": "#/definitions/responses.Event"
                             }
                         }
                     },
@@ -703,7 +733,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Message"
+                                "$ref": "#/definitions/responses.Message"
                             }
                         }
                     },
@@ -724,7 +754,15 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.Address": {
+        "handler.Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.Address": {
             "description": "Celestia address information",
             "type": "object",
             "properties": {
@@ -746,7 +784,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Block": {
+        "responses.Block": {
             "type": "object",
             "properties": {
                 "app_hash": {
@@ -789,6 +827,16 @@ const docTemplate = `{
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
                 },
+                "message_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "MsgSend",
+                        "MsgUnjail"
+                    ]
+                },
                 "next_validators_hash": {
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
@@ -823,15 +871,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Error": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.Event": {
+        "responses.Event": {
             "type": "object",
             "properties": {
                 "data": {
@@ -894,7 +934,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Message": {
+        "responses.Message": {
             "type": "object",
             "properties": {
                 "data": {
@@ -947,7 +987,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Namespace": {
+        "responses.Namespace": {
             "type": "object",
             "properties": {
                 "hash": {
@@ -976,7 +1016,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.State": {
+        "responses.State": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1021,7 +1061,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Tx": {
+        "responses.Tx": {
             "type": "object",
             "properties": {
                 "codespace": {
@@ -1073,6 +1113,16 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "example": "Transfer to private account"
+                },
+                "message_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "MsgSend",
+                        "MsgUnjail"
+                    ]
                 },
                 "messages_count": {
                     "type": "integer",

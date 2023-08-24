@@ -51,7 +51,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Address"
+                                "$ref": "#/definitions/responses.Address"
                             }
                         }
                     },
@@ -96,7 +96,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Address"
+                            "$ref": "#/definitions/responses.Address"
                         }
                     },
                     "204": {
@@ -159,7 +159,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Block"
+                                "$ref": "#/definitions/responses.Block"
                             }
                         }
                     },
@@ -203,7 +203,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Block"
+                            "$ref": "#/definitions/responses.Block"
                         }
                     },
                     "204": {
@@ -251,7 +251,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Event"
+                                "$ref": "#/definitions/responses.Event"
                             }
                         }
                     },
@@ -285,7 +285,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.State"
+                            "$ref": "#/definitions/responses.State"
                         }
                     },
                     "204": {
@@ -348,7 +348,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Block"
+                                "$ref": "#/definitions/responses.Block"
                             }
                         }
                     },
@@ -395,7 +395,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Namespace"
+                                "$ref": "#/definitions/responses.Namespace"
                             }
                         }
                     },
@@ -447,7 +447,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Namespace"
+                            "$ref": "#/definitions/responses.Namespace"
                         }
                     },
                     "204": {
@@ -492,7 +492,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Namespace"
+                            "$ref": "#/definitions/responses.Namespace"
                         }
                     },
                     "204": {
@@ -547,6 +547,36 @@
                         "description": "Sort order",
                         "name": "sort",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "success",
+                            "failed"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated status list",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "WithdrawValidatorCommission",
+                            "WithdrawDelegatorReward",
+                            "EditValidator",
+                            "BeginRedelegate",
+                            "CreateValidator",
+                            "Delegate",
+                            "Undelegate",
+                            "Unjail",
+                            "Send",
+                            "CreateVestingAccount",
+                            "CreatePeriodicVestingAccount",
+                            "PayForBlobs"
+                        ],
+                        "type": "string",
+                        "description": "Comma-separated message types list",
+                        "name": "msg_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -555,7 +585,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Tx"
+                                "$ref": "#/definitions/responses.Tx"
                             }
                         }
                     },
@@ -600,7 +630,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Tx"
+                            "$ref": "#/definitions/responses.Tx"
                         }
                     },
                     "204": {
@@ -649,7 +679,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Event"
+                                "$ref": "#/definitions/responses.Event"
                             }
                         }
                     },
@@ -696,7 +726,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Message"
+                                "$ref": "#/definitions/responses.Message"
                             }
                         }
                     },
@@ -717,7 +747,15 @@
         }
     },
     "definitions": {
-        "handler.Address": {
+        "handler.Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.Address": {
             "description": "Celestia address information",
             "type": "object",
             "properties": {
@@ -739,7 +777,7 @@
                 }
             }
         },
-        "handler.Block": {
+        "responses.Block": {
             "type": "object",
             "properties": {
                 "app_hash": {
@@ -782,6 +820,16 @@
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
                 },
+                "message_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "MsgSend",
+                        "MsgUnjail"
+                    ]
+                },
                 "next_validators_hash": {
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
@@ -816,15 +864,7 @@
                 }
             }
         },
-        "handler.Error": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.Event": {
+        "responses.Event": {
             "type": "object",
             "properties": {
                 "data": {
@@ -887,7 +927,7 @@
                 }
             }
         },
-        "handler.Message": {
+        "responses.Message": {
             "type": "object",
             "properties": {
                 "data": {
@@ -940,7 +980,7 @@
                 }
             }
         },
-        "handler.Namespace": {
+        "responses.Namespace": {
             "type": "object",
             "properties": {
                 "hash": {
@@ -969,7 +1009,7 @@
                 }
             }
         },
-        "handler.State": {
+        "responses.State": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1014,7 +1054,7 @@
                 }
             }
         },
-        "handler.Tx": {
+        "responses.Tx": {
             "type": "object",
             "properties": {
                 "codespace": {
@@ -1066,6 +1106,16 @@
                     "type": "string",
                     "format": "string",
                     "example": "Transfer to private account"
+                },
+                "message_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "MsgSend",
+                        "MsgUnjail"
+                    ]
                 },
                 "messages_count": {
                     "type": "integer",

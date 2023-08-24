@@ -196,7 +196,7 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg ApiConfig, db postgres.
 		txGroup.GET("/:hash/messages", txHandlers.GetMessages)
 	}
 
-	namespaceHandlers := handler.NewNamespaceHandler(db.Namespace)
+	namespaceHandlers := handler.NewNamespaceHandler(db.Namespace, nil) // TODO: real blob receiver
 	namespaceGroup := v1.Group("/namespace")
 	{
 		namespaceGroup.GET("", namespaceHandlers.List)
@@ -204,7 +204,11 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg ApiConfig, db postgres.
 		namespaceGroup.GET("/:id/:version", namespaceHandlers.GetWithVersion)
 	}
 
-	v1.GET("/namespace_by_hash/:hash", namespaceHandlers.GetByHash)
+	namespaceByHash := v1.Group("/namespace_by_hash")
+	{
+		namespaceByHash.GET("/:hash", namespaceHandlers.GetByHash)
+		namespaceByHash.GET("/:hash/:heigth", namespaceHandlers.GetBlob)
+	}
 
 	if cfg.Prometheus {
 		v1.GET("/metrics", echoprometheus.NewHandler())

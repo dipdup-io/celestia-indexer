@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/btcsuite/btcutil/bech32"
+	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -15,6 +16,12 @@ type CelestiaApiValidator struct {
 func NewCelestiaApiValidator() *CelestiaApiValidator {
 	v := validator.New()
 	if err := v.RegisterValidation("address", addressValidator()); err != nil {
+		panic(err)
+	}
+	if err := v.RegisterValidation("status", statusValidator()); err != nil {
+		panic(err)
+	}
+	if err := v.RegisterValidation("msg_type", msgTypeValidator()); err != nil {
 		panic(err)
 	}
 	return &CelestiaApiValidator{validator: v}
@@ -39,5 +46,17 @@ func addressValidator() validator.Func {
 		}
 
 		return prefix == "celestia"
+	}
+}
+
+func statusValidator() validator.Func {
+	return func(fl validator.FieldLevel) bool {
+		return types.IsStatus(fl.Field().String())
+	}
+}
+
+func msgTypeValidator() validator.Func {
+	return func(fl validator.FieldLevel) bool {
+		return types.IsMsgType(fl.Field().String())
 	}
 }
