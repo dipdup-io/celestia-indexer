@@ -188,7 +188,7 @@ func (handler *NamespaceHandler) List(c echo.Context) error {
 
 type getBlobRequest struct {
 	Hash   string `param:"hash"   validate:"required,base64"`
-	Height uint64 `param:"height" validation:"omitempty,min=1"`
+	Height uint64 `param:"height" validation:"required,min=1"`
 }
 
 // GetBlob godoc
@@ -200,7 +200,7 @@ type getBlobRequest struct {
 //	@Param			hash	path	string	true	"Base64-encoded namespace id and version"
 //	@Param			height	path	integer	true	"Block heigth"	minimum(1)
 //	@Produce		json
-//	@Success		200	{array}		Blob
+//	@Success		200	{array}		blob.Blob
 //	@Failure		400	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/v1/namespace_by_hash/{hash}/{height} [get]

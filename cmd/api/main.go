@@ -38,7 +38,7 @@ func main() {
 
 	db := initDatabase(cfg.Database)
 	e := initEcho(cfg.ApiConfig)
-	initHandlers(ctx, e, cfg.ApiConfig, db)
+	initHandlers(ctx, e, *cfg, db)
 
 	go func() {
 		if err := e.Start(cfg.ApiConfig.Bind); err != nil && errors.Is(err, http.ErrServerClosed) {
