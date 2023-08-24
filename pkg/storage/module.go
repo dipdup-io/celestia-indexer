@@ -59,7 +59,7 @@ func (module *Module) initState(ctx context.Context) error {
 		module.state = &state
 		module.log.Info().
 			Str("indexer_name", module.state.Name).
-			Uint64("height", module.state.LastHeight).
+			Uint64("height", uint64(module.state.LastHeight)).
 			Time("last_updated", module.state.LastTime).
 			Msg("current state")
 		return nil
@@ -144,7 +144,7 @@ func (module *Module) AttachTo(name string, input *modules.Input) error {
 }
 
 func (module *Module) updateState(block storage.Block) {
-	if block.Id <= module.state.LastHeight {
+	if storage.Level(block.Id) <= module.state.LastHeight {
 		return
 	}
 
