@@ -2,18 +2,16 @@ package receiver
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"sync"
-	"time"
-
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/workerpool"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"sync"
 )
 
 const (
@@ -24,7 +22,6 @@ const (
 type Receiver struct {
 	api     node.API
 	cfg     config.Config
-	timeout time.Duration
 	outputs map[string]*modules.Output
 	pool    *workerpool.Pool[storage.Level]
 	blocks  chan types.ResultBlock
@@ -36,15 +33,10 @@ func New(cfg config.Config, api node.API) *Receiver {
 	receiver := &Receiver{
 		api:     api,
 		cfg:     cfg,
-		timeout: time.Duration(cfg.Indexer.Timeout) * time.Second,
 		outputs: map[string]*modules.Output{BlocksOutput: modules.NewOutput(BlocksOutput)},
 		blocks:  make(chan types.ResultBlock, cfg.Indexer.ThreadsCount*10),
 		log:     log.With().Str("module", name).Logger(),
 		wg:      new(sync.WaitGroup),
-	}
-
-	if receiver.timeout == 0 {
-		receiver.timeout = 10 * time.Second
 	}
 
 	receiver.pool = workerpool.NewPool(receiver.worker, int(cfg.Indexer.ThreadsCount))
