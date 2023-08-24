@@ -17,7 +17,7 @@ func (api *API) GetGenesis(ctx context.Context) (types.Genesis, error) {
 	path := "genesis"
 
 	var gr GenesisResult
-	if err := api.get(ctx, path, &gr); err != nil {
+	if err := api.get(ctx, path, nil, &gr); err != nil {
 		api.log.Err(err).Msg("genesis block request")
 		return types.Genesis{}, err
 	}
