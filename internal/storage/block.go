@@ -15,6 +15,7 @@ type IBlock interface {
 
 	Last(ctx context.Context) (Block, error)
 	ByHeight(ctx context.Context, height uint64) (Block, error)
+	ByHash(ctx context.Context, hash []byte) (Block, error)
 }
 
 // Block -

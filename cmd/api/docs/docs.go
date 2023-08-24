@@ -637,6 +637,24 @@ const docTemplate = `{
                         "description": "Comma-separated message types list",
                         "name": "msg_type",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Time from in unix timestamp",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Time to in unix timestamp",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Block number",
+                        "name": "height",
+                        "in": "query"
                     }
                 ],
                 "responses": {

@@ -49,6 +49,13 @@ func (tx *Tx) Filter(ctx context.Context, fltrs storage.TxFilter) (txs []storage
 		query = query.Where("height = ?", fltrs.Height)
 	}
 
+	if !fltrs.TimeFrom.IsZero() {
+		query = query.Where("time >= ?", fltrs.TimeFrom)
+	}
+	if !fltrs.TimeTo.IsZero() {
+		query = query.Where("time < ?", fltrs.TimeTo)
+	}
+
 	err = query.Scan(ctx)
 	return
 }

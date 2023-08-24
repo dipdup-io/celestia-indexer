@@ -38,11 +38,8 @@ type getBlockRequest struct {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/block/{height} [get]
 func (handler *BlockHandler) Get(c echo.Context) error {
-	req := new(getBlockRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getBlockRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 
@@ -69,11 +66,8 @@ func (handler *BlockHandler) Get(c echo.Context) error {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/block [get]
 func (handler *BlockHandler) List(c echo.Context) error {
-	req := new(limitOffsetPagination)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[limitOffsetPagination](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 	req.SetDefault()
@@ -104,11 +98,8 @@ func (handler *BlockHandler) List(c echo.Context) error {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/block/{height}/events [get]
 func (handler *BlockHandler) GetEvents(c echo.Context) error {
-	req := new(getBlockRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getBlockRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 

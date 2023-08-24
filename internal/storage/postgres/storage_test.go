@@ -345,6 +345,34 @@ func (s *StorageTestSuite) TestTxFilterHeight() {
 	s.Require().Equal("80410", tx.Fee.String())
 }
 
+func (s *StorageTestSuite) TestTxFilterTime() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	txs, err := s.storage.Tx.Filter(ctx, storage.TxFilter{
+		Limit:    10,
+		TimeFrom: time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+	})
+	s.Require().NoError(err)
+	s.Require().Len(txs, 2)
+
+	txs, err = s.storage.Tx.Filter(ctx, storage.TxFilter{
+		Limit:  10,
+		TimeTo: time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+	})
+	s.Require().NoError(err)
+	s.Require().Len(txs, 0)
+
+	txs, err = s.storage.Tx.Filter(ctx, storage.TxFilter{
+		Limit: 10,
+
+		TimeFrom: time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+		TimeTo:   time.Date(2023, 7, 5, 0, 0, 0, 0, time.UTC),
+	})
+	s.Require().NoError(err)
+	s.Require().Len(txs, 2)
+}
+
 func (s *StorageTestSuite) TestNotify() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

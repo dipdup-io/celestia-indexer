@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/hex"
 	"net/http"
+	"time"
 
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -41,11 +42,8 @@ type getTxRequest struct {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/tx/{hash} [get]
 func (handler *TxHandler) Get(c echo.Context) error {
-	req := new(getTxRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getTxRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 
@@ -73,26 +71,29 @@ func (handler *TxHandler) Get(c echo.Context) error {
 //	@Param			sort		query	string	false	"Sort order"							Enums(asc, desc)
 //	@Param			status		query	string	false	"Comma-separated status list"			Enums(success, failed)
 //	@Param			msg_type	query	string	false	"Comma-separated message types list"	Enums(WithdrawValidatorCommission,WithdrawDelegatorReward,EditValidator,BeginRedelegate,CreateValidator,Delegate,Undelegate,Unjail,Send,CreateVestingAccount,CreatePeriodicVestingAccount,PayForBlobs)
+//	@Param			from		query	integer	false	"Time from in unix timestamp"			mininum(1)
+//	@Param			to   		query	integer	false	"Time to in unix timestamp"				mininum(1)
+//	@Param			height		query	integer	false	"Block number"							mininum(1)
 //	@Produce		json
 //	@Success		200	{array}		responses.Tx
 //	@Failure		400	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/v1/tx [get]
 func (handler *TxHandler) List(c echo.Context) error {
-	req := new(txListRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[txListRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 	req.SetDefault()
 
 	txs, err := handler.tx.Filter(c.Request().Context(), storage.TxFilter{
-		Limit:  int(req.Limit),
-		Offset: int(req.Offset),
-		Sort:   pgSort(req.Sort),
-		Status: []string(req.Status),
+		Limit:    int(req.Limit),
+		Offset:   int(req.Offset),
+		Sort:     pgSort(req.Sort),
+		Status:   req.Status,
+		TimeFrom: time.Unix(req.From, 0).UTC(),
+		TimeTo:   time.Unix(req.To, 0).UTC(),
+		Height:   req.Height,
 	})
 	if err := handleError(c, err, handler.tx); err != nil {
 		return err
@@ -117,11 +118,8 @@ func (handler *TxHandler) List(c echo.Context) error {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/tx/{hash}/events [get]
 func (handler *TxHandler) GetEvents(c echo.Context) error {
-	req := new(getTxRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getTxRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 
@@ -159,11 +157,8 @@ func (handler *TxHandler) GetEvents(c echo.Context) error {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/tx/{hash}/messages [get]
 func (handler *TxHandler) GetMessages(c echo.Context) error {
-	req := new(getTxRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getTxRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 

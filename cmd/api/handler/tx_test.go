@@ -213,6 +213,97 @@ func (s *TxTestSuite) TestListValidationMsgTypeError() {
 	s.Contains(e.Message, "validation")
 }
 
+func (s *TxTestSuite) TestListTime() {
+	q := make(url.Values)
+	q.Set("limit", "2")
+	q.Set("offset", "0")
+	q.Set("sort", "desc")
+	q.Set("status", "success")
+	q.Set("msg_type", "Send")
+	q.Set("from", "1692880000")
+	q.Set("to", "1692890000")
+
+	req := httptest.NewRequest(http.MethodGet, "/?"+q.Encode(), nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/tx")
+
+	s.tx.EXPECT().
+		Filter(gomock.Any(), gomock.Any()).
+		Return([]storage.Tx{
+			testTx,
+		}, nil)
+
+	s.Require().NoError(s.handler.List(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var txs []responses.Tx
+	err := json.NewDecoder(rec.Body).Decode(&txs)
+	s.Require().NoError(err)
+	s.Require().Len(txs, 1)
+
+	tx := txs[0]
+	s.Require().EqualValues(1, tx.Id)
+	s.Require().EqualValues(100, tx.Height)
+	s.Require().Equal(testTime, tx.Time)
+	s.Require().Equal(testTxHash, strings.ToUpper(tx.Hash))
+	s.Require().EqualValues(2, tx.Position)
+	s.Require().EqualValues(80410, tx.GasWanted)
+	s.Require().EqualValues(77483, tx.GasUsed)
+	s.Require().Equal("80410", tx.Fee)
+	s.Require().EqualValues(0, tx.TimeoutHeight)
+	s.Require().EqualValues(10, tx.EventsCount)
+	s.Require().EqualValues(2, tx.MessagesCount)
+	s.Require().Equal("memo", tx.Memo)
+	s.Require().Equal("sdk", tx.Codespace)
+	s.Require().Equal(string(types.StatusSuccess), tx.Status)
+}
+
+func (s *TxTestSuite) TestListHeight() {
+	q := make(url.Values)
+	q.Set("limit", "2")
+	q.Set("offset", "0")
+	q.Set("sort", "desc")
+	q.Set("status", "success")
+	q.Set("msg_type", "Send")
+	q.Set("height", "1000")
+
+	req := httptest.NewRequest(http.MethodGet, "/?"+q.Encode(), nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/tx")
+
+	s.tx.EXPECT().
+		Filter(gomock.Any(), gomock.Any()).
+		Return([]storage.Tx{
+			testTx,
+		}, nil)
+
+	s.Require().NoError(s.handler.List(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var txs []responses.Tx
+	err := json.NewDecoder(rec.Body).Decode(&txs)
+	s.Require().NoError(err)
+	s.Require().Len(txs, 1)
+
+	tx := txs[0]
+	s.Require().EqualValues(1, tx.Id)
+	s.Require().EqualValues(100, tx.Height)
+	s.Require().Equal(testTime, tx.Time)
+	s.Require().Equal(testTxHash, strings.ToUpper(tx.Hash))
+	s.Require().EqualValues(2, tx.Position)
+	s.Require().EqualValues(80410, tx.GasWanted)
+	s.Require().EqualValues(77483, tx.GasUsed)
+	s.Require().Equal("80410", tx.Fee)
+	s.Require().EqualValues(0, tx.TimeoutHeight)
+	s.Require().EqualValues(10, tx.EventsCount)
+	s.Require().EqualValues(2, tx.MessagesCount)
+	s.Require().Equal("memo", tx.Memo)
+	s.Require().Equal("sdk", tx.Codespace)
+	s.Require().Equal(string(types.StatusSuccess), tx.Status)
+}
+
 func (s *TxTestSuite) TestGetEvents() {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()

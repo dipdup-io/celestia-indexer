@@ -41,11 +41,8 @@ type getNamespaceRequest struct {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/namespace/{id} [get]
 func (handler *NamespaceHandler) Get(c echo.Context) error {
-	req := new(getNamespaceRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getNamespaceRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 
@@ -85,11 +82,8 @@ type getNamespaceByHashRequest struct {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/namespace_by_hash/{hash} [get]
 func (handler *NamespaceHandler) GetByHash(c echo.Context) error {
-	req := new(getNamespaceByHashRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getNamespaceByHashRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 
@@ -130,11 +124,8 @@ type getNamespaceWithVersionRequest struct {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/namespace/{id}/{version} [get]
 func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
-	req := new(getNamespaceWithVersionRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getNamespaceWithVersionRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 
@@ -166,11 +157,8 @@ func (handler *NamespaceHandler) GetWithVersion(c echo.Context) error {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/namespace [get]
 func (handler *NamespaceHandler) List(c echo.Context) error {
-	req := new(limitOffsetPagination)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[limitOffsetPagination](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 	req.SetDefault()
@@ -205,11 +193,8 @@ type getBlobRequest struct {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/namespace_by_hash/{hash}/{height} [get]
 func (handler *NamespaceHandler) GetBlob(c echo.Context) error {
-	req := new(getBlobRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getBlobRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 

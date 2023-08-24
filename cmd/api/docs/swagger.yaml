@@ -758,6 +758,18 @@ paths:
         in: query
         name: msg_type
         type: string
+      - description: Time from in unix timestamp
+        in: query
+        name: from
+        type: integer
+      - description: Time to in unix timestamp
+        in: query
+        name: to
+        type: integer
+      - description: Block number
+        in: query
+        name: height
+        type: integer
       produces:
       - application/json
       responses:

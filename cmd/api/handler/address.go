@@ -36,11 +36,8 @@ type getAddressRequest struct {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/address/{hash} [get]
 func (handler *AddressHandler) Get(c echo.Context) error {
-	req := new(getAddressRequest)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[getAddressRequest](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 
@@ -76,11 +73,8 @@ func (handler *AddressHandler) Get(c echo.Context) error {
 //	@Failure		500	{object}	Error
 //	@Router			/v1/address [get]
 func (handler *AddressHandler) List(c echo.Context) error {
-	req := new(limitOffsetPagination)
-	if err := c.Bind(req); err != nil {
-		return badRequestError(c, err)
-	}
-	if err := c.Validate(req); err != nil {
+	req, err := bindAndValidate[limitOffsetPagination](c)
+	if err != nil {
 		return badRequestError(c, err)
 	}
 	req.SetDefault()
