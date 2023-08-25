@@ -26,6 +26,8 @@ type Message struct {
 	Type     MsgType        `bun:",type:msg_type"            comment:"Message type"`
 	TxId     uint64         `bun:"tx_id"                     comment:"Parent transaction id"`
 	Data     map[string]any `bun:"data,type:jsonb"           comment:"Message data"`
+
+	Namespace []Namespace `bun:"m2m:namespace_action,join:Message=Namespace"`
 }
 
 // TableName -
