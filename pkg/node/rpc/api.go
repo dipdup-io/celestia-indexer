@@ -61,11 +61,11 @@ func (api *API) get(ctx context.Context, path string, args map[string]string, ou
 	}
 	u.RawQuery = values.Encode()
 
-	// if api.rateLimit != nil {
-	//	if err := api.rateLimit.Wait(ctx); err != nil {
-	//		return err
-	//	}
-	//}
+	if api.rateLimit != nil {
+		if err := api.rateLimit.Wait(ctx); err != nil {
+			return err
+		}
+	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
