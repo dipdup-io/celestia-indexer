@@ -136,6 +136,22 @@ func (s *StorageTestSuite) TestBlockByHeight() {
 	s.Require().Equal(hash, block.Hash)
 }
 
+func (s *StorageTestSuite) TestBlockByHash() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	hash, err := hex.DecodeString("6A30C94091DA7C436D64E62111D6890D772E351823C41496B4E52F28F5B000BF")
+	s.Require().NoError(err)
+
+	block, err := s.storage.Blocks.ByHash(ctx, hash)
+	s.Require().NoError(err)
+	s.Require().EqualValues(1000, block.Height)
+	s.Require().EqualValues("1", block.VersionApp)
+	s.Require().EqualValues("11", block.VersionBlock)
+	s.Require().EqualValues(0, block.TxCount)
+	s.Require().Equal(hash, block.Hash)
+}
+
 func (s *StorageTestSuite) TestAddressByHash() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()

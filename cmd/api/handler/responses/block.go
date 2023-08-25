@@ -52,3 +52,7 @@ func NewBlock(block storage.Block) Block {
 		MessageTypes:       block.MessageTypes.Names(),
 	}
 }
+
+func (Block) SearchType() string {
+	return "block"
+}

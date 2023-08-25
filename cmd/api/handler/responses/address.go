@@ -24,3 +24,7 @@ func NewAddress(addr storage.Address) (Address, error) {
 		Hash:    hash,
 	}, nil
 }
+
+func (Address) SearchType() string {
+	return "address"
+}

@@ -51,11 +51,11 @@ var (
 //	@ID				search
 //	@Param			query	query	string	true	"Search string"
 //	@Produce		json
-//	@Success		200	{object}	responses.SearchResponse
+//	@Success		200	{object}	responses.SearchResponse[responses.Searchable]
 //	@Success		204
 //	@Failure		400	{object}	Error
 //	@Failure		500	{object}	Error
-//	@Router			/v1/tx/{hash} [get]
+//	@Router			/v1/search [get]
 func (handler SearchHandler) Search(c echo.Context) error {
 	req, err := bindAndValidate[searchRequest](c)
 	if err != nil {
@@ -133,7 +133,7 @@ func (handler SearchHandler) searchNamespaceById(c echo.Context, search string) 
 	if err != nil {
 		return badRequestError(c, err)
 	}
-	if len(data) != 28 {
+	if len(data) != 29 {
 		return badRequestError(c, errors.Wrapf(errInvalidNamespaceLength, "got %d", len(data)))
 	}
 

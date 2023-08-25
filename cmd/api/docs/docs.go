@@ -573,6 +573,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/search": {
+            "get": {
+                "description": "Search entity by hash (block, tx, account and namespace)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "search"
+                ],
+                "summary": "Search by hash",
+                "operationId": "search",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search string",
+                        "name": "query",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SearchResponse-responses_Searchable"
+                        }
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/tx": {
             "get": {
                 "description": "List transactions info",
@@ -825,6 +870,19 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "SearchResponse-responses_Searchable": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "description": "Search result. Can be one of folowwing types: Block, Address, Namespace, Tx",
+                    "type": "object"
+                },
+                "type": {
+                    "description": "Result type which is in the result. Can be 'block', 'address', 'namespace', 'tx'",
+                    "type": "string"
+                }
+            }
+        },
         "blob.Blob": {
             "type": "object",
             "properties": {
@@ -1100,6 +1158,10 @@ const docTemplate = `{
                     "type": "string",
                     "format": "binary",
                     "example": "4723ce10b187716adfc55ff7e6d9179c226e6b5440b02577cca49d02"
+                },
+                "reserved": {
+                    "type": "boolean",
+                    "example": true
                 },
                 "size": {
                     "type": "integer",

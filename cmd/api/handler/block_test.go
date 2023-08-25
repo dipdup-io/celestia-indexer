@@ -20,7 +20,7 @@ import (
 var (
 	testBlock = storage.Block{
 		Id:           1,
-		Hash:         []byte{0, 1, 2, 3, 4, 5, 6, 7},
+		Hash:         []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31},
 		Height:       100,
 		VersionBlock: "11",
 		VersionApp:   "1",
@@ -83,7 +83,7 @@ func (s *BlockTestSuite) TestGet() {
 	s.Require().EqualValues(100, block.Height)
 	s.Require().Equal("1", block.VersionApp)
 	s.Require().Equal("11", block.VersionBlock)
-	s.Require().Equal("0001020304050607", block.Hash)
+	s.Require().Equal("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", block.Hash)
 	s.Require().Equal(testTime, block.Time)
 	s.Require().Equal([]string{string(types.MsgTypeSend)}, block.MessageTypes)
 }
@@ -128,7 +128,7 @@ func (s *BlockTestSuite) TestList() {
 	s.Require().EqualValues(100, blocks[0].Height)
 	s.Require().Equal("1", blocks[0].VersionApp)
 	s.Require().Equal("11", blocks[0].VersionBlock)
-	s.Require().Equal("0001020304050607", blocks[0].Hash)
+	s.Require().Equal("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f", blocks[0].Hash)
 	s.Require().Equal(testTime, blocks[0].Time)
 	s.Require().Equal([]string{string(types.MsgTypeSend)}, blocks[0].MessageTypes)
 }

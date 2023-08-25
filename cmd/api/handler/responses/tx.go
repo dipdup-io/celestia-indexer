@@ -48,3 +48,7 @@ func NewTx(tx storage.Tx) Tx {
 		MessageTypes:  tx.MessageTypes.Names(),
 	}
 }
+
+func (Tx) SearchType() string {
+	return "tx"
+}
