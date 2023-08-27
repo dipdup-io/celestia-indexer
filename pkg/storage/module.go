@@ -160,6 +160,8 @@ func (module *Module) updateState(block storage.Block) {
 	module.state.TotalNamespaceSize = block.NamespaceSize
 	module.state.TotalFee = module.state.TotalFee.Add(block.Fee)
 	// TODO: update TotalAccounts
+	module.state.ChainId = block.ChainId
+	// TODO: update rest fields
 }
 
 func (module *Module) saveBlock(ctx context.Context, block storage.Block) error {
