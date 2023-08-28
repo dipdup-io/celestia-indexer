@@ -246,6 +246,7 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 				MsgId:       msg.Id,
 				NamespaceId: ns.ID,
 				Time:        msg.Time,
+				TxId:        msg.TxId,
 			})
 		}
 	}

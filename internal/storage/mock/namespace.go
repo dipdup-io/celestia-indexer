@@ -40,6 +40,45 @@ func (m *MockINamespace) EXPECT() *MockINamespaceMockRecorder {
 	return m.recorder
 }
 
+// Actions mocks base method.
+func (m *MockINamespace) Actions(ctx context.Context, id uint64, limit, offset int) ([]storage.NamespaceAction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Actions", ctx, id, limit, offset)
+	ret0, _ := ret[0].([]storage.NamespaceAction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Actions indicates an expected call of Actions.
+func (mr *MockINamespaceMockRecorder) Actions(ctx, id, limit, offset any) *INamespaceActionsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Actions", reflect.TypeOf((*MockINamespace)(nil).Actions), ctx, id, limit, offset)
+	return &INamespaceActionsCall{Call: call}
+}
+
+// INamespaceActionsCall wrap *gomock.Call
+type INamespaceActionsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *INamespaceActionsCall) Return(arg0 []storage.NamespaceAction, arg1 error) *INamespaceActionsCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *INamespaceActionsCall) Do(f func(context.Context, uint64, int, int) ([]storage.NamespaceAction, error)) *INamespaceActionsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *INamespaceActionsCall) DoAndReturn(f func(context.Context, uint64, int, int) ([]storage.NamespaceAction, error)) *INamespaceActionsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ByNamespaceId mocks base method.
 func (m *MockINamespace) ByNamespaceId(ctx context.Context, namespaceId []byte) ([]storage.Namespace, error) {
 	m.ctrl.T.Helper()

@@ -475,6 +475,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/namespace/{id}/{version}/messages": {
+            "get": {
+                "description": "Returns namespace messages by version byte and namespace id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "namespace"
+                ],
+                "summary": "Get namespace messages by id and version",
+                "operationId": "get-namespace-messages",
+                "parameters": [
+                    {
+                        "maxLength": 56,
+                        "minLength": 56,
+                        "type": "string",
+                        "description": "Namespace id in hexadecimal",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Version of namespace",
+                        "name": "version",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "type": "integer",
+                        "description": "Count of requested entities",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responses.Message"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/namespace_by_hash/{hash}": {
             "get": {
                 "description": "Returns namespace by base64 encoded identity",
@@ -597,7 +667,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/SearchResponse-responses_Searchable"
+                            "$ref": "#/definitions/responses.SearchResponse-responses_Searchable"
                         }
                     },
                     "204": {
@@ -870,19 +940,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "SearchResponse-responses_Searchable": {
-            "type": "object",
-            "properties": {
-                "result": {
-                    "description": "Search result. Can be one of folowwing types: Block, Address, Namespace, Tx",
-                    "type": "object"
-                },
-                "type": {
-                    "description": "Result type which is in the result. Can be 'block', 'address', 'namespace', 'tx'",
-                    "type": "string"
-                }
-            }
-        },
         "blob.Blob": {
             "type": "object",
             "properties": {
@@ -961,6 +1018,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
                 },
+                "fee": {
+                    "type": "string",
+                    "example": "28347628346"
+                },
                 "hash": {
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
@@ -990,6 +1051,10 @@ const docTemplate = `{
                         "MsgSend",
                         "MsgUnjail"
                     ]
+                },
+                "namespace_size": {
+                    "type": "integer",
+                    "example": 12354
                 },
                 "next_validators_hash": {
                     "type": "string",
@@ -1174,6 +1239,19 @@ const docTemplate = `{
                 }
             }
         },
+        "responses.SearchResponse-responses_Searchable": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "description": "Search result. Can be one of folowwing types: Block, Address, Namespace, Tx",
+                    "type": "object"
+                },
+                "type": {
+                    "description": "Result type which is in the result. Can be 'block', 'address', 'namespace', 'tx'",
+                    "type": "string"
+                }
+            }
+        },
         "responses.State": {
             "type": "object",
             "properties": {
@@ -1202,15 +1280,15 @@ const docTemplate = `{
                     "format": "int64",
                     "example": 43
                 },
+                "total_fee": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "312"
+                },
                 "total_namespace_size": {
                     "type": "integer",
                     "format": "int64",
                     "example": 56789
-                },
-                "total_namespaces": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 312
                 },
                 "total_tx": {
                     "type": "integer",
