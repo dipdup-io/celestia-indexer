@@ -19,7 +19,7 @@ type IEvent interface {
 
 // Event -
 type Event struct {
-	bun.BaseModel `bun:"event" comment:"Table with celestia events." partition:"RANGE(time)"`
+	bun.BaseModel `bun:"event" comment:"Table with celestia events."`
 
 	Id       uint64          `bun:"id,type:bigint,pk,notnull" comment:"Unique internal id"`
 	Height   uint64          `bun:",notnull"                  comment:"The number (height) of this block"`

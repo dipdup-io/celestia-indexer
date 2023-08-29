@@ -681,6 +681,199 @@
                 }
             }
         },
+        "/v1/stats/histogram/{table}/{function}/{timeframe}": {
+            "get": {
+                "description": "Returns histogram by table, function and timeframe",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get histogram",
+                "operationId": "stats-histogram",
+                "parameters": [
+                    {
+                        "enum": [
+                            "block",
+                            "tx",
+                            "event",
+                            "message"
+                        ],
+                        "type": "string",
+                        "description": "Table name",
+                        "name": "table",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "min",
+                            "max",
+                            "avg",
+                            "sum",
+                            "count"
+                        ],
+                        "type": "string",
+                        "description": "Function name",
+                        "name": "function",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "hour",
+                            "day",
+                            "week",
+                            "month",
+                            "year"
+                        ],
+                        "type": "string",
+                        "description": "Timeframe",
+                        "name": "timeframe",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "min",
+                            "max",
+                            "avg",
+                            "sum",
+                            "count"
+                        ],
+                        "type": "string",
+                        "description": "Column name which will be used for computation. Optional for count",
+                        "name": "column",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Time from in unix timestamp",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Time to in unix timestamp",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responses.HistogramItem"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stats/summary/{table}/{function}": {
+            "get": {
+                "description": "Returns string value by passed table and function",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stats"
+                ],
+                "summary": "Get value by table and function",
+                "operationId": "stats-summary",
+                "parameters": [
+                    {
+                        "enum": [
+                            "block",
+                            "tx",
+                            "event",
+                            "message"
+                        ],
+                        "type": "string",
+                        "description": "Table name",
+                        "name": "table",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "min",
+                            "max",
+                            "avg",
+                            "sum",
+                            "count"
+                        ],
+                        "type": "string",
+                        "description": "Function name",
+                        "name": "function",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "min",
+                            "max",
+                            "avg",
+                            "sum",
+                            "count"
+                        ],
+                        "type": "string",
+                        "description": "Column name which will be used for computation. Optional for count.",
+                        "name": "column",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Time from in unix timestamp",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Time to in unix timestamp",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/tx": {
             "get": {
                 "description": "List transactions info",
@@ -1143,6 +1336,21 @@
                         "unknown"
                     ],
                     "example": "commission"
+                }
+            }
+        },
+        "responses.HistogramItem": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2023-07-04T03:10:57+00:00"
+                },
+                "value": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "2223424"
                 }
             }
         },

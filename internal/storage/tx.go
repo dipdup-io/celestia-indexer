@@ -31,7 +31,7 @@ type TxFilter struct {
 
 // Tx -
 type Tx struct {
-	bun.BaseModel `bun:"tx" comment:"Table with celestia transactions." partition:"RANGE(time)"`
+	bun.BaseModel `bun:"tx" comment:"Table with celestia transactions."`
 
 	Id            uint64            `bun:"id,type:bigint,pk,notnull" comment:"Unique internal id"`
 	Height        uint64            `bun:",notnull"                  comment:"The number (height) of this block"`

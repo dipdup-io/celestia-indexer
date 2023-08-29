@@ -18,7 +18,7 @@ type IMessage interface {
 
 // Message -
 type Message struct {
-	bun.BaseModel `bun:"message" comment:"Table with celestia messages." partition:"RANGE(time)"`
+	bun.BaseModel `bun:"message" comment:"Table with celestia messages."`
 
 	Id       uint64         `bun:"id,type:bigint,pk,notnull" comment:"Unique internal id"`
 	Height   uint64         `bun:",notnull"                  comment:"The number (height) of this block"`
