@@ -21,10 +21,10 @@ type NamespaceAction struct {
 
 func NewNamespaceAction(action storage.NamespaceAction) (NamespaceAction, error) {
 	if action.Message == nil {
-		return NamespaceAction{}, errors.New("nil message in nmaespace action constructor")
+		return NamespaceAction{}, errors.New("nil message in namespace action constructor")
 	}
 	if action.Tx == nil {
-		return NamespaceAction{}, errors.New("nil tx in nmaespace action constructor")
+		return NamespaceAction{}, errors.New("nil tx in namespace action constructor")
 	}
 
 	return NamespaceAction{
