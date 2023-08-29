@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 //	@host		127.0.0.1
 //	@BasePath	/v1
 
-// @query.collection.format	multi
+//	@query.collection.format	multi
 func main() {
 	cfg, err := initConfig()
 	if err != nil {

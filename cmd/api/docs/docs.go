@@ -523,7 +523,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/responses.Message"
+                                "$ref": "#/definitions/responses.NamespaceMessage"
                             }
                         }
                     },
@@ -1236,6 +1236,57 @@ const docTemplate = `{
                 "version": {
                     "type": "integer",
                     "format": "byte"
+                }
+            }
+        },
+        "responses.NamespaceMessage": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "height": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 100
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 321
+                },
+                "position": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 2
+                },
+                "time": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2023-07-04T03:10:57+00:00"
+                },
+                "tx": {
+                    "$ref": "#/definitions/responses.Tx"
+                },
+                "type": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                        "WithdrawValidatorCommission",
+                        "WithdrawDelegatorReward",
+                        "EditValidator",
+                        "BeginRedelegate",
+                        "CreateValidator",
+                        "Delegate",
+                        "Undelegate",
+                        "Unjail",
+                        "Send",
+                        "CreateVestingAccount",
+                        "CreatePeriodicVestingAccount",
+                        "PayForBlobs"
+                    ],
+                    "example": "CreatePeriodicVestingAccount"
                 }
             }
         },

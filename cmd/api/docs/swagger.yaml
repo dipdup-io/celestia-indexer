@@ -231,6 +231,47 @@ definitions:
         format: byte
         type: integer
     type: object
+  responses.NamespaceMessage:
+    properties:
+      data:
+        additionalProperties: {}
+        type: object
+      height:
+        example: 100
+        format: int64
+        type: integer
+      id:
+        example: 321
+        format: int64
+        type: integer
+      position:
+        example: 2
+        format: int64
+        type: integer
+      time:
+        example: "2023-07-04T03:10:57+00:00"
+        format: date-time
+        type: string
+      tx:
+        $ref: '#/definitions/responses.Tx'
+      type:
+        enum:
+        - WithdrawValidatorCommission
+        - WithdrawDelegatorReward
+        - EditValidator
+        - BeginRedelegate
+        - CreateValidator
+        - Delegate
+        - Undelegate
+        - Unjail
+        - Send
+        - CreateVestingAccount
+        - CreatePeriodicVestingAccount
+        - PayForBlobs
+        example: CreatePeriodicVestingAccount
+        format: string
+        type: string
+    type: object
   responses.SearchResponse-responses_Searchable:
     properties:
       result:
@@ -700,7 +741,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/responses.Message'
+              $ref: '#/definitions/responses.NamespaceMessage'
             type: array
         "204":
           description: No Content
