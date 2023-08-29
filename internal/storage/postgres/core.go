@@ -115,9 +115,9 @@ func createHypertables(ctx context.Context, conn *database.Bun) error {
 		if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('message', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
 			return err
 		}
-		if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('namespace_message', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
-			return err
-		}
+		// if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('namespace_message', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
+		// 	return err
+		// }
 		if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('tx', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
 			return err
 		}
