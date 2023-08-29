@@ -248,16 +248,16 @@ func (s *StorageTestSuite) TestNamespaceMessages() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
-	actions, err := s.storage.Namespace.Actions(ctx, 2, 10, 0)
+	msgs, err := s.storage.Namespace.Messages(ctx, 2, 10, 0)
 	s.Require().NoError(err)
-	s.Require().Len(actions, 1)
+	s.Require().Len(msgs, 1)
 
-	action := actions[0]
-	s.Require().EqualValues(3, action.MsgId)
-	s.Require().EqualValues(2, action.NamespaceId)
-	s.Require().NotNil(action.Message)
-	s.Require().Equal(types.MsgTypeUnjail, action.Message.Type)
-	s.Require().EqualValues(2, action.Tx.Id)
+	msg := msgs[0]
+	s.Require().EqualValues(3, msg.MsgId)
+	s.Require().EqualValues(2, msg.NamespaceId)
+	s.Require().NotNil(msg.Message)
+	s.Require().Equal(types.MsgTypeUnjail, msg.Message.Type)
+	s.Require().EqualValues(2, msg.Tx.Id)
 }
 
 func (s *StorageTestSuite) TestTxByHash() {

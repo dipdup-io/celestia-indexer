@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type NamespaceAction struct {
+type NamespaceMessage struct {
 	Id       uint64    `example:"321"                       format:"int64"     json:"id"       swaggettype:"integer"`
 	Height   uint64    `example:"100"                       format:"int64"     json:"height"   swaggettype:"integer"`
 	Time     time.Time `example:"2023-07-04T03:10:57+00:00" format:"date-time" json:"time"     swaggettype:"string"`
@@ -19,21 +19,21 @@ type NamespaceAction struct {
 	Tx   Tx             `json:"tx"`
 }
 
-func NewNamespaceAction(action storage.NamespaceAction) (NamespaceAction, error) {
-	if action.Message == nil {
-		return NamespaceAction{}, errors.New("nil message in namespace action constructor")
+func NewNamespaceMessage(msg storage.NamespaceMessage) (NamespaceMessage, error) {
+	if msg.Message == nil {
+		return NamespaceMessage{}, errors.New("nil message in namespace message constructor")
 	}
-	if action.Tx == nil {
-		return NamespaceAction{}, errors.New("nil tx in namespace action constructor")
+	if msg.Tx == nil {
+		return NamespaceMessage{}, errors.New("nil tx in namespace message constructor")
 	}
 
-	return NamespaceAction{
-		Id:       action.Message.Id,
-		Height:   action.Message.Height,
-		Time:     action.Message.Time,
-		Position: action.Message.Position,
-		Type:     string(action.Message.Type),
-		Data:     action.Message.Data,
-		Tx:       NewTx(*action.Tx),
+	return NamespaceMessage{
+		Id:       msg.Message.Id,
+		Height:   msg.Message.Height,
+		Time:     msg.Message.Time,
+		Position: msg.Message.Position,
+		Type:     string(msg.Message.Type),
+		Data:     msg.Message.Data,
+		Tx:       NewTx(*msg.Tx),
 	}, nil
 }

@@ -37,11 +37,11 @@ func (n *Namespace) ByNamespaceIdAndVersion(ctx context.Context, namespaceId []b
 	return
 }
 
-// Actions -
-func (n *Namespace) Actions(ctx context.Context, id uint64, limit, offset int) (actions []storage.NamespaceAction, err error) {
-	query := n.DB().NewSelect().Model(&actions).
-		Where("namespace_action.namespace_id = ?", id).
-		Order("namespace_action.time desc").
+// Messages -
+func (n *Namespace) Messages(ctx context.Context, id uint64, limit, offset int) (msgs []storage.NamespaceMessage, err error) {
+	query := n.DB().NewSelect().Model(&msgs).
+		Where("namespace_message.namespace_id = ?", id).
+		Order("namespace_message.time desc").
 		Relation("Message").
 		Relation("Tx")
 	query = limitScope(query, limit)

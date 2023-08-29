@@ -228,11 +228,11 @@ func (s *NamespaceTestSuite) TestGetBlob() {
 
 }
 
-func (s *NamespaceTestSuite) TestGetActions() {
+func (s *NamespaceTestSuite) TestGetMessages() {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := s.echo.NewContext(req, rec)
-	c.SetPath("/namespace/:id/:version/actions")
+	c.SetPath("/namespace/:id/:version/messages")
 	c.SetParamNames("id", "version")
 	c.SetParamValues(testNamespaceId, "1")
 
@@ -241,8 +241,8 @@ func (s *NamespaceTestSuite) TestGetActions() {
 		Return(testNamespace, nil)
 
 	s.namespaces.EXPECT().
-		Actions(gomock.Any(), testNamespace.ID, 0, 0).
-		Return([]storage.NamespaceAction{
+		Messages(gomock.Any(), testNamespace.ID, 0, 0).
+		Return([]storage.NamespaceMessage{
 			{
 				NamespaceId: testNamespace.ID,
 				MsgId:       1,
@@ -259,19 +259,19 @@ func (s *NamespaceTestSuite) TestGetActions() {
 			},
 		}, nil)
 
-	s.Require().NoError(s.handler.GetActions(c))
+	s.Require().NoError(s.handler.GetMessages(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
-	var actions []responses.NamespaceAction
-	err := json.NewDecoder(rec.Body).Decode(&actions)
+	var msgs []responses.NamespaceMessage
+	err := json.NewDecoder(rec.Body).Decode(&msgs)
 	s.Require().NoError(err)
-	s.Require().Len(actions, 1)
+	s.Require().Len(msgs, 1)
 
-	action := actions[0]
-	s.Require().EqualValues(1, action.Id)
-	s.Require().EqualValues(100, action.Height)
-	s.Require().EqualValues(3, action.Position)
-	s.Require().Equal(testTime, action.Time)
-	s.Require().EqualValues(string(types.MsgTypeBeginRedelegate), action.Type)
-	s.Require().EqualValues(1, action.Tx.Id)
+	msg := msgs[0]
+	s.Require().EqualValues(1, msg.Id)
+	s.Require().EqualValues(100, msg.Height)
+	s.Require().EqualValues(3, msg.Position)
+	s.Require().Equal(testTime, msg.Time)
+	s.Require().EqualValues(string(types.MsgTypeBeginRedelegate), msg.Type)
+	s.Require().EqualValues(1, msg.Tx.Id)
 }
