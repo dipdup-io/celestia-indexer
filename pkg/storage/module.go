@@ -47,7 +47,7 @@ func NewModule(pg postgres.Storage, opts ...ModuleOption) Module {
 }
 
 // Name -
-func (Module) Name() string {
+func (*Module) Name() string {
 	return "storage"
 }
 

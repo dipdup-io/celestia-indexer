@@ -3,6 +3,7 @@ package parser
 import (
 	"context"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"sync"
@@ -40,4 +41,36 @@ func (p *Parser) Start(ctx context.Context) {
 
 	p.wg.Add(1)
 	go p.listen(ctx)
+}
+
+func (p *Parser) Close() error {
+	p.log.Info().Msg("closing...")
+	p.wg.Wait()
+
+	return p.input.Close()
+}
+
+func (p *Parser) Output(name string) (*modules.Output, error) {
+	if name != DataOutput {
+		return nil, errors.Wrap(modules.ErrUnknownOutput, name)
+	}
+
+	return p.output, nil
+}
+
+func (p *Parser) Input(name string) (*modules.Input, error) {
+	if name != BlocksInput {
+		return nil, errors.Wrap(modules.ErrUnknownInput, name)
+	}
+	return p.input, nil
+}
+
+func (p *Parser) AttachTo(name string, input *modules.Input) error {
+	output, err := p.Output(name)
+	if err != nil {
+		return err
+	}
+
+	output.Attach(input)
+	return nil
 }

@@ -2,10 +2,13 @@ package indexer
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/parser"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/rpc"
+	"github.com/dipdup-io/celestia-indexer/pkg/storage"
 	"sync"
 
+	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/receiver"
 	"github.com/rs/zerolog"
@@ -16,18 +19,31 @@ type Indexer struct {
 	cfg      config.Config
 	api      node.API
 	receiver *receiver.Receiver
+	parser   *parser.Parser
+	storage  *storage.Module
 	wg       *sync.WaitGroup
 	log      zerolog.Logger
 }
 
-func New(cfg config.Config) *Indexer {
+func New(ctx context.Context, cfg config.Config) *Indexer {
 
 	api := rpc.NewAPI(cfg.DataSources["node_rpc"])
+	r := receiver.NewModule(cfg, &api)
+
+	p := parser.NewModule()
+
+	pg, err := postgres.Create(ctx, cfg.Database)
+	if err != nil {
+		log.Err(err).Msg("creating pg context in indexer")
+	}
+	s := storage.NewModule(pg)
 
 	return &Indexer{
 		cfg:      cfg,
 		api:      &api,
-		receiver: receiver.NewModule(cfg, &api),
+		receiver: &r,
+		parser:   &p,
+		storage:  &s,
 		wg:       new(sync.WaitGroup),
 		log:      log.With().Str("module", "indexer").Logger(),
 	}
