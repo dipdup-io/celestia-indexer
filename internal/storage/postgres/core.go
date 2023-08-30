@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/dipdup-io/celestia-indexer/internal/stats"
-	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	models "github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-net/go-lib/config"
 	"github.com/dipdup-net/go-lib/database"
+	"github.com/dipdup-net/indexer-sdk/pkg/storage"
 	"github.com/dipdup-net/indexer-sdk/pkg/storage/postgres"
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun"
@@ -55,13 +55,6 @@ func Create(ctx context.Context, cfg config.Database) (Storage, error) {
 		PartitionManager: database.NewPartitionManager(strg.Connection(), database.PartitionByMonth),
 	}
 
-	if err := stats.Init(
-		&storage.Block{},
-		// TODO: add entities
-	); err != nil {
-		return s, errors.Wrap(err, "init stats filters")
-	}
-
 	return s, nil
 }
 
@@ -103,23 +96,22 @@ func (s Storage) CreateListener() models.Listener {
 
 func createHypertables(ctx context.Context, conn *database.Bun) error {
 	return conn.DB().RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
-		// if _, err := tx.ExecContext(ctx, `CREATE EXTENSION IF NOT EXISTS timescaledb;`); err != nil {
-		// 	return err
-		// }
-		if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('block', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
-			return err
-		}
-		if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('event', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
-			return err
-		}
-		if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('message', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
-			return err
-		}
-		// if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('namespace_message', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
-		// 	return err
-		// }
-		if _, err := tx.ExecContext(ctx, `SELECT create_hypertable('tx', 'time', chunk_time_interval => INTERVAL '1 month');`); err != nil {
-			return err
+		for _, model := range []storage.Model{
+			&models.Block{},
+			&models.Tx{},
+			&models.Message{},
+			&models.Event{},
+		} {
+			if _, err := tx.ExecContext(ctx,
+				`SELECT create_hypertable(?, 'time', chunk_time_interval => INTERVAL '1 month');`,
+				model.TableName(),
+			); err != nil {
+				return err
+			}
+
+			if err := stats.InitModel(model); err != nil {
+				return err
+			}
 		}
 		return nil
 	})

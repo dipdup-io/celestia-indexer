@@ -23,7 +23,7 @@ type Level uint64
 
 // Block -
 type Block struct {
-	bun.BaseModel `bun:"table:block" comment:"Table with celestia blocks." json:"-"`
+	bun.BaseModel `bun:"table:block" comment:"Table with celestia blocks."`
 
 	Id           uint64    `bun:",pk,notnull,autoincrement" comment:"Unique internal identity"`
 	Height       Level     `bun:"height"                    comment:"The number (height) of this block" stats:"func:min max,filterable"`
@@ -51,8 +51,8 @@ type Block struct {
 	Fee     decimal.Decimal `bun:"fee,type:numeric" comment:"Summary block fee" stats:"func:min max sum avg"`
 	ChainId string          `bun:"-"` // internal field for filling state
 
-	Txs    []Tx    `bun:"rel:has-many" json:"-"`
-	Events []Event `bun:"rel:has-many" json:"-"`
+	Txs    []Tx    `bun:"rel:has-many"`
+	Events []Event `bun:"rel:has-many"`
 }
 
 // TableName -

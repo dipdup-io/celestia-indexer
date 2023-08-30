@@ -8,8 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// TODO: write tests
-
 type StatsHandler struct {
 	repo storage.IStats
 }
@@ -23,7 +21,7 @@ func NewStatsHandler(repo storage.IStats) StatsHandler {
 type summaryRequest struct {
 	Table    string `example:"block"      param:"table"    swaggertype:"string"  validate:"required,oneof=block tx event message"`
 	Function string `example:"count"      param:"function" swaggertype:"string"  validate:"required,oneof=avg sum min max count"`
-	Column   string `example:"fee"        param:"column"   swaggertype:"string"  validate:"omitempty"`
+	Column   string `example:"fee"        query:"column"   swaggertype:"string"  validate:"omitempty"`
 	From     uint64 `example:"1692892095" query:"from"     swaggertype:"integer" validate:"omitempty,min=1"`
 	To       uint64 `example:"1692892095" query:"to"       swaggertype:"integer" validate:"omitempty,min=1"`
 }
@@ -78,7 +76,7 @@ type histogramRequest struct {
 	Table     string `example:"block"      param:"table"     swaggertype:"string"  validate:"required,oneof=block tx event message"`
 	Function  string `example:"count"      param:"function"  swaggertype:"string"  validate:"required,oneof=avg sum min max count"`
 	Timeframe string `example:"hour"       param:"timeframe" swaggertype:"string"  validate:"required,oneof=hour day week month year"`
-	Column    string `example:"fee"        param:"column"    swaggertype:"string"  validate:"omitempty"`
+	Column    string `example:"fee"        query:"column"    swaggertype:"string"  validate:"omitempty"`
 	From      uint64 `example:"1692892095" query:"from"      swaggertype:"integer" validate:"omitempty,min=1"`
 	To        uint64 `example:"1692892095" query:"to"        swaggertype:"integer" validate:"omitempty,min=1"`
 }

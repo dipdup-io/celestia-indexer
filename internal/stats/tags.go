@@ -31,7 +31,7 @@ type Column struct {
 
 func Init(models ...any) error {
 	for i := range models {
-		if err := initModel(models[i]); err != nil {
+		if err := InitModel(models[i]); err != nil {
 			return err
 		}
 	}
@@ -44,7 +44,7 @@ const (
 	bunTagName   = "bun"
 )
 
-func initModel(model any) error {
+func InitModel(model any) error {
 	typ := reflect.TypeOf(model)
 	for typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,8 +13,6 @@ import (
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/stretchr/testify/suite"
 )
-
-// TODO: write test on all entities
 
 // StatsTestSuite -
 type StatsTestSuite struct {
@@ -72,67 +71,439 @@ func (s *StatsTestSuite) TearDownSuite() {
 }
 
 func (s *StatsTestSuite) TestCountBlock() {
-	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer ctxCancel()
-
-	count, err := s.storage.Stats.Count(ctx, storage.CountRequest{
-		Table: "block",
-		From:  1672573739,
-	})
-	s.Require().NoError(err)
-	s.Require().EqualValues("2", count)
-}
-
-func (s *StatsTestSuite) TestCountBlockNoData() {
-	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer ctxCancel()
-
-	count, err := s.storage.Stats.Count(ctx, storage.CountRequest{
-		Table: "block",
-		From:  1693324139,
-	})
-	s.Require().NoError(err)
-	s.Require().EqualValues("0", count)
-}
-
-func (s *StatsTestSuite) TestSummaryBlock() {
-	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer ctxCancel()
-
-	totalFee, err := s.storage.Stats.Summary(ctx, storage.SummaryRequest{
-		CountRequest: storage.CountRequest{
-			Table: "block",
-			From:  1672573739,
-		},
-		Function: "sum",
-		Column:   "fee",
-	})
-	s.Require().NoError(err)
-	s.Require().Equal("4599819996", totalFee)
-}
-
-func (s *StatsTestSuite) TestHistogramBlock() {
 	type test struct {
-		timeframe storage.Timeframe
-		wantDate  time.Time
+		table string
+		want  string
 	}
 
 	tests := []test{
 		{
+			table: "block",
+			want:  "2",
+		}, {
+			table: "tx",
+			want:  "2",
+		}, {
+			table: "event",
+			want:  "3",
+		}, {
+			table: "message",
+			want:  "3",
+		},
+	}
+
+	for i := range tests {
+		ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer ctxCancel()
+
+		count, err := s.storage.Stats.Count(ctx, storage.CountRequest{
+			Table: tests[i].table,
+			From:  1672573739,
+		})
+		s.Require().NoError(err)
+		s.Require().EqualValues(tests[i].want, count)
+	}
+}
+
+func (s *StatsTestSuite) TestCountBlockNoData() {
+	type test struct {
+		table string
+	}
+
+	tests := []test{
+		{
+			table: "block",
+		}, {
+			table: "tx",
+		}, {
+			table: "event",
+		}, {
+			table: "message",
+		},
+	}
+
+	for i := range tests {
+		ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer ctxCancel()
+
+		count, err := s.storage.Stats.Count(ctx, storage.CountRequest{
+			Table: tests[i].table,
+			From:  1693324139,
+		})
+		s.Require().NoError(err)
+		s.Require().EqualValues("0", count)
+	}
+}
+
+func (s *StatsTestSuite) TestSummaryBlock() {
+	type test struct {
+		table    string
+		column   string
+		function string
+		want     string
+	}
+
+	tests := []test{
+		// Block tests
+		{
+			table:    "block",
+			column:   "fee",
+			function: "sum",
+			want:     "4599819996",
+		}, {
+			table:    "block",
+			column:   "fee",
+			function: "avg",
+			want:     "2299909998",
+		}, {
+			table:    "block",
+			column:   "fee",
+			function: "min",
+			want:     "1726351723",
+		}, {
+			table:    "block",
+			column:   "fee",
+			function: "max",
+			want:     "2873468273",
+		},
+		// Tx tests
+		{
+			table:    "tx",
+			column:   "fee",
+			function: "sum",
+			want:     "160820",
+		}, {
+			table:    "tx",
+			column:   "fee",
+			function: "avg",
+			want:     "80410",
+		}, {
+			table:    "tx",
+			column:   "fee",
+			function: "min",
+			want:     "80410",
+		}, {
+			table:    "tx",
+			column:   "fee",
+			function: "max",
+			want:     "80410",
+		},
+	}
+
+	for i := range tests {
+		ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer ctxCancel()
+
+		summary, err := s.storage.Stats.Summary(ctx, storage.SummaryRequest{
+			CountRequest: storage.CountRequest{
+				Table: tests[i].table,
+				From:  1672573739,
+			},
+			Function: tests[i].function,
+			Column:   tests[i].column,
+		})
+		s.Require().NoError(err)
+
+		parts := strings.Split(summary, ".")
+		s.Require().Equal(tests[i].want, parts[0])
+	}
+}
+
+func (s *StatsTestSuite) TestHistogramBlock() {
+
+	type test struct {
+		timeframe storage.Timeframe
+		table     string
+		column    string
+		function  string
+		wantDate  time.Time
+		want      string
+	}
+
+	tests := []test{
+		// Block tests
+		{
 			timeframe: storage.TimeframeHour,
+			table:     "block",
+			column:    "fee",
+			function:  "sum",
 			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "4599819996",
 		}, {
 			timeframe: storage.TimeframeDay,
+			table:     "block",
+			column:    "fee",
+			function:  "sum",
 			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "4599819996",
 		}, {
 			timeframe: storage.TimeframeWeek,
+			table:     "block",
+			column:    "fee",
+			function:  "sum",
 			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "4599819996",
 		}, {
 			timeframe: storage.TimeframeMonth,
+			table:     "block",
+			column:    "fee",
+			function:  "sum",
 			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "4599819996",
 		}, {
 			timeframe: storage.TimeframeYear,
+			table:     "block",
+			column:    "fee",
+			function:  "sum",
 			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "4599819996",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "block",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "2299909998",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "block",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "2299909998",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "block",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "2299909998",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "block",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2299909998",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "block",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2299909998",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "block",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "1726351723",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "block",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "1726351723",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "block",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "1726351723",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "block",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "1726351723",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "block",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "1726351723",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "block",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "2873468273",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "block",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "2873468273",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "block",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "2873468273",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "block",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2873468273",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "block",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2873468273",
+		},
+		// Tx tests
+		{
+			timeframe: storage.TimeframeHour,
+			table:     "tx",
+			column:    "fee",
+			function:  "sum",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "160820",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "tx",
+			column:    "fee",
+			function:  "sum",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "160820",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "tx",
+			column:    "fee",
+			function:  "sum",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "160820",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "tx",
+			column:    "fee",
+			function:  "sum",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "160820",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "tx",
+			column:    "fee",
+			function:  "sum",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "160820",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "tx",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "tx",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "tx",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "tx",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "tx",
+			column:    "fee",
+			function:  "avg",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "tx",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "tx",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "tx",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "tx",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "tx",
+			column:    "fee",
+			function:  "min",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "tx",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "tx",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "tx",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "tx",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "tx",
+			column:    "fee",
+			function:  "max",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "80410",
 		},
 	}
 
@@ -144,11 +515,11 @@ func (s *StatsTestSuite) TestHistogramBlock() {
 			storage.HistogramRequest{
 				SummaryRequest: storage.SummaryRequest{
 					CountRequest: storage.CountRequest{
-						Table: "block",
+						Table: tests[i].table,
 						From:  1672573739,
 					},
-					Function: "sum",
-					Column:   "fee",
+					Function: tests[i].function,
+					Column:   tests[i].column,
 				},
 				Timeframe: tests[i].timeframe,
 			})
@@ -156,33 +527,121 @@ func (s *StatsTestSuite) TestHistogramBlock() {
 		s.Require().Len(histogram, 1)
 
 		item := histogram[0]
-		s.Require().Equal("4599819996", item.Value)
+		parts := strings.Split(item.Value, ".")
+		s.Require().Equal(tests[i].want, parts[0])
 		s.Require().True(item.Time.Equal(tests[i].wantDate))
 	}
 }
 
-func (s *StatsTestSuite) TestHistogramCountBlock() {
+func (s *StatsTestSuite) TestHistogramCount() {
 	type test struct {
 		timeframe storage.Timeframe
+		table     string
 		wantDate  time.Time
+		want      string
 	}
 
 	tests := []test{
 		{
 			timeframe: storage.TimeframeHour,
+			table:     "block",
 			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "2",
 		}, {
 			timeframe: storage.TimeframeDay,
+			table:     "block",
 			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "2",
 		}, {
 			timeframe: storage.TimeframeWeek,
+			table:     "block",
 			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "2",
 		}, {
 			timeframe: storage.TimeframeMonth,
+			table:     "block",
 			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2",
 		}, {
 			timeframe: storage.TimeframeYear,
+			table:     "block",
 			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "tx",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "2",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "tx",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "2",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "tx",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "2",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "tx",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "tx",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "2",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "message",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "message",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "message",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "message",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "message",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeHour,
+			table:     "event",
+			wantDate:  time.Date(2023, 7, 4, 3, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeDay,
+			table:     "event",
+			wantDate:  time.Date(2023, 7, 4, 0, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeWeek,
+			table:     "event",
+			wantDate:  time.Date(2023, 7, 3, 0, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeMonth,
+			table:     "event",
+			wantDate:  time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC),
+			want:      "3",
+		}, {
+			timeframe: storage.TimeframeYear,
+			table:     "event",
+			wantDate:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want:      "3",
 		},
 	}
 
@@ -193,7 +652,7 @@ func (s *StatsTestSuite) TestHistogramCountBlock() {
 		histogram, err := s.storage.Stats.HistogramCount(ctx,
 			storage.HistogramCountRequest{
 				CountRequest: storage.CountRequest{
-					Table: "block",
+					Table: tests[i].table,
 					From:  1672573739,
 				},
 				Timeframe: tests[i].timeframe,
@@ -202,7 +661,7 @@ func (s *StatsTestSuite) TestHistogramCountBlock() {
 		s.Require().Len(histogram, 1)
 
 		item := histogram[0]
-		s.Require().Equal("2", item.Value)
+		s.Require().Equal(tests[i].want, item.Value)
 		s.Require().True(item.Time.Equal(tests[i].wantDate))
 	}
 }
