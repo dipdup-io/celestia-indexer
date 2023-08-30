@@ -15,6 +15,8 @@ type Block struct {
 	VersionApp         string    `example:"1"                                                                json:"version_app"          swaggertype:"string"`
 	TxCount            uint64    `example:"12"                                                               json:"tx_count"             swaggertype:"integer"`
 	EventsCount        uint64    `example:"18"                                                               json:"events_count"         swaggertype:"integer"`
+	NamespaceSize      uint64    `example:"12354"                                                            json:"namespace_size"       swaggertype:"integer"`
+	Fee                string    `example:"28347628346"                                                      json:"fee"                  swaggertype:"string"`
 	Hash               string    `example:"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF" json:"hash"                 swaggertype:"string"`
 	ParentHash         string    `example:"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF" json:"parent_hash"          swaggertype:"string"`
 	LastCommitHash     string    `example:"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF" json:"last_commit_hash"     swaggertype:"string"`
@@ -26,6 +28,7 @@ type Block struct {
 	LastResultsHash    string    `example:"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF" json:"last_results_hash"    swaggertype:"string"`
 	EvidenceHash       string    `example:"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF" json:"evidence_hash"        swaggertype:"string"`
 	ProposerAddress    string    `example:"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF" json:"proposer_address"     swaggertype:"string"`
+	MessageTypes       []string  `example:"MsgSend,MsgUnjail"                                                json:"message_types"        swaggertype:"array,string"`
 }
 
 func NewBlock(block storage.Block) Block {
@@ -37,6 +40,8 @@ func NewBlock(block storage.Block) Block {
 		VersionApp:         block.VersionApp,
 		TxCount:            block.TxCount,
 		EventsCount:        block.EventsCount,
+		NamespaceSize:      block.NamespaceSize,
+		Fee:                block.Fee.String(),
 		Hash:               hex.EncodeToString(block.Hash),
 		ParentHash:         hex.EncodeToString(block.ParentHash),
 		LastCommitHash:     hex.EncodeToString(block.LastCommitHash),
@@ -48,5 +53,10 @@ func NewBlock(block storage.Block) Block {
 		LastResultsHash:    hex.EncodeToString(block.LastResultsHash),
 		EvidenceHash:       hex.EncodeToString(block.EvidenceHash),
 		ProposerAddress:    hex.EncodeToString(block.ProposerAddress),
+		MessageTypes:       block.MessageTypes.Names(),
 	}
+}
+
+func (Block) SearchType() string {
+	return "block"
 }

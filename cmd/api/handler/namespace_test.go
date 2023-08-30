@@ -2,14 +2,18 @@ package handler
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/blob"
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/mock"
+	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
@@ -29,10 +33,11 @@ var (
 // NamespaceTestSuite -
 type NamespaceTestSuite struct {
 	suite.Suite
-	namespaces *mock.MockINamespace
-	echo       *echo.Echo
-	handler    *NamespaceHandler
-	ctrl       *gomock.Controller
+	namespaces   *mock.MockINamespace
+	blobReceiver *blob.MockReceiver
+	echo         *echo.Echo
+	handler      *NamespaceHandler
+	ctrl         *gomock.Controller
 }
 
 // SetupSuite -
@@ -41,7 +46,8 @@ func (s *NamespaceTestSuite) SetupSuite() {
 	s.echo.Validator = NewCelestiaApiValidator()
 	s.ctrl = gomock.NewController(s.T())
 	s.namespaces = mock.NewMockINamespace(s.ctrl)
-	s.handler = NewNamespaceHandler(s.namespaces)
+	s.blobReceiver = blob.NewMockReceiver(s.ctrl)
+	s.handler = NewNamespaceHandler(s.namespaces, s.blobReceiver)
 }
 
 // TearDownSuite -
@@ -171,4 +177,101 @@ func (s *NamespaceTestSuite) TestGetByHash() {
 	s.Require().EqualValues(1, namespace.Version)
 	s.Require().Equal(testNamespaceId, namespace.NamespaceID)
 	s.Require().Equal(testNamespaceBase64, namespace.Hash)
+}
+
+func (s *NamespaceTestSuite) TestGetBlob() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/namespace_by_hash/:hash/:height")
+	c.SetParamNames("hash", "height")
+	c.SetParamValues(testNamespaceBase64, "1000")
+
+	result := make([]blob.Blob, 2)
+
+	for i := 0; i < len(result); i++ {
+		result[i].Namespace = testNamespaceBase64
+
+		data := make([]byte, 88)
+		_, err := rand.Read(data)
+		s.Require().NoError(err)
+		result[i].Data = base64.URLEncoding.EncodeToString(data)
+
+		commitment := make([]byte, 32)
+		_, err = rand.Read(commitment)
+		s.Require().NoError(err)
+		result[i].Commitment = base64.URLEncoding.EncodeToString(commitment)
+
+		result[i].ShareVersion = 0
+	}
+
+	s.blobReceiver.EXPECT().
+		Blobs(gomock.Any(), uint64(1000), testNamespaceBase64).
+		Return(result, nil).
+		MaxTimes(1).
+		MinTimes(1)
+
+	s.Require().NoError(s.handler.GetBlob(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var blobs []blob.Blob
+	err := json.NewDecoder(rec.Body).Decode(&blobs)
+	s.Require().NoError(err)
+
+	s.Require().Len(blobs, 2)
+
+	blob := blobs[0]
+	s.Require().EqualValues(result[0].ShareVersion, blob.ShareVersion)
+	s.Require().Equal(result[0].Namespace, blob.Namespace)
+	s.Require().Equal(result[0].Data, blob.Data)
+	s.Require().Equal(result[0].Commitment, blob.Commitment)
+
+}
+
+func (s *NamespaceTestSuite) TestGetMessages() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/namespace/:id/:version/messages")
+	c.SetParamNames("id", "version")
+	c.SetParamValues(testNamespaceId, "1")
+
+	s.namespaces.EXPECT().
+		ByNamespaceIdAndVersion(gomock.Any(), testNamespace.NamespaceID, byte(1)).
+		Return(testNamespace, nil)
+
+	s.namespaces.EXPECT().
+		Messages(gomock.Any(), testNamespace.ID, 0, 0).
+		Return([]storage.NamespaceMessage{
+			{
+				NamespaceId: testNamespace.ID,
+				MsgId:       1,
+				Message: &storage.Message{
+					Id:       1,
+					TxId:     2,
+					Position: 3,
+					Type:     types.MsgTypeBeginRedelegate,
+					Height:   100,
+					Time:     testTime,
+				},
+				TxId: 1,
+				Tx:   &testTx,
+			},
+		}, nil)
+
+	s.Require().NoError(s.handler.GetMessages(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var msgs []responses.NamespaceMessage
+	err := json.NewDecoder(rec.Body).Decode(&msgs)
+	s.Require().NoError(err)
+	s.Require().Len(msgs, 1)
+
+	msg := msgs[0]
+	s.Require().EqualValues(1, msg.Id)
+	s.Require().EqualValues(100, msg.Height)
+	s.Require().EqualValues(3, msg.Position)
+	s.Require().Equal(testTime, msg.Time)
+	s.Require().EqualValues(string(types.MsgTypeBeginRedelegate), msg.Type)
+	s.Require().EqualValues(1, msg.Tx.Id)
 }

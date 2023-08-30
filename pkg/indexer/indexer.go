@@ -22,7 +22,7 @@ type Indexer struct {
 
 func New(cfg config.Config) *Indexer {
 
-	api := rpc.NewAPI(cfg.DataSources["node"])
+	api := rpc.NewAPI(cfg.DataSources["node_rpc"])
 
 	return &Indexer{
 		cfg:      cfg,
