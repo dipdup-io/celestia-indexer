@@ -29,7 +29,7 @@ type Receiver struct {
 	wg      *sync.WaitGroup
 }
 
-func New(cfg config.Config, api node.API) *Receiver {
+func NewModule(cfg config.Config, api node.API) *Receiver {
 	receiver := &Receiver{
 		api:     api,
 		cfg:     cfg,
@@ -56,10 +56,12 @@ func (r *Receiver) Start(ctx context.Context) {
 	r.wg.Add(1)
 	go r.sequencer(ctx)
 
-	if err := r.readBlocks(ctx); err != nil {
-		r.log.Err(err).Msg("read block")
-		return
-	}
+	go func() {
+		if err := r.readBlocks(ctx); err != nil {
+			r.log.Err(err).Msg("read block")
+			return
+		}
+	}()
 }
 
 func (r *Receiver) Close() error {

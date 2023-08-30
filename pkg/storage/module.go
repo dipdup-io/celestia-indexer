@@ -165,13 +165,14 @@ func (module *Module) updateState(block storage.Block) {
 }
 
 func (module *Module) saveBlock(ctx context.Context, block storage.Block) error {
-	module.log.Info().Uint64("height", block.Id).Msg("saving block...")
+	module.log.Info().Uint64("height", uint64(block.Height)).Msg("saving block...")
 	tx, err := postgres.BeginTransaction(ctx, module.storage.Transactable)
 	if err != nil {
 		return err
 	}
 	defer tx.Close(ctx)
 
+	block.Id = uint64(block.Height)
 	if err := tx.Add(ctx, &block); err != nil {
 		return tx.HandleError(ctx, err)
 	}

@@ -27,7 +27,7 @@ func New(cfg config.Config) *Indexer {
 	return &Indexer{
 		cfg:      cfg,
 		api:      &api,
-		receiver: receiver.New(cfg, &api),
+		receiver: receiver.NewModule(cfg, &api),
 		wg:       new(sync.WaitGroup),
 		log:      log.With().Str("module", "indexer").Logger(),
 	}
