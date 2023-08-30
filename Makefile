@@ -24,4 +24,7 @@ adr:
 mock:
 	go generate ./internal/storage
 
+api-docs:
+	cd cmd/api && swag fmt && swag init --md markdown
+
 .PHONY: indexer api build lint test adr

@@ -28,20 +28,20 @@ type summaryRequest struct {
 
 // Summary godoc
 //
-//	@Summary		Get value by table and function
-//	@Description	Returns string value by passed table and function
-//	@Tags			stats
-//	@ID				stats-summary
-//	@Param			table		path	string	true	"Table name"															Enums(block, tx, event, message)
-//	@Param			function	path	string	true	"Function name"															Enums(min, max, avg, sum, count)
-//	@Param			column		query	string	true	"Column name which will be used for computation. Optional for count."	Enums(min, max, avg, sum, count)
-//	@Param			from		query	integer	false	"Time from in unix timestamp"											mininum(1)
-//	@Param			to			query	integer	false	"Time to in unix timestamp"												mininum(1)
-//	@Produce		json
-//	@Success		200	{object}	string
-//	@Failure		400	{object}	Error
-//	@Failure		500	{object}	Error
-//	@Router			/v1/stats/summary/{table}/{function} [get]
+//	@Summary				Get value by table and function
+//	@Description.markdown	summary
+//	@Tags					stats
+//	@ID						stats-summary
+//	@Param					table		path	string	true	"Table name"	Enums(block, tx, event, message)
+//	@Param					function	path	string	true	"Function name"	Enums(min, max, avg, sum, count)
+//	@Param					column		query	string	false	"Column name which will be used for computation. Optional for count."
+//	@Param					from		query	integer	false	"Time from in unix timestamp"	mininum(1)
+//	@Param					to			query	integer	false	"Time to in unix timestamp"		mininum(1)
+//	@Produce				json
+//	@Success				200	{object}	string
+//	@Failure				400	{object}	Error
+//	@Failure				500	{object}	Error
+//	@Router					/v1/stats/summary/{table}/{function} [get]
 func (sh StatsHandler) Summary(c echo.Context) error {
 	req, err := bindAndValidate[summaryRequest](c)
 	if err != nil {
@@ -83,21 +83,21 @@ type histogramRequest struct {
 
 // Histogram godoc
 //
-//	@Summary		Get histogram
-//	@Description	Returns histogram by table, function and timeframe
-//	@Tags			stats
-//	@ID				stats-histogram
-//	@Param			table		path	string	true	"Table name"															Enums(block, tx, event, message)
-//	@Param			function	path	string	true	"Function name"															Enums(min, max, avg, sum, count)
-//	@Param			timeframe	path	string	true	"Timeframe"																Enums(hour, day, week, month, year)
-//	@Param			column		query	string	true	"Column name which will be used for computation. Optional for count"	Enums(min, max, avg, sum, count)
-//	@Param			from		query	integer	false	"Time from in unix timestamp"											mininum(1)
-//	@Param			to			query	integer	false	"Time to in unix timestamp"												mininum(1)
-//	@Produce		json
-//	@Success		200	{array}		responses.HistogramItem
-//	@Failure		400	{object}	Error
-//	@Failure		500	{object}	Error
-//	@Router			/v1/stats/histogram/{table}/{function}/{timeframe} [get]
+//	@Summary				Get histogram
+//	@Description.markdown	histogram
+//	@Tags					stats
+//	@ID						stats-histogram
+//	@Param					table		path	string	true	"Table name"	Enums(block, tx, event, message)
+//	@Param					function	path	string	true	"Function name"	Enums(min, max, avg, sum, count)
+//	@Param					timeframe	path	string	true	"Timeframe"		Enums(hour, day, week, month, year)
+//	@Param					column		query	string	false	"Column name which will be used for computation. Optional for count"
+//	@Param					from		query	integer	false	"Time from in unix timestamp"	mininum(1)
+//	@Param					to			query	integer	false	"Time to in unix timestamp"		mininum(1)
+//	@Produce				json
+//	@Success				200	{array}		responses.HistogramItem
+//	@Failure				400	{object}	Error
+//	@Failure				500	{object}	Error
+//	@Router					/v1/stats/histogram/{table}/{function}/{timeframe} [get]
 func (sh StatsHandler) Histogram(c echo.Context) error {
 	req, err := bindAndValidate[histogramRequest](c)
 	if err != nil {

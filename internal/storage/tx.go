@@ -42,8 +42,8 @@ type Tx struct {
 	TimeoutHeight uint64            `bun:"timeout_height"            comment:"Block height until which the transaction is valid" stats:"func:min max avg"`
 	EventsCount   uint64            `bun:"events_count"              comment:"Events count in transaction"                       stats:"func:min max sum avg"`
 	MessagesCount uint64            `bun:"messages_count"            comment:"Messages count in transaction"                     stats:"func:min max sum avg"`
-	Fee           decimal.Decimal   `bun:",type:numeric"             comment:"Paid fee"                                          stats:"func:min max sum avg"`
-	Status        types.Status      `bun:",type:status"              comment:"Transaction status"                                stats:"filterable"`
+	Fee           decimal.Decimal   `bun:"fee,type:numeric"          comment:"Paid fee"                                          stats:"func:min max sum avg"`
+	Status        types.Status      `bun:"status,type:status"        comment:"Transaction status"                                stats:"filterable"`
 	Error         string            `bun:"error"                     comment:"Error string if failed"`
 	Codespace     string            `bun:"codespace"                 comment:"Codespace"                                         stats:"filterable"`
 	Hash          []byte            `bun:"hash"                      comment:"Transaction hash"`

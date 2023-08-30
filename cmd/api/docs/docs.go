@@ -645,7 +645,7 @@ const docTemplate = `{
         },
         "/v1/search": {
             "get": {
-                "description": "Search entity by hash (block, tx, account and namespace)",
+                "description": "Endpoint finds entity by hash (block, address, namespace and tx)\n\n### Block\n\nBlock will be found by its hash. Hash example: ` + "`" + `652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF` + "`" + `. Hash should be hexademical and has length 64.\n\n#### Example response \n\n` + "`" + `` + "`" + `` + "`" + `json\n{\n    \"type\": \"block\",\n    \"result\": {\n        \"id\": 1,\n        \"hash\": \"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF\",\n        // ... rest fields from response.Block type\n    }\n}\n` + "`" + `` + "`" + `` + "`" + `\n\n### Tx\n\nTx will be found by its hash. Hash example: ` + "`" + `652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF` + "`" + `. Tx should be hexademical and has length 64.\n\n#### Example response \n\n` + "`" + `` + "`" + `` + "`" + `json\n{\n    \"type\": \"tx\",\n    \"result\": {\n        \"id\": 1,\n        \"hash\": \"652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF\",\n        // ... rest fields from response.Tx type\n    }\n}\n` + "`" + `` + "`" + `` + "`" + `\n\n### Address\n\nAddress will be found by its hash. Hash example: ` + "`" + `celestia1jc92qdnty48pafummfr8ava2tjtuhfdw774w60` + "`" + `. Address has prefix ` + "`" + `celestia` + "`" + ` and has length 47. Also it should be decoded by ` + "`" + `bech32` + "`" + `.\n\n#### Example response \n\n` + "`" + `` + "`" + `` + "`" + `json\n{\n    \"type\": \"address\",\n    \"result\": {\n        \"id\": 1,\n        \"hash\": \"celestia1jc92qdnty48pafummfr8ava2tjtuhfdw774w60\",\n        \"height\": 100,\n        \"balance\": \"6525472354\"\n    }\n}\n` + "`" + `` + "`" + `` + "`" + `\n\n### Namespace\n\nNamespace can be found by base64 hash and identity pair version + namespace id. \nHash example: ` + "`" + `U3dhZ2dlciByb2Nrcw==` + "`" + `. \nIdentity pair example: ` + "`" + `014723ce10b187716adfc55ff7e6d9179c226e6b5440b02577cca49d02` + "`" + `\n\n#### Example response \n\n` + "`" + `` + "`" + `` + "`" + `json\n{\n    \"type\": \"namespace\",\n    \"result\": {\n        \"id\": 1,\n        \"hash\": \"U3dhZ2dlciByb2Nrcw==\",\n        \"version\": 1,\n        \"namespace_id\": \"4723ce10b187716adfc55ff7e6d9179c226e6b5440b02577cca49d02\"\n        // ... rest fields from response.Namespace type\n    }\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
                 "produces": [
                     "application/json"
                 ],
@@ -690,7 +690,7 @@ const docTemplate = `{
         },
         "/v1/stats/histogram/{table}/{function}/{timeframe}": {
             "get": {
-                "description": "Returns histogram by table, function and timeframe",
+                "description": "Returns histogram by table, function and timeframe\n\n### Parameters\n\n` + "`" + `table` + "`" + `, ` + "`" + `function` + "`" + ` and ` + "`" + `column` + "`" + ` parameters are the same as summary endpoint.\n\n\n### Timeframe\n\n* ` + "`" + `hour` + "`" + `\n* ` + "`" + `day` + "`" + `\n* ` + "`" + `week` + "`" + `\n* ` + "`" + `month` + "`" + `\n* ` + "`" + `year` + "`" + `",
                 "produces": [
                     "application/json"
                 ],
@@ -742,18 +742,10 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "enum": [
-                            "min",
-                            "max",
-                            "avg",
-                            "sum",
-                            "count"
-                        ],
                         "type": "string",
                         "description": "Column name which will be used for computation. Optional for count",
                         "name": "column",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -795,7 +787,7 @@ const docTemplate = `{
         },
         "/v1/stats/summary/{table}/{function}": {
             "get": {
-                "description": "Returns string value by passed table and function",
+                "description": "Returns string value by passed table and function.\n\n### Availiable tables\n* ` + "`" + `block` + "`" + `\n* ` + "`" + `tx` + "`" + `\n* ` + "`" + `message` + "`" + `\n* ` + "`" + `event` + "`" + `\n\n\n### Availiable functions\n* ` + "`" + `sum` + "`" + `\n* ` + "`" + `min` + "`" + `\n* ` + "`" + `max` + "`" + `\n* ` + "`" + `avg` + "`" + `\n* ` + "`" + `count` + "`" + `\n\n\n` + "`" + `Column` + "`" + ` query parameter is required for functions ` + "`" + `sum` + "`" + `, ` + "`" + `min` + "`" + `, ` + "`" + `max` + "`" + ` and ` + "`" + `avg` + "`" + ` and should not pass for ` + "`" + `count` + "`" + `.\n\n\n###  Availiable columns and functions for tables:\n\n#### Block\n* ` + "`" + `height` + "`" + `         -- min max\n* ` + "`" + `time` + "`" + `           -- min max\n* ` + "`" + `tx_count` + "`" + `       -- min max sum avg\n* ` + "`" + `events_count` + "`" + `   -- min max sum avg\n* ` + "`" + `namespace_size` + "`" + ` -- min max sum avg\n* ` + "`" + `fee` + "`" + `            -- min max sum avg\n\n#### Tx\n* ` + "`" + `height` + "`" + `         -- min max\n* ` + "`" + `time` + "`" + `           -- min max\n* ` + "`" + `gas_wanted` + "`" + `     -- min max sum avg\n* ` + "`" + `gas_used` + "`" + `       -- min max sum avg\n* ` + "`" + `timeout_height` + "`" + ` -- min max avg\n* ` + "`" + `events_count` + "`" + `   -- min max sum avg\n* ` + "`" + `messages_count` + "`" + ` -- min max sum avg\n* ` + "`" + `fee` + "`" + `            -- min max sum avg\n\n#### Event\n* ` + "`" + `height` + "`" + `         -- min max\n* ` + "`" + `time` + "`" + `           -- min max\n\n#### Message\n* ` + "`" + `height` + "`" + `         -- min max\n* ` + "`" + `time` + "`" + `           -- min max",
                 "produces": [
                     "application/json"
                 ],
@@ -833,18 +825,10 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "enum": [
-                            "min",
-                            "max",
-                            "avg",
-                            "sum",
-                            "count"
-                        ],
                         "type": "string",
                         "description": "Column name which will be used for computation. Optional for count.",
                         "name": "column",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
