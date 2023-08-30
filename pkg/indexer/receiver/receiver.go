@@ -56,12 +56,10 @@ func (r *Receiver) Start(ctx context.Context) {
 	r.wg.Add(1)
 	go r.sequencer(ctx)
 
-	go func() {
-		if err := r.readBlocks(ctx); err != nil {
-			r.log.Err(err).Msg("read block")
-			return
-		}
-	}()
+	if err := r.readBlocks(ctx); err != nil {
+		r.log.Err(err).Msg("read block")
+		return
+	}
 }
 
 func (r *Receiver) Close() error {
