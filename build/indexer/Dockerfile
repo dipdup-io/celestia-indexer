@@ -16,7 +16,7 @@ COPY ./go.* $GOPATH/src/github.com/dipdup-io/celestia-indexer/
 WORKDIR $GOPATH/src/github.com/dipdup-io/celestia-indexer
 RUN go mod download
 
-COPY cmd/indexer cmd/indexer
+COPY cmd cmd
 COPY internal internal
 COPY pkg pkg
 
