@@ -16,7 +16,7 @@ COPY ./go.* $GOPATH/src/github.com/dipdup-io/celestia-indexer/
 WORKDIR $GOPATH/src/github.com/dipdup-io/celestia-indexer
 RUN go mod download
 
-COPY cmd cmd
+COPY cmd/indexer cmd/indexer
 COPY internal internal
 COPY pkg pkg
 
@@ -32,6 +32,6 @@ WORKDIR /app/celestia-indexer/
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /go/bin/indexer /go/bin/indexer
-COPY ./build/dipdup.yml ./
+COPY build/dipdup.yml ./
 
 ENTRYPOINT ["/go/bin/indexer", "-c", "dipdup.yml"]
