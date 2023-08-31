@@ -20,11 +20,11 @@ const defaultIndexerName = "celestia-indexer"
 
 // Module - saves received from input block to storage.
 //
-//	                       |----------------|
-//	                       |                |
-//	  -- storage.Block ->  |     MODULE     |
-//					       |                |
-//	                       |----------------|
+//	                     |----------------|
+//	                     |                |
+//	-- storage.Block ->  |     MODULE     |
+//	                     |                |
+//	                     |----------------|
 type Module struct {
 	storage postgres.Storage
 	input   *modules.Input

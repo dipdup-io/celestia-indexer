@@ -21,11 +21,11 @@ const (
 
 // Module - executes rollback on signal from input (target height) and notify all subscribers about new state after rollback operation.
 //
-//	                       |--------------|
-//	                       |              |
-//	  -- storage.Level ->  |    MODULE    |  -- storage.State ->
-//					       |              |
-//	                       |--------------|
+//	                     |----------------|
+//	                     |                |
+//	-- storage.Level ->  |     MODULE     |  -- storage.State ->
+//	                     |                |
+//	                     |----------------|
 type Module struct {
 	tx        sdk.Transactable
 	state     storage.IState
