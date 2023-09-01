@@ -19,7 +19,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 
 		TxCount:      uint64(len(b.Block.Data.Txs)),
 		EventsCount:  uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
-		MessageTypes: storageTypes.MsgTypeBits{}, // TODO
+		MessageTypes: storageTypes.MsgTypeBits{}, // TODO init
 		BlobsSize:    0,
 
 		Hash:               []byte(b.BlockID.Hash), // TODO create a Hex type for common usage through indexer app
@@ -34,11 +34,11 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		EvidenceHash:       []byte(b.Block.EvidenceHash),
 		ProposerAddress:    []byte(b.Block.ProposerAddress),
 
-		Fee:     decimal.Zero, // TODO sum of auth_info.fee // Research
+		Fee:     decimal.Zero, // TODO sum of auth_info.fee // RESEARCH
 		ChainId: b.Block.ChainID,
 
-		Txs:    make([]storage.Tx, 0),    // TODO
-		Events: make([]storage.Event, 0), // TODO
+		Txs:    parseTxs(b),
+		Events: nil, // TODO
 	}
 
 	p.output.Push(block)
