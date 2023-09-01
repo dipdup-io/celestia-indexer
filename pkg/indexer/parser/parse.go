@@ -18,10 +18,10 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		VersionBlock: strconv.FormatUint(b.Block.Version.Block, 10), // should we use string in storage type?
 		VersionApp:   strconv.FormatUint(b.Block.Version.App, 10),   // should we use string in storage type?
 
-		TxCount:       uint64(len(b.Block.Data.Txs)),
-		EventsCount:   uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
-		MessageTypes:  storageTypes.MsgTypeBits{}, // TODO
-		NamespaceSize: 0,                          // "Summary block namespace size from pay for blob"` // should it be in block? // BlobsSize
+		TxCount:      uint64(len(b.Block.Data.Txs)),
+		EventsCount:  uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
+		MessageTypes: storageTypes.MsgTypeBits{}, // TODO
+		BlobsSize:    0,
 
 		Hash:               []byte(b.BlockID.Hash), // create a Hex type for common usage through indexer app
 		ParentHash:         []byte(b.Block.LastBlockID.Hash),

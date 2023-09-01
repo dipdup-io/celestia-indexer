@@ -160,7 +160,7 @@ func (module *Module) updateState(block storage.Block) {
 	module.state.LastHeight = block.Height
 	module.state.LastTime = block.Time
 	module.state.TotalTx += block.TxCount
-	module.state.TotalNamespaceSize = block.NamespaceSize
+	module.state.TotalNamespaceSize = block.BlobsSize
 	module.state.TotalFee = module.state.TotalFee.Add(block.Fee)
 	// TODO: update TotalAccounts
 	module.state.ChainId = block.ChainId
@@ -272,7 +272,7 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 	}
 	module.log.Info().
 		Uint64("height", block.Id).
-		Uint64("block_ns_size", block.NamespaceSize).
+		Uint64("block_ns_size", block.BlobsSize).
 		Str("block_fee", block.Fee.String()).
 		Msg("block saved")
 	return nil
