@@ -19,7 +19,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		VersionApp:   strconv.FormatUint(b.Block.Version.App, 10),   // should we use string in storage type?
 
 		TxCount:       uint64(len(b.Block.Data.Txs)),
-		EventsCount:   0, // TODO
+		EventsCount:   uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
 		MessageTypes:  storageTypes.MsgTypeBits{},
 		NamespaceSize: 0, // "Summary block namespace size from pay for blob"` // should it be in block?
 
