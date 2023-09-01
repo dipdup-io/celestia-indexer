@@ -10,6 +10,31 @@ import (
 	"time"
 )
 
+func createBlock(tx nodeTypes.ResponseDeliverTx, count int) (types.BlockData, time.Time) {
+	now := time.Now()
+	headerBlock := nodeTypes.Block{
+		Header: nodeTypes.Header{
+			Time: now,
+		},
+	}
+
+	var txResults []*nodeTypes.ResponseDeliverTx
+	for i := 0; i < count; i++ {
+		txResults = append(txResults, &tx)
+	}
+
+	block := types.BlockData{
+		ResultBlock: nodeTypes.ResultBlock{
+			Block: &headerBlock,
+		},
+		ResultBlockResults: nodeTypes.ResultBlockResults{
+			TxsResults: txResults,
+		},
+	}
+
+	return block, now
+}
+
 func TestParseTxs_EmptyTxsResults(t *testing.T) {
 	block := types.BlockData{
 		ResultBlockResults: nodeTypes.ResultBlockResults{
@@ -22,7 +47,7 @@ func TestParseTxs_EmptyTxsResults(t *testing.T) {
 	assert.Empty(t, resultTxs)
 }
 
-func TestParseTxs_SuccessResult(t *testing.T) {
+func TestParseTxs_SuccessTx(t *testing.T) {
 	data := bytes.HexBytes{}
 	txRes := nodeTypes.ResponseDeliverTx{
 		Code:      0,
@@ -34,22 +59,7 @@ func TestParseTxs_SuccessResult(t *testing.T) {
 		Events:    nil,
 		Codespace: "celestia-explorer",
 	}
-	now := time.Now()
-	headerBlock := nodeTypes.Block{
-		Header: nodeTypes.Header{
-			Time: now,
-		},
-	}
-	block := types.BlockData{
-		ResultBlock: nodeTypes.ResultBlock{
-			Block: &headerBlock,
-		},
-		ResultBlockResults: nodeTypes.ResultBlockResults{
-			TxsResults: []*nodeTypes.ResponseDeliverTx{
-				&txRes, &txRes, &txRes,
-			},
-		},
-	}
+	block, now := createBlock(txRes, 3)
 
 	resultTxs := parseTxs(block)
 
@@ -58,6 +68,34 @@ func TestParseTxs_SuccessResult(t *testing.T) {
 	f := resultTxs[0]
 	assert.Equal(t, now, f.Time)
 	assert.Equal(t, storageTypes.StatusSuccess, f.Status)
+	assert.Equal(t, "", f.Error)
+	assert.Equal(t, uint64(12000), f.GasWanted)
+	assert.Equal(t, uint64(1000), f.GasUsed)
+	assert.Equal(t, "celestia-explorer", f.Codespace)
+}
+
+func TestParseTxs_FailedTx(t *testing.T) {
+	data := bytes.HexBytes{}
+	txRes := nodeTypes.ResponseDeliverTx{
+		Code:      1,
+		Data:      data,
+		Log:       "something wierd happened",
+		Info:      "info",
+		GasWanted: 12000,
+		GasUsed:   1000,
+		Events:    nil,
+		Codespace: "celestia-explorer",
+	}
+	block, now := createBlock(txRes, 1)
+
+	resultTxs := parseTxs(block)
+
+	assert.Len(t, resultTxs, 1)
+
+	f := resultTxs[0]
+	assert.Equal(t, now, f.Time)
+	assert.Equal(t, storageTypes.StatusFailed, f.Status)
+	assert.Equal(t, "something wierd happened", f.Error)
 	assert.Equal(t, uint64(12000), f.GasWanted)
 	assert.Equal(t, uint64(1000), f.GasUsed)
 	assert.Equal(t, "celestia-explorer", f.Codespace)
