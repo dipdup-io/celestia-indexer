@@ -40,7 +40,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) s
 		Events:   nil, // make([]storage.Event, 0), // TODO
 	}
 
-	if txRes.Code == 1 {
+	if txRes.Code != 0 {
 		tx.Status = types2.StatusFailed
 		tx.Error = txRes.Log
 	}
