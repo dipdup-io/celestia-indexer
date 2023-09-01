@@ -20,8 +20,8 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 
 		TxCount:       uint64(len(b.Block.Data.Txs)),
 		EventsCount:   uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
-		MessageTypes:  storageTypes.MsgTypeBits{},
-		NamespaceSize: 0, // "Summary block namespace size from pay for blob"` // should it be in block?
+		MessageTypes:  storageTypes.MsgTypeBits{}, // TODO
+		NamespaceSize: 0,                          // "Summary block namespace size from pay for blob"` // should it be in block? // BlobsSize
 
 		Hash:               []byte(b.BlockID.Hash), // create a Hex type for common usage through indexer app
 		ParentHash:         []byte(b.Block.LastBlockID.Hash),
@@ -35,7 +35,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		EvidenceHash:       []byte(b.Block.EvidenceHash),
 		ProposerAddress:    []byte(b.Block.ProposerAddress),
 
-		Fee:     decimal.Zero, // TODO
+		Fee:     decimal.Zero, // TODO sum of auth_info.fee // Research
 		ChainId: b.Block.ChainID,
 
 		Txs:    make([]storage.Tx, 0),    // TODO

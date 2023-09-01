@@ -201,9 +201,9 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 			for k := range block.Txs[i].Messages[j].Namespace {
 				key := block.Txs[i].Messages[j].Namespace[k].String()
 				if ns, ok := namespaces[key]; ok {
-					ns.PfdCount += 1
+					ns.PfbCount += 1
 				} else {
-					block.Txs[i].Messages[j].Namespace[k].PfdCount = 1
+					block.Txs[i].Messages[j].Namespace[k].PfbCount = 1
 					namespaces[key] = block.Txs[i].Messages[j].Namespace[k]
 				}
 			}
