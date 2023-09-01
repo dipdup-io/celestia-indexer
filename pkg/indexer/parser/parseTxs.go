@@ -2,7 +2,7 @@ package parser
 
 import (
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
-	types2 "github.com/dipdup-io/celestia-indexer/internal/storage/types"
+	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/shopspring/decimal"
@@ -30,20 +30,22 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) s
 		EventsCount:   uint64(len(txRes.Events)),
 		MessagesCount: 0,            // TODO
 		Fee:           decimal.Zero, // TODO like nodes.guru
-		Status:        types2.StatusSuccess,
+		Status:        storageTypes.StatusSuccess,
 		Codespace:     txRes.Codespace,
-		Hash:          make([]byte, 0),      // TODO like nodes.guru
-		Memo:          "",                   // TODO like nodes.guru
-		MessageTypes:  types2.MsgTypeBits{}, // TODO
+		Hash:          make([]byte, 0),            // TODO like nodes.guru
+		Memo:          "",                         // TODO like nodes.guru
+		MessageTypes:  storageTypes.MsgTypeBits{}, // TODO
 
 		Messages: nil, // make([]storage.Message, 0), // TODO
-		Events:   nil, // make([]storage.Event, 0), // TODO
+		Events:   nil,
 	}
 
 	if txRes.Code != 0 {
-		tx.Status = types2.StatusFailed
+		tx.Status = storageTypes.StatusFailed
 		tx.Error = txRes.Log
 	}
+
+	tx.Events = parseEvents(b, txRes.Events, &tx.Id)
 
 	return tx
 }

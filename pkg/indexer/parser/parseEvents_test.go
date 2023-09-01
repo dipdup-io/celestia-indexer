@@ -1,6 +1,7 @@
 package parser
 
 import (
+	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ func TestParseEvents_EmptyEventsResults(t *testing.T) {
 		},
 	}
 
-	resultEvents := parseEvents(block, make([]nodeTypes.Event, 0))
+	resultEvents := parseEvents(block, make([]nodeTypes.Event, 0), nil)
 
 	assert.Empty(t, resultEvents)
 }
@@ -51,20 +52,21 @@ func TestParseEvents_SuccessTx(t *testing.T) {
 	}
 	block, now := createBlock(txRes, 1)
 
-	resultEvents := parseEvents(block, events)
+	var txId *uint64
+	resultEvents := parseEvents(block, events, txId)
 
 	assert.Len(t, resultEvents, 1)
 
 	e := resultEvents[0]
 	assert.Equal(t, block.Height, e.Height)
 	assert.Equal(t, now, e.Time)
-	assert.Equal(t, 0, e.Position)
-	assert.Equal(t, "coin_spent", e.Type)
-	assert.Equal(t, nil, e.TxId)
+	assert.Equal(t, uint64(0), e.Position)
+	assert.Equal(t, storageTypes.EventTypeCoinSpent, e.Type)
+	assert.Equal(t, txId, e.TxId)
 
 	attrs := map[string]any{
-		"c3BlbmRlcg==": bytes.HexBytes("Y2VsZXN0aWExdjY5bnB6NncwN3h0NGhkdWU5eGR3a3V4eHZ2ZDZlYTl5MjZlcXI="),
-		"YW1vdW50":     bytes.HexBytes("NzAwMDB1dGlh"),
+		bytes.HexBytes("c3BlbmRlcg==").String(): bytes.HexBytes("Y2VsZXN0aWExdjY5bnB6NncwN3h0NGhkdWU5eGR3a3V4eHZ2ZDZlYTl5MjZlcXI="),
+		bytes.HexBytes("YW1vdW50").String():     bytes.HexBytes("NzAwMDB1dGlh"),
 	}
 	assert.Equal(t, attrs, e.Data)
 }

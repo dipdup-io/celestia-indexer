@@ -38,8 +38,13 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		ChainId: b.Block.ChainID,
 
 		Txs:    parseTxs(b),
-		Events: nil, // TODO
+		Events: nil,
 	}
+
+	var nilTxId *uint64
+	block.Events = parseEvents(b, b.ResultBlockResults.BeginBlockEvents, nilTxId)
+	endEvents := parseEvents(b, b.ResultBlockResults.EndBlockEvents, nilTxId)
+	block.Events = append(block.Events, endEvents...)
 
 	p.output.Push(block)
 	return nil
