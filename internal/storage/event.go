@@ -22,7 +22,7 @@ type Event struct {
 	bun.BaseModel `bun:"event" comment:"Table with celestia events."`
 
 	Id       uint64          `bun:"id,type:bigint,pk,notnull" comment:"Unique internal id"`
-	Height   uint64          `bun:",notnull"                  comment:"The number (height) of this block" stats:"func:min max,filterable"`
+	Height   Level           `bun:",notnull"                  comment:"The number (height) of this block" stats:"func:min max,filterable"`
 	Time     time.Time       `bun:"time,pk,notnull"           comment:"The time of block"                 stats:"func:min max,filterable"`
 	Position uint64          `bun:"position"                  comment:"Position in transaction"`
 	Type     types.EventType `bun:",type:event_type"          comment:"Event type"                        stats:"filterable"`

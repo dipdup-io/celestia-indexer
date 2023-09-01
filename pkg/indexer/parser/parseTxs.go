@@ -26,7 +26,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) s
 		Position:      uint64(index),
 		GasWanted:     uint64(txRes.GasWanted),
 		GasUsed:       uint64(txRes.GasUsed),
-		TimeoutHeight: 0, // TODO
+		TimeoutHeight: 0, // TODO like nodes.guru
 		EventsCount:   uint64(len(txRes.Events)),
 		MessagesCount: 0,            // TODO
 		Fee:           decimal.Zero, // TODO like nodes.guru

@@ -34,7 +34,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		EvidenceHash:       []byte(b.Block.EvidenceHash),
 		ProposerAddress:    []byte(b.Block.ProposerAddress),
 
-		Fee:     decimal.Zero, // TODO sum of auth_info.fee // RESEARCH
+		Fee:     decimal.Zero, // TODO sum of auth_info.fee // RESEARCH: done
 		ChainId: b.Block.ChainID,
 
 		Txs:    parseTxs(b),
