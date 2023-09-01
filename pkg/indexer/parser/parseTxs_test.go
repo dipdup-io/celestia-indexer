@@ -1,6 +1,7 @@
 package parser
 
 import (
+	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/stretchr/testify/assert"
@@ -22,9 +23,10 @@ func TestParseTxs_EmptyTxsResults(t *testing.T) {
 }
 
 func TestParseTxs_SuccessResult(t *testing.T) {
+	data := bytes.HexBytes{}
 	txRes := nodeTypes.ResponseDeliverTx{
 		Code:      0,
-		Data:      bytes.HexBytes{},
+		Data:      data,
 		Log:       "[]",
 		Info:      "info",
 		GasWanted: 12000,
@@ -32,9 +34,10 @@ func TestParseTxs_SuccessResult(t *testing.T) {
 		Events:    nil,
 		Codespace: "celestia-explorer",
 	}
+	now := time.Now()
 	headerBlock := nodeTypes.Block{
 		Header: nodeTypes.Header{
-			Time: time.Now(),
+			Time: now,
 		},
 	}
 	block := types.BlockData{
@@ -51,4 +54,11 @@ func TestParseTxs_SuccessResult(t *testing.T) {
 	resultTxs := parseTxs(block)
 
 	assert.Len(t, resultTxs, 3)
+
+	f := resultTxs[0]
+	assert.Equal(t, now, f.Time)
+	assert.Equal(t, storageTypes.StatusSuccess, f.Status)
+	assert.Equal(t, uint64(12000), f.GasWanted)
+	assert.Equal(t, uint64(1000), f.GasUsed)
+	assert.Equal(t, "celestia-explorer", f.Codespace)
 }
