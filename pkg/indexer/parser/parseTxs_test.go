@@ -100,3 +100,30 @@ func TestParseTxs_FailedTx(t *testing.T) {
 	assert.Equal(t, uint64(1000), f.GasUsed)
 	assert.Equal(t, "celestia-explorer", f.Codespace)
 }
+
+func TestParseTxs_FailedTxWithNonstandardErrorCode(t *testing.T) {
+	data := bytes.HexBytes{}
+	txRes := nodeTypes.ResponseDeliverTx{
+		Code:      300,
+		Data:      data,
+		Log:       "something unusual happened",
+		Info:      "info",
+		GasWanted: 12000,
+		GasUsed:   1000,
+		Events:    nil,
+		Codespace: "celestia-explorer",
+	}
+	block, now := createBlock(txRes, 1)
+
+	resultTxs := parseTxs(block)
+
+	assert.Len(t, resultTxs, 1)
+
+	f := resultTxs[0]
+	assert.Equal(t, now, f.Time)
+	assert.Equal(t, storageTypes.StatusFailed, f.Status)
+	assert.Equal(t, "something unusual happened", f.Error)
+	assert.Equal(t, uint64(12000), f.GasWanted)
+	assert.Equal(t, uint64(1000), f.GasUsed)
+	assert.Equal(t, "celestia-explorer", f.Codespace)
+}
