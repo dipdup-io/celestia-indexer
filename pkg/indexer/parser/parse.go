@@ -6,7 +6,6 @@ import (
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/shopspring/decimal"
-	"strconv"
 )
 
 func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
@@ -15,15 +14,15 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 	block := storage.Block{
 		Height:       b.Height,
 		Time:         b.Block.Time,
-		VersionBlock: strconv.FormatUint(b.Block.Version.Block, 10), // should we use string in storage type?
-		VersionApp:   strconv.FormatUint(b.Block.Version.App, 10),   // should we use string in storage type?
+		VersionBlock: b.Block.Version.Block,
+		VersionApp:   b.Block.Version.App,
 
 		TxCount:      uint64(len(b.Block.Data.Txs)),
 		EventsCount:  uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
 		MessageTypes: storageTypes.MsgTypeBits{}, // TODO
 		BlobsSize:    0,
 
-		Hash:               []byte(b.BlockID.Hash), // create a Hex type for common usage through indexer app
+		Hash:               []byte(b.BlockID.Hash), // TODO create a Hex type for common usage through indexer app
 		ParentHash:         []byte(b.Block.LastBlockID.Hash),
 		LastCommitHash:     []byte(b.Block.LastCommitHash),
 		DataHash:           []byte(b.Block.DataHash),

@@ -28,8 +28,8 @@ type Block struct {
 	Id           uint64    `bun:",pk,notnull,autoincrement" comment:"Unique internal identity"`
 	Height       Level     `bun:"height"                    comment:"The number (height) of this block" stats:"func:min max,filterable"`
 	Time         time.Time `bun:"time,pk,notnull"           comment:"The time of block"                 stats:"func:min max,filterable"`
-	VersionBlock string    `bun:"version_block"             comment:"Block version"`
-	VersionApp   string    `bun:"version_app"               comment:"App version"`
+	VersionBlock uint64    `bun:"version_block"             comment:"Block version"`
+	VersionApp   uint64    `bun:"version_app"               comment:"App version"`
 
 	TxCount      uint64            `bun:"tx_count"                comment:"Count of transactions in block"            stats:"func:min max sum avg"`
 	EventsCount  uint64            `bun:"events_count"            comment:"Count of events in begin and end of block" stats:"func:min max sum avg"`

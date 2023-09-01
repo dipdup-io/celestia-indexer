@@ -2,6 +2,7 @@ package responses
 
 import (
 	"encoding/hex"
+	"strconv"
 	"time"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -36,8 +37,8 @@ func NewBlock(block storage.Block) Block {
 		Id:                 block.Id,
 		Height:             uint64(block.Height),
 		Time:               block.Time,
-		VersionBlock:       block.VersionBlock,
-		VersionApp:         block.VersionApp,
+		VersionBlock:       strconv.FormatUint(block.VersionBlock, 10),
+		VersionApp:         strconv.FormatUint(block.VersionApp, 10),
 		TxCount:            block.TxCount,
 		EventsCount:        block.EventsCount,
 		NamespaceSize:      block.BlobsSize,
