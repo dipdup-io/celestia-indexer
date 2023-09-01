@@ -18,7 +18,7 @@ func (p *Parser) parse(ctx context.Context, resultBlock types.ResultBlock) error
 		VersionBlock: strconv.FormatUint(resultBlock.Block.Version.Block, 10), // should we use string in storage type?
 		VersionApp:   strconv.FormatUint(resultBlock.Block.Version.App, 10),   // should we use string in storage type?
 
-		TxCount:       0, // TODO
+		TxCount:       uint64(len(resultBlock.Block.Data.Txs)),
 		EventsCount:   0, // TODO
 		MessageTypes:  storageTypes.MsgTypeBits{},
 		NamespaceSize: 0, // "Summary block namespace size from pay for blob"` // should it be in block?
