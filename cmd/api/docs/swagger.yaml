@@ -316,14 +316,14 @@ definitions:
         example: 43
         format: int64
         type: integer
+      total_blobs_size:
+        example: 56789
+        format: int64
+        type: integer
       total_fee:
         example: "312"
         format: string
         type: string
-      total_namespace_size:
-        example: 56789
-        format: int64
-        type: integer
       total_tx:
         example: 23456
         format: int64

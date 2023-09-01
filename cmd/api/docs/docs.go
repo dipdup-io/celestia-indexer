@@ -1536,15 +1536,15 @@ const docTemplate = `{
                     "format": "int64",
                     "example": 43
                 },
+                "total_blobs_size": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 56789
+                },
                 "total_fee": {
                     "type": "string",
                     "format": "string",
                     "example": "312"
-                },
-                "total_namespace_size": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 56789
                 },
                 "total_tx": {
                     "type": "integer",

@@ -160,7 +160,7 @@ func (module *Module) updateState(block storage.Block) {
 	module.state.LastHeight = block.Height
 	module.state.LastTime = block.Time
 	module.state.TotalTx += block.TxCount
-	module.state.TotalNamespaceSize = block.BlobsSize
+	module.state.TotalBlobsSize = block.BlobsSize
 	module.state.TotalFee = module.state.TotalFee.Add(block.Fee)
 	// TODO: update TotalAccounts
 	module.state.ChainId = block.ChainId
