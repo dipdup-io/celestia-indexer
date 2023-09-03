@@ -5,7 +5,6 @@ import (
 	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/tendermint/tendermint/libs/bytes"
 	"testing"
 	"time"
 )
@@ -48,10 +47,9 @@ func TestParseTxs_EmptyTxsResults(t *testing.T) {
 }
 
 func TestParseTxs_SuccessTx(t *testing.T) {
-	data := bytes.HexBytes{}
 	txRes := nodeTypes.ResponseDeliverTx{
 		Code:      0,
-		Data:      data,
+		Data:      []byte{},
 		Log:       "[]",
 		Info:      "info",
 		GasWanted: 12000,
@@ -75,10 +73,9 @@ func TestParseTxs_SuccessTx(t *testing.T) {
 }
 
 func TestParseTxs_FailedTx(t *testing.T) {
-	data := bytes.HexBytes{}
 	txRes := nodeTypes.ResponseDeliverTx{
 		Code:      1,
-		Data:      data,
+		Data:      []byte{},
 		Log:       "something wierd happened",
 		Info:      "info",
 		GasWanted: 12000,
@@ -102,10 +99,9 @@ func TestParseTxs_FailedTx(t *testing.T) {
 }
 
 func TestParseTxs_FailedTxWithNonstandardErrorCode(t *testing.T) {
-	data := bytes.HexBytes{}
 	txRes := nodeTypes.ResponseDeliverTx{
 		Code:      300,
-		Data:      data,
+		Data:      []byte{},
 		Log:       "something unusual happened",
 		Info:      "info",
 		GasWanted: 12000,

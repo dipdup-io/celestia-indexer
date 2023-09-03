@@ -42,7 +42,7 @@ func TestParseEvents_SuccessTx(t *testing.T) {
 
 	txRes := nodeTypes.ResponseDeliverTx{
 		Code:      0,
-		Data:      bytes.HexBytes{},
+		Data:      []byte{},
 		Log:       "[]",
 		Info:      "info",
 		GasWanted: 12000,

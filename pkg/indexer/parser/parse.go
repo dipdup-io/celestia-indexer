@@ -24,15 +24,15 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 
 		Hash:               []byte(b.BlockID.Hash), // TODO create a Hex type for common usage through indexer app
 		ParentHash:         []byte(b.Block.LastBlockID.Hash),
-		LastCommitHash:     []byte(b.Block.LastCommitHash),
-		DataHash:           []byte(b.Block.DataHash),
-		ValidatorsHash:     []byte(b.Block.ValidatorsHash),
-		NextValidatorsHash: []byte(b.Block.NextValidatorsHash),
-		ConsensusHash:      []byte(b.Block.ConsensusHash),
-		AppHash:            []byte(b.Block.AppHash),
-		LastResultsHash:    []byte(b.Block.LastResultsHash),
-		EvidenceHash:       []byte(b.Block.EvidenceHash),
-		ProposerAddress:    []byte(b.Block.ProposerAddress),
+		LastCommitHash:     b.Block.LastCommitHash,
+		DataHash:           b.Block.DataHash,
+		ValidatorsHash:     b.Block.ValidatorsHash,
+		NextValidatorsHash: b.Block.NextValidatorsHash,
+		ConsensusHash:      b.Block.ConsensusHash,
+		AppHash:            b.Block.AppHash,
+		LastResultsHash:    b.Block.LastResultsHash,
+		EvidenceHash:       b.Block.EvidenceHash,
+		ProposerAddress:    b.Block.ProposerAddress,
 
 		Fee:     decimal.Zero, // TODO sum of auth_info.fee // RESEARCH: done
 		ChainId: b.Block.ChainID,
