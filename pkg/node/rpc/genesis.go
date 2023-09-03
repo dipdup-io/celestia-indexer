@@ -9,10 +9,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GenesisResult struct {
-	types.Genesis `json:"genesis"`
-}
-
 type GenesisChunk struct {
 	Chunk int64  `json:"chunk,string"`
 	Total int64  `json:"total,string"`

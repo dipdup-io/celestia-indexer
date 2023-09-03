@@ -623,18 +623,12 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/blob.Blob"
+                                "$ref": "#/definitions/responses.Blob"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handler.Error"
                         }
@@ -1195,6 +1189,31 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "example": 321
+                }
+            }
+        },
+        "responses.Blob": {
+            "type": "object",
+            "properties": {
+                "commitment": {
+                    "type": "string",
+                    "format": "base64",
+                    "example": "vbGakK59+Non81TE3ULg5Ve5ufT9SFm/bCyY+WLR3gg="
+                },
+                "data": {
+                    "type": "string",
+                    "format": "base64",
+                    "example": "b2sgZGVtbyBkYQ=="
+                },
+                "namespace": {
+                    "type": "string",
+                    "format": "base64",
+                    "example": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAs2bWWU6FOB0="
+                },
+                "share_version": {
+                    "type": "integer",
+                    "format": "integer",
+                    "example": 0
                 }
             }
         },
