@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
@@ -112,9 +113,9 @@ func (module *Module) listen(ctx context.Context) {
 				continue
 			}
 
-			// if err := module.notify(ctx, block); err != nil {
-			//	module.log.Err(err).Msg("block notification error")
-			//}
+			if err := module.notify(ctx, block); err != nil {
+				module.log.Err(err).Msg("block notification error")
+			}
 		}
 	}
 }
@@ -277,24 +278,17 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 	return nil
 }
 
-// notify -
-// func (module *Module) notify(ctx context.Context, block storage.Block) error {
-//	data, err := json.MarshalContext(ctx, block, json.UnorderedMap())
-//	if err != nil {
-//		return err
-//	}
-//	if err := module.storage.Notificator.Notify(ctx, storage.ChannelHead, string(data)); err != nil {
-//		return err
-//	}
-//
-//	for i := range block.Txs {
-//		data, err := json.MarshalContext(ctx, block.Txs[i], json.UnorderedMap())
-//		if err != nil {
-//			return err
-//		}
-//		if err := module.storage.Notificator.Notify(ctx, storage.ChannelTx, string(data)); err != nil {
-//			return err
-//		}
-//	}
-//	return nil
-//}
+func (module *Module) notify(ctx context.Context, block storage.Block) error {
+	blockId := strconv.FormatUint(block.Id, 10)
+	if err := module.storage.Notificator.Notify(ctx, storage.ChannelHead, blockId); err != nil {
+		return err
+	}
+
+	for i := range block.Txs {
+		txId := strconv.FormatUint(block.Txs[i].Id, 10)
+		if err := module.storage.Notificator.Notify(ctx, storage.ChannelTx, txId); err != nil {
+			return err
+		}
+	}
+	return nil
+}
