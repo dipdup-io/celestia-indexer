@@ -28,7 +28,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		MessageTypes: storageTypes.MsgTypeBits{}, // TODO init
 		BlobsSize:    0,
 
-		Hash:               []byte(b.BlockID.Hash), // TODO create a Hex type for common usage through indexer app
+		Hash:               []byte(b.BlockID.Hash),
 		ParentHash:         []byte(b.Block.LastBlockID.Hash),
 		LastCommitHash:     b.Block.LastCommitHash,
 		DataHash:           b.Block.DataHash,
@@ -40,11 +40,15 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		EvidenceHash:       b.Block.EvidenceHash,
 		ProposerAddress:    b.Block.ProposerAddress,
 
-		Fee:     decimal.Zero, // TODO sum of auth_info.fee // RESEARCH: done
+		Fee:     decimal.Zero,
 		ChainId: b.Block.ChainID,
 
 		Txs:    txs,
 		Events: nil,
+	}
+
+	for _, tx := range txs {
+		block.Fee.Add(tx.Fee)
 	}
 
 	block.Events = parseEvents(b, b.ResultBlockResults.BeginBlockEvents)
