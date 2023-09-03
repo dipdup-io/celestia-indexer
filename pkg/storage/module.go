@@ -7,7 +7,6 @@ import (
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
 	"github.com/dipdup-io/workerpool"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
-	"github.com/goccy/go-json"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -278,23 +277,24 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 	return nil
 }
 
-func (module *Module) notify(ctx context.Context, block storage.Block) error {
-	data, err := json.MarshalContext(ctx, block, json.UnorderedMap())
-	if err != nil {
-		return err
-	}
-	if err := module.storage.Notificator.Notify(ctx, storage.ChannelHead, string(data)); err != nil {
-		return err
-	}
-
-	for i := range block.Txs {
-		data, err := json.MarshalContext(ctx, block.Txs[i], json.UnorderedMap())
-		if err != nil {
-			return err
-		}
-		if err := module.storage.Notificator.Notify(ctx, storage.ChannelTx, string(data)); err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// notify -
+// func (module *Module) notify(ctx context.Context, block storage.Block) error {
+//	data, err := json.MarshalContext(ctx, block, json.UnorderedMap())
+//	if err != nil {
+//		return err
+//	}
+//	if err := module.storage.Notificator.Notify(ctx, storage.ChannelHead, string(data)); err != nil {
+//		return err
+//	}
+//
+//	for i := range block.Txs {
+//		data, err := json.MarshalContext(ctx, block.Txs[i], json.UnorderedMap())
+//		if err != nil {
+//			return err
+//		}
+//		if err := module.storage.Notificator.Notify(ctx, storage.ChannelTx, string(data)); err != nil {
+//			return err
+//		}
+//	}
+//	return nil
+//}
