@@ -16,7 +16,7 @@ func TestParseEvents_EmptyEventsResults(t *testing.T) {
 		},
 	}
 
-	resultEvents := parseEvents(block, make([]nodeTypes.Event, 0), nil)
+	resultEvents := parseEvents(block, make([]nodeTypes.Event, 0))
 
 	assert.Empty(t, resultEvents)
 }
@@ -53,7 +53,7 @@ func TestParseEvents_SuccessTx(t *testing.T) {
 	block, now := createBlock(txRes, 1)
 
 	var txId *uint64
-	resultEvents := parseEvents(block, events, txId)
+	resultEvents := parseEvents(block, events)
 
 	assert.Len(t, resultEvents, 1)
 

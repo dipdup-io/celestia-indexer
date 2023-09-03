@@ -45,7 +45,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) s
 		tx.Error = txRes.Log
 	}
 
-	tx.Events = parseEvents(b, txRes.Events, &tx.Id)
+	tx.Events = parseEvents(b, txRes.Events)
 
 	return tx
 }
