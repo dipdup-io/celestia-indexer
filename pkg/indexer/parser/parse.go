@@ -5,11 +5,17 @@ import (
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
+	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
 
 func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 	p.log.Info().Int64("height", b.Block.Height).Msg("parsing block...")
+
+	txs, err := parseTxs(b)
+	if err != nil {
+		return errors.Wrapf(err, "on parsing block on level=%d", b.Height)
+	}
 
 	block := storage.Block{
 		Height:       b.Height,
@@ -37,7 +43,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 		Fee:     decimal.Zero, // TODO sum of auth_info.fee // RESEARCH: done
 		ChainId: b.Block.ChainID,
 
-		Txs:    parseTxs(b),
+		Txs:    txs,
 		Events: nil,
 	}
 
