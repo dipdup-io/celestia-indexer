@@ -2,8 +2,6 @@ package types
 
 import (
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
-	"github.com/tendermint/tendermint/libs/bytes"
-	"github.com/tendermint/tendermint/proto/tendermint/crypto"
 	"time"
 )
 
@@ -19,14 +17,14 @@ type ResultBlockResults struct {
 }
 
 type ResponseDeliverTx struct {
-	Code      uint32         `json:"code,omitempty"              protobuf:"varint,1,opt,name=code,proto3"`
-	Data      bytes.HexBytes `json:"data,omitempty"              protobuf:"bytes,2,opt,name=data,proto3"`
-	Log       string         `json:"log,omitempty"               protobuf:"bytes,3,opt,name=log,proto3"`
-	Info      string         `json:"info,omitempty"              protobuf:"bytes,4,opt,name=info,proto3"`
-	GasWanted int64          `json:"gas_wanted,omitempty,string" protobuf:"varint,5,opt,name=gas_wanted,proto3"`
-	GasUsed   int64          `json:"gas_used,omitempty,string"   protobuf:"varint,6,opt,name=gas_used,proto3"`
-	Events    []Event        `json:"events,omitempty"            protobuf:"bytes,7,rep,name=events,proto3"`
-	Codespace string         `json:"codespace,omitempty"         protobuf:"bytes,8,opt,name=codespace,proto3"`
+	Code      uint32  `json:"code,omitempty"              protobuf:"varint,1,opt,name=code,proto3"`
+	Data      []byte  `json:"data,omitempty"              protobuf:"bytes,2,opt,name=data,proto3"`
+	Log       string  `json:"log,omitempty"               protobuf:"bytes,3,opt,name=log,proto3"`
+	Info      string  `json:"info,omitempty"              protobuf:"bytes,4,opt,name=info,proto3"`
+	GasWanted int64   `json:"gas_wanted,omitempty,string" protobuf:"varint,5,opt,name=gas_wanted,proto3"`
+	GasUsed   int64   `json:"gas_used,omitempty,string"   protobuf:"varint,6,opt,name=gas_used,proto3"`
+	Events    []Event `json:"events,omitempty"            protobuf:"bytes,7,rep,name=events,proto3"`
+	Codespace string  `json:"codespace,omitempty"         protobuf:"bytes,8,opt,name=codespace,proto3"`
 }
 
 // Event allows application developers to attach additional information to
@@ -46,8 +44,8 @@ type EventAttribute struct {
 
 // ValidatorUpdate
 type ValidatorUpdate struct {
-	PubKey crypto.PublicKey `json:"pub_key"         protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3"`
-	Power  int64            `json:"power,omitempty" protobuf:"varint,2,opt,name=power,proto3"`
+	// PubKey any   `json:"pub_key"                protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3"` // crypto.PublicKey
+	Power int64 `json:"power,omitempty,string" protobuf:"varint,2,opt,name=power,proto3"`
 }
 
 // ConsensusParams contains all consensus-relevant parameters
