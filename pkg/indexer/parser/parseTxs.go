@@ -59,13 +59,13 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 	t.Events = parseEvents(b, txRes.Events)
 
 	for position, msg := range d.messages {
-		// TODO get type
 		// TODO get namespace
 
 		t.Messages[position] = storage.Message{
 			Height:   b.Height,
 			Time:     b.Block.Time,
 			Position: uint64(position),
+			Type:     storageTypes.MsgTypeUnknown, // TODO get type
 			Data:     structs.Map(msg),
 		}
 	}
