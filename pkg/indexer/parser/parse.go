@@ -48,7 +48,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 	}
 
 	for _, tx := range txs {
-		block.Fee.Add(tx.Fee)
+		block.Fee = block.Fee.Add(tx.Fee)
 	}
 
 	block.Events = parseEvents(b, b.ResultBlockResults.BeginBlockEvents)
