@@ -1,5 +1,16 @@
 basePath: /v1
 definitions:
+  SearchResponse-responses_Searchable:
+    properties:
+      result:
+        description: 'Search result. Can be one of folowwing types: Block, Address,
+          Namespace, Tx'
+        type: object
+      type:
+        description: Result type which is in the result. Can be 'block', 'address',
+          'namespace', 'tx'
+        type: string
+    type: object
   handler.Error:
     properties:
       message:
@@ -281,17 +292,6 @@ definitions:
         - PayForBlobs
         example: CreatePeriodicVestingAccount
         format: string
-        type: string
-    type: object
-  responses.SearchResponse-responses_Searchable:
-    properties:
-      result:
-        description: 'Search result. Can be one of folowwing types: Block, Address,
-          Namespace, Tx'
-        type: object
-      type:
-        description: Result type which is in the result. Can be 'block', 'address',
-          'namespace', 'tx'
         type: string
     type: object
   responses.State:
@@ -867,7 +867,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/responses.SearchResponse-responses_Searchable'
+            $ref: '#/definitions/SearchResponse-responses_Searchable'
         "204":
           description: No Content
         "400":

@@ -29,7 +29,7 @@ func NewNamespaceMessage(msg storage.NamespaceMessage) (NamespaceMessage, error)
 
 	return NamespaceMessage{
 		Id:       msg.Message.Id,
-		Height:   msg.Message.Height,
+		Height:   uint64(msg.Message.Height),
 		Time:     msg.Message.Time,
 		Position: msg.Message.Position,
 		Type:     string(msg.Message.Type),

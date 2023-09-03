@@ -5,6 +5,7 @@ import (
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
+	"github.com/fatih/structs"
 	"github.com/pkg/errors"
 )
 
@@ -46,7 +47,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 		Memo:          d.memo,
 		MessageTypes:  storageTypes.MsgTypeBits{}, // TODO
 
-		Messages: nil, // make([]storage.Message, 0), // TODO
+		Messages: make([]storage.Message, len(d.messages)),
 		Events:   nil,
 	}
 
@@ -56,6 +57,18 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 	}
 
 	t.Events = parseEvents(b, txRes.Events)
+
+	for position, msg := range d.messages {
+		// TODO get type
+		// TODO get namespace
+
+		t.Messages[position] = storage.Message{
+			Height:   b.Height,
+			Time:     b.Block.Time,
+			Position: uint64(position),
+			Data:     structs.Map(msg),
+		}
+	}
 
 	return t, nil
 }

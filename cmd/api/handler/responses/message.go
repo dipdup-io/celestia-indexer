@@ -21,7 +21,7 @@ type Message struct {
 func NewMessage(msg storage.Message) Message {
 	return Message{
 		Id:       msg.Id,
-		Height:   msg.Height,
+		Height:   uint64(msg.Height),
 		Time:     msg.Time,
 		Position: msg.Position,
 		Type:     string(msg.Type),

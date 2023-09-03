@@ -654,7 +654,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/responses.SearchResponse-responses_Searchable"
+                            "$ref": "#/definitions/SearchResponse-responses_Searchable"
                         }
                     },
                     "204": {
@@ -1118,6 +1118,19 @@
         }
     },
     "definitions": {
+        "SearchResponse-responses_Searchable": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "description": "Search result. Can be one of folowwing types: Block, Address, Namespace, Tx",
+                    "type": "object"
+                },
+                "type": {
+                    "description": "Result type which is in the result. Can be 'block', 'address', 'namespace', 'tx'",
+                    "type": "string"
+                }
+            }
+        },
         "handler.Error": {
             "type": "object",
             "properties": {
@@ -1480,19 +1493,6 @@
                         "PayForBlobs"
                     ],
                     "example": "CreatePeriodicVestingAccount"
-                }
-            }
-        },
-        "responses.SearchResponse-responses_Searchable": {
-            "type": "object",
-            "properties": {
-                "result": {
-                    "description": "Search result. Can be one of folowwing types: Block, Address, Namespace, Tx",
-                    "type": "object"
-                },
-                "type": {
-                    "description": "Result type which is in the result. Can be 'block', 'address', 'namespace', 'tx'",
-                    "type": "string"
                 }
             }
         },
