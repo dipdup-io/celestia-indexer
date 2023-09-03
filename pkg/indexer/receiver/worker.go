@@ -43,12 +43,12 @@ func (r *Receiver) worker(ctx context.Context, level storage.Level) {
 func (r *Receiver) blockData(ctx context.Context, level storage.Level) (types.BlockData, error) {
 	block, err := r.api.GetBlock(ctx, level)
 	if err != nil {
-		return types.BlockData{}, nil
+		return types.BlockData{}, err
 	}
 
 	blockResults, err := r.api.GetBlockResults(ctx, level)
 	if err != nil {
-		return types.BlockData{}, nil
+		return types.BlockData{}, err
 	}
 
 	return types.BlockData{ResultBlock: block, ResultBlockResults: blockResults}, nil

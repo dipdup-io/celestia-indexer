@@ -27,13 +27,13 @@ func TestParseEvents_SuccessTx(t *testing.T) {
 			Type: "coin_spent",
 			Attributes: []nodeTypes.EventAttribute{
 				{
-					Key:   bytes.HexBytes("c3BlbmRlcg=="),
-					Value: bytes.HexBytes("Y2VsZXN0aWExdjY5bnB6NncwN3h0NGhkdWU5eGR3a3V4eHZ2ZDZlYTl5MjZlcXI="),
+					Key:   bytes.HexBytes("c3BlbmRlcg==").Bytes(),
+					Value: bytes.HexBytes("Y2VsZXN0aWExdjY5bnB6NncwN3h0NGhkdWU5eGR3a3V4eHZ2ZDZlYTl5MjZlcXI=").Bytes(),
 					Index: true,
 				},
 				{
-					Key:   bytes.HexBytes("YW1vdW50"),
-					Value: bytes.HexBytes("NzAwMDB1dGlh"),
+					Key:   bytes.HexBytes("YW1vdW50").Bytes(),
+					Value: bytes.HexBytes("NzAwMDB1dGlh").Bytes(),
 					Index: true,
 				},
 			},
@@ -65,8 +65,8 @@ func TestParseEvents_SuccessTx(t *testing.T) {
 	assert.Equal(t, txId, e.TxId)
 
 	attrs := map[string]any{
-		bytes.HexBytes("c3BlbmRlcg==").String(): bytes.HexBytes("Y2VsZXN0aWExdjY5bnB6NncwN3h0NGhkdWU5eGR3a3V4eHZ2ZDZlYTl5MjZlcXI="),
-		bytes.HexBytes("YW1vdW50").String():     bytes.HexBytes("NzAwMDB1dGlh"),
+		string(bytes.HexBytes("c3BlbmRlcg==").Bytes()): bytes.HexBytes("Y2VsZXN0aWExdjY5bnB6NncwN3h0NGhkdWU5eGR3a3V4eHZ2ZDZlYTl5MjZlcXI=").Bytes(),
+		string(bytes.HexBytes("YW1vdW50").Bytes()):     bytes.HexBytes("NzAwMDB1dGlh").Bytes(),
 	}
 	assert.Equal(t, attrs, e.Data)
 }

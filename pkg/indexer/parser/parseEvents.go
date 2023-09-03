@@ -29,7 +29,7 @@ func parseEvent(b types.BlockData, eN nodeTypes.Event, index int, txId *uint64) 
 	}
 
 	for _, attr := range eN.Attributes {
-		event.Data[attr.Key.String()] = attr.Value // TODO: create actual unmarshalling bytes
+		event.Data[string(attr.Key)] = attr.Value // TODO: create actual unmarshalling bytes
 	}
 
 	return event
