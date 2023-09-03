@@ -5,19 +5,20 @@ import (
 	"encoding/hex"
 	"net/http"
 
-	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/blob"
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
+	"github.com/dipdup-io/celestia-indexer/pkg/node"
+	_ "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 )
 
 type NamespaceHandler struct {
 	namespace storage.INamespace
-	blob      blob.Receiver
+	blob      node.CelestiaNodeApi
 }
 
-func NewNamespaceHandler(namespace storage.INamespace, blob blob.Receiver) *NamespaceHandler {
+func NewNamespaceHandler(namespace storage.INamespace, blob node.CelestiaNodeApi) *NamespaceHandler {
 	return &NamespaceHandler{
 		namespace: namespace,
 		blob:      blob,
@@ -188,7 +189,7 @@ type getBlobRequest struct {
 //	@Param			hash	path	string	true	"Base64-encoded namespace id and version"
 //	@Param			height	path	integer	true	"Block heigth"	minimum(1)
 //	@Produce		json
-//	@Success		200	{array}		blob.Blob
+//	@Success		200	{array}		types.Blob
 //	@Failure		400	{object}	Error
 //	@Failure		500	{object}	Error
 //	@Router			/v1/namespace_by_hash/{hash}/{height} [get]
