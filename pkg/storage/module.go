@@ -113,9 +113,9 @@ func (module *Module) listen(ctx context.Context) {
 				continue
 			}
 
-			if err := module.notify(ctx, block); err != nil {
-				module.log.Err(err).Msg("block notification error")
-			}
+			// if err := module.notify(ctx, block); err != nil {
+			//	module.log.Err(err).Msg("block notification error")
+			//}
 		}
 	}
 }
