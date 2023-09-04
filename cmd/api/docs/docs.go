@@ -1335,7 +1335,7 @@ const docTemplate = `{
                         "liveness",
                         "attestation_request",
                         "transfer",
-                        "pay_for_blobs",
+                        "celestia.blob.v1.EventPayForBlobs",
                         "redelegate",
                         "withdraw_rewards",
                         "withdraw_commission",
