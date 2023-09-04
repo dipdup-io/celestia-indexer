@@ -18,6 +18,7 @@ const (
 	MsgTypeCreateVestingAccount         MsgType = "MsgCreateVestingAccount"
 	MsgTypeCreatePeriodicVestingAccount MsgType = "MsgCreatePeriodicVestingAccount"
 	MsgTypePayForBlobs                  MsgType = "MsgPayForBlobs"
+	MsgTypeGrantAllowance               MsgType = "MsgGrantAllowance"
 )
 
 var availiableMsgTypes = map[string]struct{}{
@@ -34,6 +35,7 @@ var availiableMsgTypes = map[string]struct{}{
 	string(MsgTypeCreateVestingAccount):         {},
 	string(MsgTypeCreatePeriodicVestingAccount): {},
 	string(MsgTypePayForBlobs):                  {},
+	string(MsgTypeGrantAllowance):               {},
 }
 
 func IsMsgType(val string) bool {

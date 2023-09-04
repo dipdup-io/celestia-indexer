@@ -55,7 +55,8 @@ In that channel messages of `responses.Block` type will be sent.
                 "MsgSend",
                 "MsgCreateVestingAccount",
                 "MsgCreatePeriodicVestingAccount",
-                "MsgPayForBlobs"
+                "MsgPayForBlobs",
+                "MsgGrantAllowance"
             ]
         }
     }
