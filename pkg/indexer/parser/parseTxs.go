@@ -58,7 +58,11 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 	t.Events = parseEvents(b, txRes.Events)
 
 	for position, sdkMsg := range d.messages {
-		msg, _ := decodeMsg(b, sdkMsg, position)
+		msg, err := decodeMsg(b, sdkMsg, position)
+		if err != nil {
+			return storage.Tx{}, errors.Wrapf(err, "while parsing tx=%v on level=%d", t.Hash, t.Height)
+		}
+
 		t.Messages[position] = msg
 	}
 
