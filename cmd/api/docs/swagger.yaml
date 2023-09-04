@@ -228,6 +228,7 @@ definitions:
         - MsgCreateVestingAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
+        - MsgGrantAllowance
         example: MsgCreatePeriodicVestingAccount
         format: string
         type: string
@@ -294,6 +295,7 @@ definitions:
         - MsgCreateVestingAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
+        - MsgGrantAllowance
         example: MsgCreatePeriodicVestingAccount
         format: string
         type: string
@@ -1115,6 +1117,7 @@ paths:
         - MsgCreateVestingAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
+        - MsgGrantAllowance
         in: query
         name: msg_type
         type: string
@@ -1267,13 +1270,13 @@ paths:
         \               \"MsgBeginRedelegate\",\n                \"MsgCreateValidator\",\n
         \               \"MsgDelegate\",\n                \"MsgUndelegate\",\n                \"MsgUnjail\",\n
         \               \"MsgSend\",\n                \"MsgCreateVestingAccount\",\n
-        \               \"MsgCreatePeriodicVestingAccount\",\n                \"MsgPayForBlobs\"\n
-        \           ]\n        }\n    }\n}\n```\n\nIf all filers are empty subscription
-        to all transaction will be created.\n\nIn that channel messages of `responses.Tx`
-        type will be sent.\n\n\n### Unsubscribe\n\nTo unsubscribe send `unsubscribe`
-        message containing one of channel name describing above.\n\n\n```json\n{\n
-        \   \"method\": \"unsubscribe\",\n    \"body\": {\n        \"channel\": \"<CHANNEL_NAME>\",\n
-        \   }\n}\n```\n"
+        \               \"MsgCreatePeriodicVestingAccount\",\n                \"MsgPayForBlobs\",\n
+        \               \"MsgGrantAllowance\"\n            ]\n        }\n    }\n}\n```\n\nIf
+        all filers are empty subscription to all transaction will be created.\n\nIn
+        that channel messages of `responses.Tx` type will be sent.\n\n\n### Unsubscribe\n\nTo
+        unsubscribe send `unsubscribe` message containing one of channel name describing
+        above.\n\n\n```json\n{\n    \"method\": \"unsubscribe\",\n    \"body\": {\n
+        \       \"channel\": \"<CHANNEL_NAME>\",\n    }\n}\n```\n"
       operationId: websocket
       produces:
       - application/json
