@@ -43,7 +43,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 		Codespace:     txRes.Codespace,
 		Hash:          b.Block.Txs[index].Hash(),
 		Memo:          d.memo,
-		MessageTypes:  storageTypes.MsgTypeBits{},
+		MessageTypes:  storageTypes.NewMsgTypeBitMask(),
 
 		Messages:  make([]storage.Message, len(d.messages)),
 		Events:    nil,

@@ -25,7 +25,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 
 		TxCount:      uint64(len(b.Block.Data.Txs)),
 		EventsCount:  uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
-		MessageTypes: storageTypes.MsgTypeBits{},
+		MessageTypes: storageTypes.NewMsgTypeBitMask(),
 		BlobsSize:    0,
 
 		Hash:               []byte(b.BlockID.Hash),
