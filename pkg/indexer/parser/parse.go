@@ -14,7 +14,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 
 	txs, err := parseTxs(b)
 	if err != nil {
-		return errors.Wrapf(err, "on parsing block on level=%d", b.Height)
+		return errors.Wrapf(err, "while parsing block on level=%d", b.Height)
 	}
 
 	block := storage.Block{
@@ -25,7 +25,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 
 		TxCount:      uint64(len(b.Block.Data.Txs)),
 		EventsCount:  uint64(len(b.BeginBlockEvents) + len(b.EndBlockEvents)),
-		MessageTypes: storageTypes.MsgTypeBits{}, // TODO init
+		MessageTypes: storageTypes.MsgTypeBits{},
 		BlobsSize:    0,
 
 		Hash:               []byte(b.BlockID.Hash),
@@ -49,6 +49,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 
 	for _, tx := range txs {
 		block.Fee = block.Fee.Add(tx.Fee)
+		block.MessageTypes.Set(tx.MessageTypes.Bits)
 	}
 
 	block.Events = parseEvents(b, b.ResultBlockResults.BeginBlockEvents)

@@ -13,7 +13,6 @@ func parseTxs(b types.BlockData) ([]storage.Tx, error) {
 
 	for i, txRes := range b.TxsResults {
 		t, err := parseTx(b, i, txRes)
-
 		if err != nil {
 			return nil, err
 		}
@@ -27,7 +26,7 @@ func parseTxs(b types.BlockData) ([]storage.Tx, error) {
 func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (storage.Tx, error) {
 	d, err := decodeTx(b, index)
 	if err != nil {
-		return storage.Tx{}, errors.Wrapf(err, "parsing Tx on index %d error", index)
+		return storage.Tx{}, errors.Wrapf(err, "while parsing Tx on index %d in block on level=%d", index, b.Height)
 	}
 
 	t := storage.Tx{
@@ -44,7 +43,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 		Codespace:     txRes.Codespace,
 		Hash:          b.Block.Txs[index].Hash(),
 		Memo:          d.memo,
-		MessageTypes:  storageTypes.MsgTypeBits{}, // TODO
+		MessageTypes:  storageTypes.MsgTypeBits{},
 
 		Messages: make([]storage.Message, len(d.messages)),
 		Events:   nil,
@@ -64,6 +63,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 		}
 
 		t.Messages[position] = msg
+		t.MessageTypes.SetBit(msg.Type)
 	}
 
 	return t, nil
