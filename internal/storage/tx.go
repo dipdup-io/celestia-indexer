@@ -50,8 +50,9 @@ type Tx struct {
 	Memo          string            `bun:"memo"                        comment:"Note or comment to send with the transaction"`
 	MessageTypes  types.MsgTypeBits `bun:"message_types,type:int8"     comment:"Bit mask with containing messages"                 stats:"filterable"`
 
-	Messages []Message `bun:"rel:has-many"`
-	Events   []Event   `bun:"rel:has-many"`
+	Messages  []Message `bun:"rel:has-many"`
+	Events    []Event   `bun:"rel:has-many"`
+	BlobsSize uint64    `bun:"-"`
 }
 
 // TableName -

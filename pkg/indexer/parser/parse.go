@@ -50,6 +50,7 @@ func (p *Parser) parse(ctx context.Context, b types.BlockData) error {
 	for _, tx := range txs {
 		block.Fee = block.Fee.Add(tx.Fee)
 		block.MessageTypes.Set(tx.MessageTypes.Bits)
+		block.BlobsSize += tx.BlobsSize
 	}
 
 	block.Events = parseEvents(b, b.ResultBlockResults.BeginBlockEvents)
