@@ -169,6 +169,7 @@ definitions:
         - edit_validator
         - unbond
         - tx
+        - use_feegrant
         - unknown
         example: commission
         format: string

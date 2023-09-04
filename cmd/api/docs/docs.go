@@ -1344,6 +1344,7 @@ const docTemplate = `{
                         "edit_validator",
                         "unbond",
                         "tx",
+                        "use_feegrant",
                         "unknown"
                     ],
                     "example": "commission"

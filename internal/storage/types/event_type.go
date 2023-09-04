@@ -17,7 +17,7 @@ const (
 	EventTypeLiveness           EventType = "liveness"
 	EventTypeAttestationRequest EventType = "AttestationRequest"
 	EventTypeTransfer           EventType = "transfer"
-	EventTypePayForBlobs        EventType = "pay_for_blobs"
+	EventTypePayForBlobs        EventType = "celestia.blob.v1.EventPayForBlobs"
 	EventTypeRedelegate         EventType = "redelegate"
 	EventTypeWithdrawRewards    EventType = "withdraw_rewards"
 	EventTypeWaithdrawComission EventType = "withdraw_commission"
