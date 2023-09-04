@@ -35,15 +35,24 @@ func (v *CelestiaApiValidator) Validate(i interface{}) error {
 }
 
 func isAddress(address string) bool {
-	if len(address) != 47 {
-		return false
-	}
-	prefix, _, err := bech32.Decode(address)
-	if err != nil {
-		return false
-	}
+	switch len(address) {
+	case 47:
+		prefix, _, err := bech32.Decode(address)
+		if err != nil {
+			return false
+		}
 
-	return prefix == "celestia"
+		return prefix == "celestia"
+	case 54:
+		prefix, _, err := bech32.Decode(address)
+		if err != nil {
+			return false
+		}
+
+		return prefix == "celestiavaloper"
+	default:
+		return false
+	}
 }
 
 func addressValidator() validator.Func {
