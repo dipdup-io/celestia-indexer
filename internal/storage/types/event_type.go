@@ -27,4 +27,7 @@ const (
 	EventTypeUnbond             EventType = "unbond"
 	EventTypeTx                 EventType = "tx"
 	EventTypeUseFeegrant        EventType = "use_feegrant"
+	EventTypeRevokeFeegrant     EventType = "revoke_feegrant"
+	EventTypeSetFeegrant        EventType = "set_feegrant"
+	EventTypeUpdateFeegrant     EventType = "update_feegrant"
 )

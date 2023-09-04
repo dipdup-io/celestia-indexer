@@ -1345,6 +1345,9 @@ const docTemplate = `{
                         "unbond",
                         "tx",
                         "use_feegrant",
+                        "revoke_feegrant",
+                        "set_feegrant",
+                        "update_feegrant",
                         "unknown"
                     ],
                     "example": "commission"
