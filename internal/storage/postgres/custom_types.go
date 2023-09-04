@@ -13,7 +13,7 @@ const (
 	msgType = `DO $$
 	BEGIN
 		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'msg_type') THEN
-			CREATE TYPE msg_type AS ENUM ('PayForBlobs', 'CreatePeriodicVestingAccount', 'CreateVestingAccount', 'Send', 'Unjail', 'Undelegate', 'Delegate', 'CreateValidator', 'BeginRedelegate', 'EditValidator', 'WithdrawDelegatorReward', 'WithdrawValidatorCommission', 'Unknown');
+			CREATE TYPE msg_type AS ENUM ('MsgPayForBlobs', 'MsgCreatePeriodicVestingAccount', 'MsgCreateVestingAccount', 'MsgSend', 'MsgUnjail', 'MsgUndelegate', 'MsgDelegate', 'MsgCreateValidator', 'MsgBeginRedelegate', 'MsgEditValidator', 'MsgWithdrawDelegatorReward', 'MsgWithdrawValidatorCommission', 'MsgUnknown');
 		END IF;
 	END$$;`
 

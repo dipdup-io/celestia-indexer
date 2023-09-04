@@ -905,18 +905,18 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "WithdrawValidatorCommission",
-                            "WithdrawDelegatorReward",
-                            "EditValidator",
-                            "BeginRedelegate",
-                            "CreateValidator",
-                            "Delegate",
-                            "Undelegate",
-                            "Unjail",
-                            "Send",
-                            "CreateVestingAccount",
-                            "CreatePeriodicVestingAccount",
-                            "PayForBlobs"
+                            "MsgWithdrawValidatorCommission",
+                            "MsgWithdrawDelegatorReward",
+                            "MsgEditValidator",
+                            "MsgBeginRedelegate",
+                            "MsgCreateValidator",
+                            "MsgDelegate",
+                            "MsgUndelegate",
+                            "MsgUnjail",
+                            "MsgSend",
+                            "MsgCreateVestingAccount",
+                            "MsgCreatePeriodicVestingAccount",
+                            "MsgPayForBlobs"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -1401,20 +1401,20 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "enum": [
-                        "WithdrawValidatorCommission",
-                        "WithdrawDelegatorReward",
-                        "EditValidator",
-                        "BeginRedelegate",
-                        "CreateValidator",
-                        "Delegate",
-                        "Undelegate",
-                        "Unjail",
-                        "Send",
-                        "CreateVestingAccount",
-                        "CreatePeriodicVestingAccount",
-                        "PayForBlobs"
+                        "MsgWithdrawValidatorCommission",
+                        "MsgWithdrawDelegatorReward",
+                        "MsgEditValidator",
+                        "MsgBeginRedelegate",
+                        "MsgCreateValidator",
+                        "MsgDelegate",
+                        "MsgUndelegate",
+                        "MsgUnjail",
+                        "MsgSend",
+                        "MsgCreateVestingAccount",
+                        "MsgCreatePeriodicVestingAccount",
+                        "MsgPayForBlobs"
                     ],
-                    "example": "CreatePeriodicVestingAccount"
+                    "example": "MsgCreatePeriodicVestingAccount"
                 }
             }
         },
@@ -1485,20 +1485,20 @@ const docTemplate = `{
                     "type": "string",
                     "format": "string",
                     "enum": [
-                        "WithdrawValidatorCommission",
-                        "WithdrawDelegatorReward",
-                        "EditValidator",
-                        "BeginRedelegate",
-                        "CreateValidator",
-                        "Delegate",
-                        "Undelegate",
-                        "Unjail",
-                        "Send",
-                        "CreateVestingAccount",
-                        "CreatePeriodicVestingAccount",
-                        "PayForBlobs"
+                        "MsgWithdrawValidatorCommission",
+                        "MsgWithdrawDelegatorReward",
+                        "MsgEditValidator",
+                        "MsgBeginRedelegate",
+                        "MsgCreateValidator",
+                        "MsgDelegate",
+                        "MsgUndelegate",
+                        "MsgUnjail",
+                        "MsgSend",
+                        "MsgCreateVestingAccount",
+                        "MsgCreatePeriodicVestingAccount",
+                        "MsgPayForBlobs"
                     ],
-                    "example": "CreatePeriodicVestingAccount"
+                    "example": "MsgCreatePeriodicVestingAccount"
                 }
             }
         },

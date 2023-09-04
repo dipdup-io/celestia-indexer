@@ -7,6 +7,8 @@ import (
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/fatih/structs"
 	"github.com/pkg/errors"
+	"reflect"
+	"strings"
 )
 
 func parseTxs(b types.BlockData) ([]storage.Tx, error) {
@@ -61,11 +63,18 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 	for position, msg := range d.messages {
 		// TODO get namespace
 
+		fullMsgType := reflect.TypeOf(msg).String()
+		msgTypeName := fullMsgType[strings.LastIndex(fullMsgType, ".")+1:]
+		msgType := storageTypes.MsgTypeUnknown
+		if storageTypes.IsMsgType(msgTypeName) {
+			msgType = storageTypes.MsgType(msgTypeName)
+		}
+
 		t.Messages[position] = storage.Message{
 			Height:   b.Height,
 			Time:     b.Block.Time,
 			Position: uint64(position),
-			Type:     storageTypes.MsgTypeUnknown, // TODO get type
+			Type:     msgType,
 			Data:     structs.Map(msg),
 		}
 	}

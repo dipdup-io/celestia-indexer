@@ -13,7 +13,7 @@ type Message struct {
 	Position uint64    `example:"2"                         format:"int64"     json:"position"        swaggertype:"integer"`
 	TxId     uint64    `example:"11"                        format:"int64"     json:"tx_id,omitempty" swaggertype:"integer"`
 
-	Type string `enums:"WithdrawValidatorCommission,WithdrawDelegatorReward,EditValidator,BeginRedelegate,CreateValidator,Delegate,Undelegate,Unjail,Send,CreateVestingAccount,CreatePeriodicVestingAccount,PayForBlobs" example:"CreatePeriodicVestingAccount" format:"string" json:"type" swaggertype:"string"`
+	Type string `enums:"MsgWithdrawValidatorCommission,MsgWithdrawDelegatorReward,MsgEditValidator,MsgBeginRedelegate,MsgCreateValidator,MsgDelegate,MsgUndelegate,MsgUnjail,MsgSend,MsgCreateVestingAccount,MsgCreatePeriodicVestingAccount,MsgPayForBlobs" example:"MsgCreatePeriodicVestingAccount" format:"string" json:"type" swaggertype:"string"`
 
 	Data map[string]any `json:"data"`
 }

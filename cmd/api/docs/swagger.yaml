@@ -212,19 +212,19 @@ definitions:
         type: integer
       type:
         enum:
-        - WithdrawValidatorCommission
-        - WithdrawDelegatorReward
-        - EditValidator
-        - BeginRedelegate
-        - CreateValidator
-        - Delegate
-        - Undelegate
-        - Unjail
-        - Send
-        - CreateVestingAccount
-        - CreatePeriodicVestingAccount
-        - PayForBlobs
-        example: CreatePeriodicVestingAccount
+        - MsgWithdrawValidatorCommission
+        - MsgWithdrawDelegatorReward
+        - MsgEditValidator
+        - MsgBeginRedelegate
+        - MsgCreateValidator
+        - MsgDelegate
+        - MsgUndelegate
+        - MsgUnjail
+        - MsgSend
+        - MsgCreateVestingAccount
+        - MsgCreatePeriodicVestingAccount
+        - MsgPayForBlobs
+        example: MsgCreatePeriodicVestingAccount
         format: string
         type: string
     type: object
@@ -278,19 +278,19 @@ definitions:
         $ref: '#/definitions/responses.Tx'
       type:
         enum:
-        - WithdrawValidatorCommission
-        - WithdrawDelegatorReward
-        - EditValidator
-        - BeginRedelegate
-        - CreateValidator
-        - Delegate
-        - Undelegate
-        - Unjail
-        - Send
-        - CreateVestingAccount
-        - CreatePeriodicVestingAccount
-        - PayForBlobs
-        example: CreatePeriodicVestingAccount
+        - MsgWithdrawValidatorCommission
+        - MsgWithdrawDelegatorReward
+        - MsgEditValidator
+        - MsgBeginRedelegate
+        - MsgCreateValidator
+        - MsgDelegate
+        - MsgUndelegate
+        - MsgUnjail
+        - MsgSend
+        - MsgCreateVestingAccount
+        - MsgCreatePeriodicVestingAccount
+        - MsgPayForBlobs
+        example: MsgCreatePeriodicVestingAccount
         format: string
         type: string
     type: object
@@ -1099,18 +1099,18 @@ paths:
         type: string
       - description: Comma-separated message types list
         enum:
-        - WithdrawValidatorCommission
-        - WithdrawDelegatorReward
-        - EditValidator
-        - BeginRedelegate
-        - CreateValidator
-        - Delegate
-        - Undelegate
-        - Unjail
-        - Send
-        - CreateVestingAccount
-        - CreatePeriodicVestingAccount
-        - PayForBlobs
+        - MsgWithdrawValidatorCommission
+        - MsgWithdrawDelegatorReward
+        - MsgEditValidator
+        - MsgBeginRedelegate
+        - MsgCreateValidator
+        - MsgDelegate
+        - MsgUndelegate
+        - MsgUnjail
+        - MsgSend
+        - MsgCreateVestingAccount
+        - MsgCreatePeriodicVestingAccount
+        - MsgPayForBlobs
         in: query
         name: msg_type
         type: string
