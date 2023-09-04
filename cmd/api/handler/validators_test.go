@@ -1,6 +1,10 @@
 package handler
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 func Test_isAddress(t *testing.T) {
 	tests := []struct {
@@ -28,9 +32,8 @@ func Test_isAddress(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isAddress(tt.address); got != tt.want {
-				t.Errorf("isAddress() = %v, want %v", got, tt.want)
-			}
+			got := isAddress(tt.address)
+			require.Equal(t, tt.want, got, tt.name)
 		})
 	}
 }
