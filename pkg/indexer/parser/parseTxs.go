@@ -5,10 +5,7 @@ import (
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
-	"github.com/fatih/structs"
 	"github.com/pkg/errors"
-	"reflect"
-	"strings"
 )
 
 func parseTxs(b types.BlockData) ([]storage.Tx, error) {
@@ -60,23 +57,9 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 
 	t.Events = parseEvents(b, txRes.Events)
 
-	for position, msg := range d.messages {
-		// TODO get namespace
-
-		fullMsgType := reflect.TypeOf(msg).String()
-		msgTypeName := fullMsgType[strings.LastIndex(fullMsgType, ".")+1:]
-		msgType := storageTypes.MsgTypeUnknown
-		if storageTypes.IsMsgType(msgTypeName) {
-			msgType = storageTypes.MsgType(msgTypeName)
-		}
-
-		t.Messages[position] = storage.Message{
-			Height:   b.Height,
-			Time:     b.Block.Time,
-			Position: uint64(position),
-			Type:     msgType,
-			Data:     structs.Map(msg),
-		}
+	for position, sdkMsg := range d.messages {
+		msg, _ := decodeMsg(b, sdkMsg, position)
+		t.Messages[position] = msg
 	}
 
 	return t, nil

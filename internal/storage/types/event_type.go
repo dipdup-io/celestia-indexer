@@ -26,4 +26,5 @@ const (
 	EventTypeEditValidator      EventType = "edit_validator"
 	EventTypeUnbond             EventType = "unbond"
 	EventTypeTx                 EventType = "tx"
+	EventTypeUseFeegrant        EventType = "use_feegrant"
 )
