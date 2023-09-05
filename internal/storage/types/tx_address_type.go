@@ -8,7 +8,9 @@ package types
 		validatorSrcAddress,
 		validatorDstAddress,
 		fromAddress,
-		toAddress
+		toAddress,
+		grantee,
+		granter
 	)
 */
 //go:generate go-enum --marshal --sql --values

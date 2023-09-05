@@ -5,6 +5,7 @@ import (
 	appBlobTypes "github.com/celestiaorg/celestia-app/x/blob/types"
 	cosmosCodecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosVestingTypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	cosmosFeegrant "github.com/cosmos/cosmos-sdk/x/feegrant"
@@ -469,6 +470,190 @@ func TestDecodeMsg_SuccessOnMsgUnjail(t *testing.T) {
 	assert.Equal(t, addressesExpected, dm.addresses)
 }
 
+// MsgSend
+
+func createMsgSend() cosmosTypes.Msg {
+	m := cosmosBankTypes.MsgSend{
+		FromAddress: "celestia10a0qvvg53svyfvmuf5azx779xrpwn9lxzlfkn7",
+		ToAddress:   "celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l",
+		Amount: cosmosTypes.Coins{
+			cosmosTypes.Coin{
+				Denom:  "utia",
+				Amount: math.NewInt(1000),
+			},
+		},
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgSend(t *testing.T) {
+	msgSend := createMsgSend()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, msgSend, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeSend,
+		TxId:      0,
+		Data:      structs.Map(msgSend),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeFromAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia10a0qvvg53svyfvmuf5azx779xrpwn9lxzlfkn7"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeToAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
+// MsgCreateVestingAccount
+
+func createMsgCreateVestingAccount() cosmosTypes.Msg {
+	m := cosmosVestingTypes.MsgCreateVestingAccount{
+		FromAddress: "celestia10a0qvvg53svyfvmuf5azx779xrpwn9lxzlfkn7",
+		ToAddress:   "celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l",
+		Amount: cosmosTypes.Coins{
+			cosmosTypes.Coin{
+				Denom:  "utia",
+				Amount: math.NewInt(1000),
+			},
+		},
+		EndTime: 0,
+		Delayed: false,
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgCreateVestingAccount(t *testing.T) {
+	m := createMsgCreateVestingAccount()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, m, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeCreateVestingAccount,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeFromAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia10a0qvvg53svyfvmuf5azx779xrpwn9lxzlfkn7"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeToAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
+// MsgCreatePeriodicVestingAccount
+
+func createMsgCreatePeriodicVestingAccount() cosmosTypes.Msg {
+	m := cosmosVestingTypes.MsgCreatePeriodicVestingAccount{
+		FromAddress:    "celestia10a0qvvg53svyfvmuf5azx779xrpwn9lxzlfkn7",
+		ToAddress:      "celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l",
+		StartTime:      0,
+		VestingPeriods: nil,
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgCreatePeriodicVestingAccount(t *testing.T) {
+	msgCreatePeriodicVestingAccount := createMsgCreatePeriodicVestingAccount()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, msgCreatePeriodicVestingAccount, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeCreatePeriodicVestingAccount,
+		TxId:      0,
+		Data:      structs.Map(msgCreatePeriodicVestingAccount),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeFromAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia10a0qvvg53svyfvmuf5azx779xrpwn9lxzlfkn7"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeToAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
 // MsgPayForBlob
 
 func createMsgPayForBlob() cosmosTypes.Msg {
@@ -517,62 +702,24 @@ func TestDecodeMsg_SuccessOnPayForBlob(t *testing.T) {
 	assert.Equal(t, msgExpected, dm.msg)
 }
 
-func createMsgSend() cosmosTypes.Msg {
-
-	msgDelegate := cosmosBankTypes.MsgSend{
-		FromAddress: "celestia10a0qvvg53svyfvmuf5azx779xrpwn9lxzlfkn7",
-		ToAddress:   "celestia1vsvx8n7f8dh5udesqqhgrjutyun7zqrgehdq2l",
-		Amount: cosmosTypes.Coins{
-			cosmosTypes.Coin{
-				Denom:  "utia",
-				Amount: math.NewInt(1000),
-			},
-		},
-	}
-
-	return &msgDelegate
-}
-
-func TestDecodeMsg_SuccessOnMsgSend(t *testing.T) {
-	msgSend := createMsgSend()
-	blob, now := createEmptyBlock()
-	position := 0
-
-	dm, err := decodeMsg(blob, msgSend, position)
-
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgTypeSend,
-		TxId:      0,
-		Data:      structs.Map(msgSend),
-		Namespace: nil,
-	}
-
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(0), dm.blobsSize)
-	assert.Equal(t, msgExpected, dm.msg)
-}
+// MsgGrantAllowance
 
 func createMsgGrantAllowance() cosmosTypes.Msg {
-
-	msgDelegate := cosmosFeegrant.MsgGrantAllowance{
-		Granter:   "celestia1l9qjhhnxc0t6tt93q8396gu0vttwlcc233gyvr",
-		Grantee:   "celestia1vut644llcgwyvysmma6ww2xkmdytc8xspty8kx",
+	m := cosmosFeegrant.MsgGrantAllowance{
+		Granter:   "celestia1l9qjhhnxc0t6tt93q8396gu0vttwlcc238gyvr",
+		Grantee:   "celestia1vut644llcgwyvysmma6ww2xkmdytc8xspty5kx",
 		Allowance: cosmosCodecTypes.UnsafePackAny(cosmosFeegrant.BasicAllowance{}),
 	}
 
-	return &msgDelegate
+	return &m
 }
 
 func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
-	msgGrantAllowance := createMsgGrantAllowance()
+	m := createMsgGrantAllowance()
 	blob, now := createEmptyBlock()
 	position := 4
 
-	dm, err := decodeMsg(blob, msgGrantAllowance, position)
+	dm, err := decodeMsg(blob, m, position)
 
 	msgExpected := storage.Message{
 		Id:        0,
@@ -581,14 +728,38 @@ func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
 		Position:  4,
 		Type:      storageTypes.MsgTypeGrantAllowance,
 		TxId:      0,
-		Data:      structs.Map(msgGrantAllowance),
+		Data:      structs.Map(m),
 		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeGranter,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1l9qjhhnxc0t6tt93q8396gu0vttwlcc238gyvr"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeGrantee,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1vut644llcgwyvysmma6ww2xkmdytc8xspty5kx"),
+				Balance: decimal.Zero,
+			},
+		},
 	}
 
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.blobsSize)
 	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
 }
+
+// MsgUnknown
 
 type UnknownMsgType struct{}
 

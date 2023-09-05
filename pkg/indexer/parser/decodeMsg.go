@@ -47,18 +47,17 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 		d.msg.Type, d.addresses, err = handleMsgUndelegate(b.Height, msg)
 	case *cosmosSlashingTypes.MsgUnjail:
 		d.msg.Type, d.addresses, err = handleMsgUnjail(b.Height, msg)
-		d.msg.Type = storageTypes.MsgTypeUnjail
 	case *cosmosBankTypes.MsgSend:
-		d.msg.Type = storageTypes.MsgTypeSend
-	case *cosmosVestingTypes.MsgCreateVestingAccount:
-		d.msg.Type = storageTypes.MsgTypeCreateVestingAccount
+		d.msg.Type, d.addresses, err = handleMsgSend(b.Height, msg)
+	case *cosmosVestingTypes.MsgCreateVestingAccount: // last
+		d.msg.Type, d.addresses, err = handleMsgCreateVestingAccount(b.Height, msg)
 	case *cosmosVestingTypes.MsgCreatePeriodicVestingAccount:
-		d.msg.Type = storageTypes.MsgTypeCreatePeriodicVestingAccount
+		d.msg.Type, d.addresses, err = handleMsgCreatePeriodicVestingAccount(b.Height, msg)
 	case *appBlobTypes.MsgPayForBlobs:
-		d.msg.Namespace, d.blobsSize, err = handleMsgPayForBlob(b, msg)
+		d.msg.Namespace, d.blobsSize, err = handleMsgPayForBlobs(b, msg)
 		d.msg.Type = storageTypes.MsgTypePayForBlobs
 	case *cosmosFeegrant.MsgGrantAllowance:
-		d.msg.Type = storageTypes.MsgTypeGrantAllowance
+		d.msg.Type, d.addresses, err = handleMsgGrantAllowance(b.Height, msg)
 	default:
 		d.msg.Type = storageTypes.MsgTypeUnknown
 	}
@@ -169,7 +168,37 @@ func handleMsgUnjail(level storage.Level, msg cosmosTypes.Msg) (storageTypes.Msg
 	return msgType, addresses, nil
 }
 
-func handleMsgPayForBlob(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Namespace, uint64, error) {
+func handleMsgSend(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeSend
+	m := msg.(*cosmosBankTypes.MsgSend)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeFromAddress, address: m.FromAddress},
+		{t: storageTypes.TxAddressTypeToAddress, address: m.ToAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgCreateVestingAccount(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeCreateVestingAccount
+	m := msg.(*cosmosVestingTypes.MsgCreateVestingAccount)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeFromAddress, address: m.FromAddress},
+		{t: storageTypes.TxAddressTypeToAddress, address: m.ToAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgCreatePeriodicVestingAccount(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeCreatePeriodicVestingAccount
+	m := msg.(*cosmosVestingTypes.MsgCreatePeriodicVestingAccount)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeFromAddress, address: m.FromAddress},
+		{t: storageTypes.TxAddressTypeToAddress, address: m.ToAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgPayForBlobs(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Namespace, uint64, error) {
 	payForBlobsMsg, ok := msg.(*appBlobTypes.MsgPayForBlobs)
 	if !ok {
 		return nil, 0, errors.Errorf("error on decoding '%T' in appBlobTypes.MsgPayForBlobs", msg)
@@ -198,4 +227,14 @@ func handleMsgPayForBlob(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Name
 	}
 
 	return namespaces, blobsSize, nil
+}
+
+func handleMsgGrantAllowance(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeGrantAllowance
+	m := msg.(*cosmosFeegrant.MsgGrantAllowance)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeGranter, address: m.Granter},
+		{t: storageTypes.TxAddressTypeGrantee, address: m.Grantee},
+	}, level)
+	return msgType, addresses, nil
 }
