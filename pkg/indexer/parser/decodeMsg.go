@@ -34,7 +34,7 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
 		d.msg.Type, d.addresses, err = handledMsgWithdrawValidatorCommission(b, msg)
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
-		d.msg.Type = storageTypes.MsgTypeWithdrawDelegatorReward
+		d.msg.Type, d.addresses, err = handledMsgWithdrawDelegatorReward(b, msg)
 	case *cosmosStakingTypes.MsgEditValidator:
 		d.msg.Type = storageTypes.MsgTypeEditValidator
 	case *cosmosStakingTypes.MsgBeginRedelegate:
@@ -55,7 +55,7 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 		d.msg.Type = storageTypes.MsgTypeCreatePeriodicVestingAccount
 	case *appBlobTypes.MsgPayForBlobs:
 		d.msg.Type = storageTypes.MsgTypePayForBlobs
-		d.msg.Namespace, d.blobsSize, err = handlePfb(b, msg)
+		d.msg.Namespace, d.blobsSize, err = handleMsgPayForBlob(b, msg)
 	case *cosmosFeegrant.MsgGrantAllowance:
 		d.msg.Type = storageTypes.MsgTypeGrantAllowance
 	default:
@@ -71,11 +71,7 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 
 func handledMsgWithdrawValidatorCommission(b types.BlockData, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgTypeWithdrawValidatorCommission
-
-	m, ok := msg.(*cosmosDistributionTypes.MsgWithdrawValidatorCommission)
-	if !ok {
-		return storageTypes.MsgTypeUnknown, nil, errors.Errorf("error on decoding '%T' in cosmosDistributionTypes.MsgWithdrawValidatorCommission", msg)
-	}
+	m := msg.(*cosmosDistributionTypes.MsgWithdrawValidatorCommission)
 
 	addresses := []storage.AddressWithType{
 		{
@@ -91,7 +87,33 @@ func handledMsgWithdrawValidatorCommission(b types.BlockData, msg cosmosTypes.Ms
 	return msgType, addresses, nil
 }
 
-func handlePfb(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Namespace, uint64, error) {
+func handledMsgWithdrawDelegatorReward(b types.BlockData, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeWithdrawDelegatorReward
+	m := msg.(*cosmosDistributionTypes.MsgWithdrawDelegatorReward)
+
+	addresses := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Address: storage.Address{
+				Height:  b.Height,
+				Hash:    []byte(m.DelegatorAddress),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Height:  b.Height,
+				Hash:    []byte(m.ValidatorAddress),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	return msgType, addresses, nil
+}
+
+func handleMsgPayForBlob(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Namespace, uint64, error) {
 	payForBlobsMsg, ok := msg.(*appBlobTypes.MsgPayForBlobs)
 	if !ok {
 		return nil, 0, errors.Errorf("error on decoding '%T' in appBlobTypes.MsgPayForBlobs", msg)
