@@ -33,7 +33,7 @@ func TestDecodeMsg_SuccessOnPayForBlob(t *testing.T) {
 	blob, now := createEmptyBlock()
 	position := 0
 
-	msg, blobSize, err := decodeMsg(blob, msgPayForBlob, position)
+	dm, err := decodeMsg(blob, msgPayForBlob, position)
 
 	msgExpected := storage.Message{
 		Id:       0,
@@ -57,8 +57,8 @@ func TestDecodeMsg_SuccessOnPayForBlob(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(1), blobSize)
-	assert.Equal(t, msgExpected, msg)
+	assert.Equal(t, uint64(1), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
 }
 
 func createMsgDelegate() cosmosTypes.Msg {
@@ -80,7 +80,7 @@ func TestDecodeMsg_SuccessOnMsgDelegate(t *testing.T) {
 	blob, now := createEmptyBlock()
 	position := 0
 
-	msg, blobSize, err := decodeMsg(blob, msgDelegate, position)
+	dm, err := decodeMsg(blob, msgDelegate, position)
 
 	msgExpected := storage.Message{
 		Id:        0,
@@ -94,8 +94,8 @@ func TestDecodeMsg_SuccessOnMsgDelegate(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(0), blobSize)
-	assert.Equal(t, msgExpected, msg)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
 }
 
 func createMsgSend() cosmosTypes.Msg {
@@ -119,7 +119,7 @@ func TestDecodeMsg_SuccessOnMsgSend(t *testing.T) {
 	blob, now := createEmptyBlock()
 	position := 0
 
-	msg, blobSize, err := decodeMsg(blob, msgSend, position)
+	dm, err := decodeMsg(blob, msgSend, position)
 
 	msgExpected := storage.Message{
 		Id:        0,
@@ -133,8 +133,8 @@ func TestDecodeMsg_SuccessOnMsgSend(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(0), blobSize)
-	assert.Equal(t, msgExpected, msg)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
 }
 
 func createMsgGrantAllowance() cosmosTypes.Msg {
@@ -153,7 +153,7 @@ func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
 	blob, now := createEmptyBlock()
 	position := 4
 
-	msg, blobSize, err := decodeMsg(blob, msgGrantAllowance, position)
+	dm, err := decodeMsg(blob, msgGrantAllowance, position)
 
 	msgExpected := storage.Message{
 		Id:        0,
@@ -167,8 +167,8 @@ func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(0), blobSize)
-	assert.Equal(t, msgExpected, msg)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
 }
 
 type UnknownMsgType struct{}
@@ -189,7 +189,7 @@ func TestDecodeMsg_MsgUnknown(t *testing.T) {
 	blob, now := createEmptyBlock()
 	position := 0
 
-	msg, blobSize, err := decodeMsg(blob, msgUnknown, position)
+	dm, err := decodeMsg(blob, msgUnknown, position)
 
 	msgExpected := storage.Message{
 		Id:        0,
@@ -203,6 +203,6 @@ func TestDecodeMsg_MsgUnknown(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, uint64(0), blobSize)
-	assert.Equal(t, msgExpected, msg)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
 }

@@ -17,42 +17,48 @@ import (
 	"github.com/pkg/errors"
 )
 
-func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (sMsg storage.Message, blobsSize uint64, err error) {
-	sMsg.Height = b.Height
-	sMsg.Time = b.Block.Time
-	sMsg.Position = uint64(position)
-	sMsg.Data = structs.Map(msg)
+type decodedMsg struct {
+	msg       storage.Message
+	blobsSize uint64
+	addresses []storage.AddressWithType
+}
+
+func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedMsg, err error) {
+	d.msg.Height = b.Height
+	d.msg.Time = b.Block.Time
+	d.msg.Position = uint64(position)
+	d.msg.Data = structs.Map(msg)
 
 	switch msg.(type) {
 	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
-		sMsg.Type = storageTypes.MsgTypeWithdrawValidatorCommission
+		d.msg.Type = storageTypes.MsgTypeWithdrawValidatorCommission
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
-		sMsg.Type = storageTypes.MsgTypeWithdrawDelegatorReward
+		d.msg.Type = storageTypes.MsgTypeWithdrawDelegatorReward
 	case *cosmosStakingTypes.MsgEditValidator:
-		sMsg.Type = storageTypes.MsgTypeEditValidator
+		d.msg.Type = storageTypes.MsgTypeEditValidator
 	case *cosmosStakingTypes.MsgBeginRedelegate:
-		sMsg.Type = storageTypes.MsgTypeBeginRedelegate
+		d.msg.Type = storageTypes.MsgTypeBeginRedelegate
 	case *cosmosStakingTypes.MsgCreateValidator:
-		sMsg.Type = storageTypes.MsgTypeCreateValidator
+		d.msg.Type = storageTypes.MsgTypeCreateValidator
 	case *cosmosStakingTypes.MsgDelegate:
-		sMsg.Type = storageTypes.MsgTypeDelegate
+		d.msg.Type = storageTypes.MsgTypeDelegate
 	case *cosmosStakingTypes.MsgUndelegate:
-		sMsg.Type = storageTypes.MsgTypeUndelegate
+		d.msg.Type = storageTypes.MsgTypeUndelegate
 	case *cosmosSlashingTypes.MsgUnjail:
-		sMsg.Type = storageTypes.MsgTypeUnjail
+		d.msg.Type = storageTypes.MsgTypeUnjail
 	case *cosmosBankTypes.MsgSend:
-		sMsg.Type = storageTypes.MsgTypeSend
+		d.msg.Type = storageTypes.MsgTypeSend
 	case *cosmosVestingTypes.MsgCreateVestingAccount:
-		sMsg.Type = storageTypes.MsgTypeCreateVestingAccount
+		d.msg.Type = storageTypes.MsgTypeCreateVestingAccount
 	case *cosmosVestingTypes.MsgCreatePeriodicVestingAccount:
-		sMsg.Type = storageTypes.MsgTypeCreatePeriodicVestingAccount
+		d.msg.Type = storageTypes.MsgTypeCreatePeriodicVestingAccount
 	case *appBlobTypes.MsgPayForBlobs:
-		sMsg.Type = storageTypes.MsgTypePayForBlobs
-		sMsg.Namespace, blobsSize, err = handlePfb(b, msg)
+		d.msg.Type = storageTypes.MsgTypePayForBlobs
+		d.msg.Namespace, d.blobsSize, err = handlePfb(b, msg)
 	case *cosmosFeegrant.MsgGrantAllowance:
-		sMsg.Type = storageTypes.MsgTypeGrantAllowance
+		d.msg.Type = storageTypes.MsgTypeGrantAllowance
 	default:
-		sMsg.Type = storageTypes.MsgTypeUnknown
+		d.msg.Type = storageTypes.MsgTypeUnknown
 	}
 
 	if err != nil {
