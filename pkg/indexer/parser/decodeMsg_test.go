@@ -17,6 +17,8 @@ import (
 	"testing"
 )
 
+// MsgWithdrawValidatorCommission
+
 func createMsgWithdrawValidatorCommission() cosmosTypes.Msg {
 	m := cosmosDistributionTypes.MsgWithdrawValidatorCommission{
 		ValidatorAddress: "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
@@ -60,6 +62,8 @@ func TestDecodeMsg_SuccessOnMsgWithdrawValidatorCommission(t *testing.T) {
 	assert.Equal(t, msgExpected, dm.msg)
 	assert.Equal(t, addressesExpected, dm.addresses)
 }
+
+// MsgWithdrawDelegatorReward
 
 func createMsgWithdrawDelegatorReward() cosmosTypes.Msg {
 	m := cosmosDistributionTypes.MsgWithdrawDelegatorReward{
@@ -114,6 +118,130 @@ func TestDecodeMsg_SuccessOnMsgWithdrawDelegatorReward(t *testing.T) {
 	assert.Equal(t, msgExpected, dm.msg)
 	assert.Equal(t, addressesExpected, dm.addresses)
 }
+
+// MsgEditValidator
+
+func createMsgEditValidator() cosmosTypes.Msg {
+	m := cosmosStakingTypes.MsgEditValidator{
+		Description: cosmosStakingTypes.Description{
+			Moniker:         "newAgeValidator",
+			Identity:        "UPort:1",
+			Website:         "https://google.com",
+			SecurityContact: "tryme@gmail.com",
+			Details:         "trust",
+		},
+		ValidatorAddress:  "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
+		CommissionRate:    nil,
+		MinSelfDelegation: nil,
+		EvmAddress:        "0x10E0271ec47d55511a047516f2a7301801d55eaB",
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgEditValidator(t *testing.T) {
+	m := createMsgEditValidator()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, m, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeEditValidator,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
+// MsgBeginRedelegate
+
+func createMsgBeginRedelegate() cosmosTypes.Msg {
+	m := cosmosStakingTypes.MsgBeginRedelegate{
+		DelegatorAddress:    "celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre76",
+		ValidatorSrcAddress: "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
+		ValidatorDstAddress: "celestiavaloper1fg9l3xvfuu9wxremv2288777zawysg4r40gw7x",
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
+	m := createMsgBeginRedelegate()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, m, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeBeginRedelegate,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre76"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeValidatorSrcAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeValidatorDstAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestiavaloper1fg9l3xvfuu9wxremv2288777zawysg4r40gw7x"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
+// MsgPayForBlob
 
 func createMsgPayForBlob() cosmosTypes.Msg {
 

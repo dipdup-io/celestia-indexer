@@ -32,13 +32,13 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 
 	switch msg.(type) {
 	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
-		d.msg.Type, d.addresses, err = handledMsgWithdrawValidatorCommission(b, msg)
+		d.msg.Type, d.addresses, err = handleMsgWithdrawValidatorCommission(b.Height, msg)
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
-		d.msg.Type, d.addresses, err = handledMsgWithdrawDelegatorReward(b, msg)
+		d.msg.Type, d.addresses, err = handleMsgWithdrawDelegatorReward(b.Height, msg)
 	case *cosmosStakingTypes.MsgEditValidator:
-		d.msg.Type = storageTypes.MsgTypeEditValidator
+		d.msg.Type, d.addresses, err = handleMsgEditValidator(b.Height, msg)
 	case *cosmosStakingTypes.MsgBeginRedelegate:
-		d.msg.Type = storageTypes.MsgTypeBeginRedelegate
+		d.msg.Type, d.addresses, err = handleMsgBeginRedelegate(b.Height, msg)
 	case *cosmosStakingTypes.MsgCreateValidator:
 		d.msg.Type = storageTypes.MsgTypeCreateValidator
 	case *cosmosStakingTypes.MsgDelegate:
@@ -69,47 +69,63 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 	return
 }
 
-func handledMsgWithdrawValidatorCommission(b types.BlockData, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeWithdrawValidatorCommission
-	m := msg.(*cosmosDistributionTypes.MsgWithdrawValidatorCommission)
+type addressesData []struct {
+	t       storageTypes.TxAddressType
+	address string
+}
 
-	addresses := []storage.AddressWithType{
-		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+func createAddresses(data addressesData, level storage.Level) []storage.AddressWithType {
+	addresses := make([]storage.AddressWithType, len(data))
+	for i, d := range data {
+		addresses[i] = storage.AddressWithType{
+			Type: d.t,
 			Address: storage.Address{
-				Height:  b.Height,
-				Hash:    []byte(m.ValidatorAddress),
+				Height:  level,
+				Hash:    []byte(d.address),
 				Balance: decimal.Zero,
 			},
-		},
+		}
 	}
+	return addresses
+}
+
+func handleMsgWithdrawValidatorCommission(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeWithdrawValidatorCommission
+	m := msg.(*cosmosDistributionTypes.MsgWithdrawValidatorCommission)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgWithdrawDelegatorReward(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeWithdrawDelegatorReward
+	m := msg.(*cosmosDistributionTypes.MsgWithdrawDelegatorReward)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
+		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
+	}, level)
 
 	return msgType, addresses, nil
 }
 
-func handledMsgWithdrawDelegatorReward(b types.BlockData, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeWithdrawDelegatorReward
-	m := msg.(*cosmosDistributionTypes.MsgWithdrawDelegatorReward)
+func handleMsgEditValidator(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeEditValidator
+	m := msg.(*cosmosStakingTypes.MsgEditValidator)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
+	}, level)
+	return msgType, addresses, nil
+}
 
-	addresses := []storage.AddressWithType{
-		{
-			Type: storageTypes.TxAddressTypeDelegatorAddress,
-			Address: storage.Address{
-				Height:  b.Height,
-				Hash:    []byte(m.DelegatorAddress),
-				Balance: decimal.Zero,
-			},
-		},
-		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
-			Address: storage.Address{
-				Height:  b.Height,
-				Hash:    []byte(m.ValidatorAddress),
-				Balance: decimal.Zero,
-			},
-		},
-	}
-
+func handleMsgBeginRedelegate(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeBeginRedelegate
+	m := msg.(*cosmosStakingTypes.MsgBeginRedelegate)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
+		{t: storageTypes.TxAddressTypeValidatorSrcAddress, address: m.ValidatorSrcAddress},
+		{t: storageTypes.TxAddressTypeValidatorDstAddress, address: m.ValidatorDstAddress},
+	}, level)
 	return msgType, addresses, nil
 }
 
