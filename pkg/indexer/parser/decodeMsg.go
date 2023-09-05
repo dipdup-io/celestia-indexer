@@ -58,7 +58,7 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 	case *cosmosFeegrant.MsgGrantAllowance:
 		d.msg.Type, d.addresses, err = handleMsgGrantAllowance(b.Height, typedMsg)
 	default:
-		d.msg.Type = storageTypes.MsgTypeUnknown
+		d.msg.Type = storageTypes.MsgUnknown
 	}
 
 	if err != nil {
@@ -89,7 +89,7 @@ func createAddresses(data addressesData, level storage.Level) []storage.AddressW
 }
 
 func handleMsgWithdrawValidatorCommission(level storage.Level, m *cosmosDistributionTypes.MsgWithdrawValidatorCommission) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeWithdrawValidatorCommission
+	msgType := storageTypes.MsgWithdrawValidatorCommission
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
 	}, level)
@@ -97,7 +97,7 @@ func handleMsgWithdrawValidatorCommission(level storage.Level, m *cosmosDistribu
 }
 
 func handleMsgWithdrawDelegatorReward(level storage.Level, m *cosmosDistributionTypes.MsgWithdrawDelegatorReward) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeWithdrawDelegatorReward
+	msgType := storageTypes.MsgWithdrawDelegatorReward
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
@@ -107,7 +107,7 @@ func handleMsgWithdrawDelegatorReward(level storage.Level, m *cosmosDistribution
 }
 
 func handleMsgEditValidator(level storage.Level, m *cosmosStakingTypes.MsgEditValidator) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeEditValidator
+	msgType := storageTypes.MsgEditValidator
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
 	}, level)
@@ -115,7 +115,7 @@ func handleMsgEditValidator(level storage.Level, m *cosmosStakingTypes.MsgEditVa
 }
 
 func handleMsgBeginRedelegate(level storage.Level, m *cosmosStakingTypes.MsgBeginRedelegate) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeBeginRedelegate
+	msgType := storageTypes.MsgBeginRedelegate
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.TxAddressTypeValidatorSrcAddress, address: m.ValidatorSrcAddress},
@@ -125,7 +125,7 @@ func handleMsgBeginRedelegate(level storage.Level, m *cosmosStakingTypes.MsgBegi
 }
 
 func handleMsgCreateValidator(level storage.Level, m *cosmosStakingTypes.MsgCreateValidator) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeCreateValidator
+	msgType := storageTypes.MsgCreateValidator
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
@@ -134,7 +134,7 @@ func handleMsgCreateValidator(level storage.Level, m *cosmosStakingTypes.MsgCrea
 }
 
 func handleMsgDelegate(level storage.Level, m *cosmosStakingTypes.MsgDelegate) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeDelegate
+	msgType := storageTypes.MsgDelegate
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
@@ -143,7 +143,7 @@ func handleMsgDelegate(level storage.Level, m *cosmosStakingTypes.MsgDelegate) (
 }
 
 func handleMsgUndelegate(level storage.Level, m *cosmosStakingTypes.MsgUndelegate) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeUndelegate
+	msgType := storageTypes.MsgUndelegate
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
@@ -152,7 +152,7 @@ func handleMsgUndelegate(level storage.Level, m *cosmosStakingTypes.MsgUndelegat
 }
 
 func handleMsgUnjail(level storage.Level, m *cosmosSlashingTypes.MsgUnjail) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeUnjail
+	msgType := storageTypes.MsgUnjail
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddr},
 	}, level)
@@ -160,7 +160,7 @@ func handleMsgUnjail(level storage.Level, m *cosmosSlashingTypes.MsgUnjail) (sto
 }
 
 func handleMsgSend(level storage.Level, m *cosmosBankTypes.MsgSend) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeSend
+	msgType := storageTypes.MsgSend
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeFromAddress, address: m.FromAddress},
 		{t: storageTypes.TxAddressTypeToAddress, address: m.ToAddress},
@@ -169,7 +169,7 @@ func handleMsgSend(level storage.Level, m *cosmosBankTypes.MsgSend) (storageType
 }
 
 func handleMsgCreateVestingAccount(level storage.Level, m *cosmosVestingTypes.MsgCreateVestingAccount) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeCreateVestingAccount
+	msgType := storageTypes.MsgCreateVestingAccount
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeFromAddress, address: m.FromAddress},
 		{t: storageTypes.TxAddressTypeToAddress, address: m.ToAddress},
@@ -178,7 +178,7 @@ func handleMsgCreateVestingAccount(level storage.Level, m *cosmosVestingTypes.Ms
 }
 
 func handleMsgCreatePeriodicVestingAccount(level storage.Level, m *cosmosVestingTypes.MsgCreatePeriodicVestingAccount) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeCreatePeriodicVestingAccount
+	msgType := storageTypes.MsgCreatePeriodicVestingAccount
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeFromAddress, address: m.FromAddress},
 		{t: storageTypes.TxAddressTypeToAddress, address: m.ToAddress},
@@ -192,7 +192,7 @@ func handleMsgPayForBlobs(level storage.Level, m *appBlobTypes.MsgPayForBlobs) (
 
 	for nsI, ns := range m.Namespaces {
 		if len(m.BlobSizes) < nsI {
-			return storageTypes.MsgTypeUnknown, nil, nil, 0, errors.Errorf(
+			return storageTypes.MsgUnknown, nil, nil, 0, errors.Errorf(
 				"blob sizes length=%d is less then namespaces index=%d", len(m.BlobSizes), nsI)
 		}
 
@@ -213,11 +213,11 @@ func handleMsgPayForBlobs(level storage.Level, m *appBlobTypes.MsgPayForBlobs) (
 		{t: storageTypes.TxAddressTypeSigner, address: m.Signer},
 	}, level)
 
-	return storageTypes.MsgTypePayForBlobs, addresses, namespaces, blobsSize, nil
+	return storageTypes.MsgPayForBlobs, addresses, namespaces, blobsSize, nil
 }
 
 func handleMsgGrantAllowance(level storage.Level, m *cosmosFeegrant.MsgGrantAllowance) (storageTypes.MsgType, []storage.AddressWithType, error) {
-	msgType := storageTypes.MsgTypeGrantAllowance
+	msgType := storageTypes.MsgGrantAllowance
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeGranter, address: m.Granter},
 		{t: storageTypes.TxAddressTypeGrantee, address: m.Grantee},
