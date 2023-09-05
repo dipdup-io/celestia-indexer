@@ -657,15 +657,13 @@ func TestDecodeMsg_SuccessOnMsgCreatePeriodicVestingAccount(t *testing.T) {
 // MsgPayForBlob
 
 func createMsgPayForBlob() cosmosTypes.Msg {
-
 	msgPayForBlob := appBlobTypes.MsgPayForBlobs{
-		Signer:           "celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre76",
+		Signer:           "celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkr777",
 		Namespaces:       [][]byte{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 189, 44, 204, 197, 144, 206, 197, 121, 37, 22}},
 		BlobSizes:        []uint32{1},
 		ShareCommitments: [][]byte{{176, 28, 134, 119, 32, 117, 87, 107, 231, 67, 121, 255, 209, 106, 52, 99, 88, 183, 85, 36, 67, 137, 98, 199, 144, 159, 13, 178, 111, 190, 121, 36}},
 		ShareVersions:    []uint32{0},
 	}
-
 	return &msgPayForBlob
 }
 
@@ -697,9 +695,22 @@ func TestDecodeMsg_SuccessOnPayForBlob(t *testing.T) {
 		},
 	}
 
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeSigner,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkr777"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(1), dm.blobsSize)
 	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
 }
 
 // MsgGrantAllowance

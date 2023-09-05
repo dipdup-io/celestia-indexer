@@ -49,13 +49,12 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 		d.msg.Type, d.addresses, err = handleMsgUnjail(b.Height, msg)
 	case *cosmosBankTypes.MsgSend:
 		d.msg.Type, d.addresses, err = handleMsgSend(b.Height, msg)
-	case *cosmosVestingTypes.MsgCreateVestingAccount: // last
+	case *cosmosVestingTypes.MsgCreateVestingAccount:
 		d.msg.Type, d.addresses, err = handleMsgCreateVestingAccount(b.Height, msg)
 	case *cosmosVestingTypes.MsgCreatePeriodicVestingAccount:
 		d.msg.Type, d.addresses, err = handleMsgCreatePeriodicVestingAccount(b.Height, msg)
 	case *appBlobTypes.MsgPayForBlobs:
-		d.msg.Namespace, d.blobsSize, err = handleMsgPayForBlobs(b, msg)
-		d.msg.Type = storageTypes.MsgTypePayForBlobs
+		d.msg.Type, d.addresses, d.msg.Namespace, d.blobsSize, err = handleMsgPayForBlobs(b.Height, msg)
 	case *cosmosFeegrant.MsgGrantAllowance:
 		d.msg.Type, d.addresses, err = handleMsgGrantAllowance(b.Height, msg)
 	default:
@@ -198,26 +197,22 @@ func handleMsgCreatePeriodicVestingAccount(level storage.Level, msg cosmosTypes.
 	return msgType, addresses, nil
 }
 
-func handleMsgPayForBlobs(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Namespace, uint64, error) {
-	payForBlobsMsg, ok := msg.(*appBlobTypes.MsgPayForBlobs)
-	if !ok {
-		return nil, 0, errors.Errorf("error on decoding '%T' in appBlobTypes.MsgPayForBlobs", msg)
-	}
-
+func handleMsgPayForBlobs(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, []storage.Namespace, uint64, error) {
+	m := msg.(*appBlobTypes.MsgPayForBlobs)
 	var blobsSize uint64
-	namespaces := make([]storage.Namespace, len(payForBlobsMsg.Namespaces))
+	namespaces := make([]storage.Namespace, len(m.Namespaces))
 
-	for nsI, ns := range payForBlobsMsg.Namespaces {
-		if len(payForBlobsMsg.BlobSizes) < nsI {
-			return nil, 0, errors.Errorf(
-				"blob sizes length=%d is less then namespaces index=%d", len(payForBlobsMsg.BlobSizes), nsI)
+	for nsI, ns := range m.Namespaces {
+		if len(m.BlobSizes) < nsI {
+			return storageTypes.MsgTypeUnknown, nil, nil, 0, errors.Errorf(
+				"blob sizes length=%d is less then namespaces index=%d", len(m.BlobSizes), nsI)
 		}
 
 		appNS := namespace.Namespace{Version: ns[0], ID: ns[1:]}
-		size := uint64(payForBlobsMsg.BlobSizes[nsI])
+		size := uint64(m.BlobSizes[nsI])
 		blobsSize += size
 		namespaces[nsI] = storage.Namespace{
-			FirstHeight: b.Height,
+			FirstHeight: level,
 			Version:     appNS.Version,
 			NamespaceID: appNS.ID,
 			Size:        size,
@@ -226,7 +221,11 @@ func handleMsgPayForBlobs(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Nam
 		}
 	}
 
-	return namespaces, blobsSize, nil
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeSigner, address: m.Signer},
+	}, level)
+
+	return storageTypes.MsgTypePayForBlobs, addresses, namespaces, blobsSize, nil
 }
 
 func handleMsgGrantAllowance(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {

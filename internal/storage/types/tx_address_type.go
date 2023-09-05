@@ -10,7 +10,8 @@ package types
 		fromAddress,
 		toAddress,
 		grantee,
-		granter
+		granter,
+		signer
 	)
 */
 //go:generate go-enum --marshal --sql --values
