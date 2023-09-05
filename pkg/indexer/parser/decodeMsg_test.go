@@ -8,6 +8,7 @@ import (
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	cosmosFeegrant "github.com/cosmos/cosmos-sdk/x/feegrant"
+	cosmosSlashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
@@ -241,6 +242,233 @@ func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
 	assert.Equal(t, addressesExpected, dm.addresses)
 }
 
+// MsgCreateValidator
+
+func createMsgCreateValidator() cosmosTypes.Msg {
+	m := cosmosStakingTypes.MsgCreateValidator{
+		Description:       cosmosStakingTypes.Description{},
+		Commission:        cosmosStakingTypes.CommissionRates{},
+		MinSelfDelegation: cosmosTypes.Int{}, // nolint
+		DelegatorAddress:  "celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre77",
+		ValidatorAddress:  "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw7x",
+		Pubkey:            nil,
+		Value:             cosmosTypes.Coin{},
+		EvmAddress:        "",
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgCreateValidator(t *testing.T) {
+	m := createMsgCreateValidator()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, m, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeCreateValidator,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre77"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw7x"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
+// MsgDelegate
+
+func createMsgDelegate() cosmosTypes.Msg {
+
+	msgDelegate := cosmosStakingTypes.MsgDelegate{
+		DelegatorAddress: "celestia1A2kqw44hdq5dwlcvsw8f2l49lkehtf9wp95kth",
+		ValidatorAddress: "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40g77x",
+		Amount: cosmosTypes.Coin{
+			Denom:  "utia",
+			Amount: math.NewInt(1000),
+		},
+	}
+
+	return &msgDelegate
+}
+
+func TestDecodeMsg_SuccessOnMsgDelegate(t *testing.T) {
+	msgDelegate := createMsgDelegate()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, msgDelegate, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeDelegate,
+		TxId:      0,
+		Data:      structs.Map(msgDelegate),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1A2kqw44hdq5dwlcvsw8f2l49lkehtf9wp95kth"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40g77x"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
+// MsgUndelegate
+
+func createMsgUndelegate() cosmosTypes.Msg {
+	m := cosmosStakingTypes.MsgUndelegate{
+		DelegatorAddress: "celestia1A2kqw44hdq5dwlcvsw8f2l49lkehtf9wp99kth",
+		ValidatorAddress: "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40g88x",
+		Amount: cosmosTypes.Coin{
+			Denom:  "utia",
+			Amount: math.NewInt(1001),
+		},
+	}
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgUndelegate(t *testing.T) {
+	m := createMsgUndelegate()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, m, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeUndelegate,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1A2kqw44hdq5dwlcvsw8f2l49lkehtf9wp99kth"),
+				Balance: decimal.Zero,
+			},
+		},
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40g88x"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
+// MsgUnjail
+
+func createMsgUnjail() cosmosTypes.Msg {
+	m := cosmosSlashingTypes.MsgUnjail{
+		ValidatorAddr: "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40g11x",
+	}
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgUnjail(t *testing.T) {
+	m := createMsgUnjail()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, m, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeUnjail,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40g11x"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
+
 // MsgPayForBlob
 
 func createMsgPayForBlob() cosmosTypes.Msg {
@@ -286,43 +514,6 @@ func TestDecodeMsg_SuccessOnPayForBlob(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(1), dm.blobsSize)
-	assert.Equal(t, msgExpected, dm.msg)
-}
-
-func createMsgDelegate() cosmosTypes.Msg {
-
-	msgDelegate := cosmosStakingTypes.MsgDelegate{
-		DelegatorAddress: "celestia1h2kqw44hdq5dwlcvsw8f2l49lkehtf9wp95kth",
-		ValidatorAddress: "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
-		Amount: cosmosTypes.Coin{
-			Denom:  "utia",
-			Amount: math.NewInt(1000),
-		},
-	}
-
-	return &msgDelegate
-}
-
-func TestDecodeMsg_SuccessOnMsgDelegate(t *testing.T) {
-	msgDelegate := createMsgDelegate()
-	blob, now := createEmptyBlock()
-	position := 0
-
-	dm, err := decodeMsg(blob, msgDelegate, position)
-
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgTypeDelegate,
-		TxId:      0,
-		Data:      structs.Map(msgDelegate),
-		Namespace: nil,
-	}
-
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(0), dm.blobsSize)
 	assert.Equal(t, msgExpected, dm.msg)
 }
 

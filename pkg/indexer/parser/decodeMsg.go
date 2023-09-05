@@ -40,12 +40,13 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 	case *cosmosStakingTypes.MsgBeginRedelegate:
 		d.msg.Type, d.addresses, err = handleMsgBeginRedelegate(b.Height, msg)
 	case *cosmosStakingTypes.MsgCreateValidator:
-		d.msg.Type = storageTypes.MsgTypeCreateValidator
+		d.msg.Type, d.addresses, err = handleMsgCreateValidator(b.Height, msg)
 	case *cosmosStakingTypes.MsgDelegate:
-		d.msg.Type = storageTypes.MsgTypeDelegate
+		d.msg.Type, d.addresses, err = handleMsgDelegate(b.Height, msg)
 	case *cosmosStakingTypes.MsgUndelegate:
-		d.msg.Type = storageTypes.MsgTypeUndelegate
+		d.msg.Type, d.addresses, err = handleMsgUndelegate(b.Height, msg)
 	case *cosmosSlashingTypes.MsgUnjail:
+		d.msg.Type, d.addresses, err = handleMsgUnjail(b.Height, msg)
 		d.msg.Type = storageTypes.MsgTypeUnjail
 	case *cosmosBankTypes.MsgSend:
 		d.msg.Type = storageTypes.MsgTypeSend
@@ -54,8 +55,8 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 	case *cosmosVestingTypes.MsgCreatePeriodicVestingAccount:
 		d.msg.Type = storageTypes.MsgTypeCreatePeriodicVestingAccount
 	case *appBlobTypes.MsgPayForBlobs:
-		d.msg.Type = storageTypes.MsgTypePayForBlobs
 		d.msg.Namespace, d.blobsSize, err = handleMsgPayForBlob(b, msg)
+		d.msg.Type = storageTypes.MsgTypePayForBlobs
 	case *cosmosFeegrant.MsgGrantAllowance:
 		d.msg.Type = storageTypes.MsgTypeGrantAllowance
 	default:
@@ -125,6 +126,45 @@ func handleMsgBeginRedelegate(level storage.Level, msg cosmosTypes.Msg) (storage
 		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.TxAddressTypeValidatorSrcAddress, address: m.ValidatorSrcAddress},
 		{t: storageTypes.TxAddressTypeValidatorDstAddress, address: m.ValidatorDstAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgCreateValidator(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeCreateValidator
+	m := msg.(*cosmosStakingTypes.MsgCreateValidator)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
+		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgDelegate(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeDelegate
+	m := msg.(*cosmosStakingTypes.MsgDelegate)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
+		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgUndelegate(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeUndelegate
+	m := msg.(*cosmosStakingTypes.MsgUndelegate)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
+		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgUnjail(level storage.Level, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeUnjail
+	m := msg.(*cosmosSlashingTypes.MsgUnjail)
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddr},
 	}, level)
 	return msgType, addresses, nil
 }
