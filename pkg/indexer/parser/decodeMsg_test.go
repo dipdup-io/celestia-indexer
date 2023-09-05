@@ -6,14 +6,60 @@ import (
 	cosmosCodecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	cosmosFeegrant "github.com/cosmos/cosmos-sdk/x/feegrant"
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/fatih/structs"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func createMsgWithdrawValidatorCommission() cosmosTypes.Msg {
+	m := cosmosDistributionTypes.MsgWithdrawValidatorCommission{
+		ValidatorAddress: "celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre76",
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgWithdrawValidatorCommission(t *testing.T) {
+	m := createMsgWithdrawValidatorCommission()
+	blob, now := createEmptyBlock()
+	position := 0
+
+	dm, err := decodeMsg(blob, m, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgTypeWithdrawValidatorCommission,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    []byte("celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre76"),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.blobsSize)
+	assert.Equal(t, msgExpected, dm.msg)
+	assert.Equal(t, addressesExpected, dm.addresses)
+}
 
 func createMsgPayForBlob() cosmosTypes.Msg {
 

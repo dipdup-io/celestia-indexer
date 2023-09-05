@@ -15,6 +15,7 @@ import (
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/fatih/structs"
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 )
 
 type decodedMsg struct {
@@ -31,7 +32,7 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 
 	switch msg.(type) {
 	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
-		d.msg.Type = storageTypes.MsgTypeWithdrawValidatorCommission
+		d.msg.Type, d.addresses, err = handledMsgWithdrawValidatorCommission(b, msg)
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
 		d.msg.Type = storageTypes.MsgTypeWithdrawDelegatorReward
 	case *cosmosStakingTypes.MsgEditValidator:
@@ -68,10 +69,32 @@ func decodeMsg(b types.BlockData, msg cosmosTypes.Msg, position int) (d decodedM
 	return
 }
 
+func handledMsgWithdrawValidatorCommission(b types.BlockData, msg cosmosTypes.Msg) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgTypeWithdrawValidatorCommission
+
+	m, ok := msg.(*cosmosDistributionTypes.MsgWithdrawValidatorCommission)
+	if !ok {
+		return storageTypes.MsgTypeUnknown, nil, errors.Errorf("error on decoding '%T' in cosmosDistributionTypes.MsgWithdrawValidatorCommission", msg)
+	}
+
+	addresses := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Height:  b.Height,
+				Hash:    []byte(m.ValidatorAddress),
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	return msgType, addresses, nil
+}
+
 func handlePfb(b types.BlockData, msg cosmosTypes.Msg) ([]storage.Namespace, uint64, error) {
 	payForBlobsMsg, ok := msg.(*appBlobTypes.MsgPayForBlobs)
 	if !ok {
-		return nil, 0, errors.Errorf("error on decoding %T", msg)
+		return nil, 0, errors.Errorf("error on decoding '%T' in appBlobTypes.MsgPayForBlobs", msg)
 	}
 
 	var blobsSize uint64
