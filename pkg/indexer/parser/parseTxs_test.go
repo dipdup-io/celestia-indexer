@@ -16,6 +16,35 @@ func createEmptyBlock() (types.BlockData, time.Time) {
 	return createBlock(nodeTypes.ResponseDeliverTx{}, 0)
 }
 
+func createBlockWithTxs(tx nodeTypes.ResponseDeliverTx, txData []byte, count int) (types.BlockData, time.Time) {
+	now := time.Now()
+	headerBlock := nodeTypes.Block{
+		Header: nodeTypes.Header{
+			Time: now,
+		},
+		Data: nodeTypes.Data{
+			Txs: make(tmTypes.Txs, count),
+		},
+	}
+
+	var txResults = make([]*nodeTypes.ResponseDeliverTx, count)
+	for i := 0; i < count; i++ {
+		txResults[i] = &tx
+		headerBlock.Data.Txs[i] = txData
+	}
+
+	block := types.BlockData{
+		ResultBlock: nodeTypes.ResultBlock{
+			Block: &headerBlock,
+		},
+		ResultBlockResults: nodeTypes.ResultBlockResults{
+			TxsResults: txResults,
+		},
+	}
+
+	return block, now
+}
+
 func createBlock(tx nodeTypes.ResponseDeliverTx, count int) (types.BlockData, time.Time) {
 	now := time.Now()
 	headerBlock := nodeTypes.Block{

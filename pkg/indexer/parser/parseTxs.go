@@ -26,7 +26,7 @@ func parseTxs(b types.BlockData) ([]storage.Tx, error) {
 func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (storage.Tx, error) {
 	d, err := decodeTx(b, index)
 	if err != nil {
-		return storage.Tx{}, errors.Wrapf(err, "while parsing Tx on index %d in block on level=%d", index, b.Height)
+		return storage.Tx{}, errors.Wrapf(err, "while parsing Tx on index %d", index)
 	}
 
 	t := storage.Tx{
@@ -60,7 +60,7 @@ func parseTx(b types.BlockData, index int, txRes *nodeTypes.ResponseDeliverTx) (
 	for position, sdkMsg := range d.messages {
 		msg, blobsSize, err := decodeMsg(b, sdkMsg, position)
 		if err != nil {
-			return storage.Tx{}, errors.Wrapf(err, "while parsing tx=%v on level=%d", t.Hash, t.Height)
+			return storage.Tx{}, errors.Wrapf(err, "while parsing tx=%v on index=%d", t.Hash, t.Position)
 		}
 
 		t.Messages[position] = msg
