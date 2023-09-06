@@ -4,9 +4,9 @@ import (
 	"context"
 	internalStorage "github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/parser"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/rpc"
-	"github.com/dipdup-io/celestia-indexer/pkg/storage"
 	"github.com/pkg/errors"
 	"sync"
 
