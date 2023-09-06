@@ -8,7 +8,7 @@ import (
 )
 
 func (r *Receiver) readBlocks(ctx context.Context) error {
-	headLevel, headHash, err := r.head(ctx)
+	headLevel, err := r.headLevel(ctx)
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			return nil
@@ -25,22 +25,14 @@ func (r *Receiver) readBlocks(ctx context.Context) error {
 		}
 	}
 
-	if rollbackDetected, err := r.checkRollback(ctx, headLevel, headHash); err != nil {
-		return errors.Wrap(err, "while detecting rollback")
-	} else if rollbackDetected {
-		r.log.Debug().Msg("rollback detected")
-		// TODO	call rollback to the rescue
-	}
-
 	return nil
 }
 
-func (r *Receiver) head(ctx context.Context) (storage.Level, []byte, error) {
+func (r *Receiver) headLevel(ctx context.Context) (storage.Level, error) {
 	status, err := r.api.Status(ctx)
 	if err != nil {
-		return 0, nil, err
+		return 0, err
 	}
 
-	headLevel := storage.Level(status.SyncInfo.LatestBlockHeight)
-	return headLevel, status.SyncInfo.LatestBlockHash, nil
+	return storage.Level(status.SyncInfo.LatestBlockHeight), nil
 }

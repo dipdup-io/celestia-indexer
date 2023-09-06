@@ -1,7 +1,9 @@
 package receiver
 
 import (
+	"bytes"
 	"context"
+	"encoding/hex"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
@@ -30,11 +32,22 @@ func (r *Receiver) sequencer(ctx context.Context) {
 			}
 
 			if b, ok := orderedBlocks[currentBlock]; ok {
+				prevB := orderedBlocks[currentBlock-1]
+				rollBackDetected := !bytes.Equal(b.Block.LastBlockID.Hash, prevB.BlockID.Hash)
+
+				if rollBackDetected {
+					r.log.Info().
+						Str("current.lastBlockHash", hex.EncodeToString(b.Block.LastBlockID.Hash)).
+						Str("prevBlockHash", hex.EncodeToString(prevB.BlockID.Hash)).
+						Uint64("level", uint64(b.Height)).
+						Msg("rollback detected")
+					// TODO	call rollback to the rescue and wait
+					break
+				}
+
 				r.outputs[BlocksOutput].Push(b)
 				r.setLevel(storage.Level(currentBlock), b.BlockID.Hash)
-
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
-				delete(orderedBlocks, currentBlock)
 
 				currentBlock += 1
 			} else {
