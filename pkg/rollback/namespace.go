@@ -68,8 +68,8 @@ func (module *Module) namespaces(
 	}
 
 	namespaces := make([]*storage.Namespace, 0, len(diffs))
-	for _, diff := range diffs {
-		namespaces = append(namespaces, diff)
+	for key := range diffs {
+		namespaces = append(namespaces, diffs[key])
 	}
 
 	return tx.SaveNamespaces(ctx, namespaces...)
