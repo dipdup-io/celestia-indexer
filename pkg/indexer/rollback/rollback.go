@@ -2,6 +2,7 @@ package rollback
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
@@ -14,9 +15,8 @@ import (
 )
 
 const (
-	InputName          = "signal"
-	OutputName         = "state"
-	defaultIndexerName = "celestia-indexer"
+	InputName  = "signal"
+	OutputName = "state"
 )
 
 // Module - executes rollback on signal from input (target height) and notify all subscribers about new state after rollback operation.
@@ -36,20 +36,16 @@ type Module struct {
 	g         workerpool.Group
 }
 
-func NewModule(tx sdk.Transactable, state storage.IState, opts ...ModuleOption) *Module {
+func NewModule(tx sdk.Transactable, state storage.IState, cfg config.Indexer) *Module {
 	module := Module{
 		tx:        tx,
 		state:     state,
 		input:     modules.NewInput(InputName),
 		output:    modules.NewOutput(OutputName),
-		indexName: defaultIndexerName,
+		indexName: cfg.Name,
 		g:         workerpool.NewGroup(),
 	}
 	module.log = log.With().Str("module", module.Name()).Logger()
-
-	for i := range opts {
-		opts[i](&module)
-	}
 
 	return &module
 }
