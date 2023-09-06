@@ -3,6 +3,7 @@ package receiver
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"github.com/pkg/errors"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -29,8 +30,8 @@ func (r *Receiver) readBlocks(ctx context.Context) error {
 	receiverLevel, receiverHash := r.Level()
 	if receiverLevel == headLevel && !bytes.Equal(receiverHash, headHash) {
 		r.log.Info().
-			Bytes("receiverHash", receiverHash).
-			Bytes("headHash", headHash).
+			Str("receiverHash", hex.EncodeToString(receiverHash)).
+			Str("headHash", hex.EncodeToString(headHash)).
 			Msg("rollback detected")
 		// TODO	call rollback to the rescue
 	}

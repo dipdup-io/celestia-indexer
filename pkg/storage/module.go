@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"encoding/hex"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"strconv"
 	"time"
@@ -63,7 +64,7 @@ func (module *Module) initState(ctx context.Context) error {
 		module.log.Info().
 			Str("indexer_name", module.state.Name).
 			Uint64("height", uint64(module.state.LastHeight)).
-			Bytes("hash", module.state.LastHash).
+			Str("hash", hex.EncodeToString(module.state.LastHash)).
 			Time("last_updated", module.state.LastTime).
 			Msg("current state")
 		return nil
