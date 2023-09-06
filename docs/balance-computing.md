@@ -57,3 +57,152 @@ Building balance updates:
 ```
 
 > IMPORTANT NOTE: you have to trim suffix `utia` from amount
+
+
+### Distribution
+
+* `proposer_reward`
+
+Example of event:
+
+```json
+{
+    "type": "proposer_reward",
+    "attributes": [
+        {
+            "key": "amount",
+            "value": null // Amount nullable
+        },
+        {
+            "key": "validator",
+            "value": "celestiavaloper1jwzamm3ltkzce7ey5tn7uadt8uxg6k89a9tj94"
+        }
+    ]
+}
+```
+
+Building balance updates:
+
+```json
+// Map event to balance updates
+[{
+    "address": "validator_value",
+    "amount": "amount_value"
+}]
+
+// Example
+[{
+    "address": "celestiavaloper1jwzamm3ltkzce7ey5tn7uadt8uxg6k89a9tj94",
+    "amount": "25000"
+}]
+```
+
+* `rewards`
+
+Example of event:
+
+```json
+{
+    "type": "rewards",
+    "attributes": [
+        {
+            "key": "amount",
+            "value": "9.272443826506892545utia"
+        },
+        {
+            "key": "validator",
+            "value": "celestiavaloper189vk0yl8ce5wfh6h36hmgvjlmwrz2sgl5q5zp6"
+        }
+    ]
+}
+```
+
+Building balance updates:
+
+```json
+// Map event to balance updates
+[{
+    "address": "validator_value",
+    "amount": "amount_value"
+}]
+
+// Example
+[{
+    "address": "celestiavaloper1jwzamm3ltkzce7ey5tn7uadt8uxg6k89a9tj94",
+    "amount": "9.272443826506892545utia"
+}]
+```
+
+* `commision`
+
+Example of event:
+
+```json
+{
+    "type": "commission",
+    "attributes": [
+        {
+            "key": "amount",
+            "value": "0.927244382650689254utia"
+        },
+        {
+            "key": "validator",
+            "value": "celestiavaloper189vk0yl8ce5wfh6h36hmgvjlmwrz2sgl5q5zp6"
+        }
+    ]
+}
+```
+
+Building balance updates:
+
+```json
+// Map event to balance updates
+[{
+    "address": "validator_value",
+    "amount": "amount_value"
+}]
+
+// Example
+[{
+    "address": "celestiavaloper1jwzamm3ltkzce7ey5tn7uadt8uxg6k89a9tj94",
+    "amount": "0.927244382650689254utia"
+}]
+```
+
+### Minting
+
+* `coinbase`
+
+Example of event:
+
+```json
+ {
+    "type": "coinbase",
+    "attributes": [
+        {
+            "key": "minter",
+            "value": "celestia1m3h30wlvsf8llruxtpukdvsy0km2kum8emkgad"
+        },
+        {
+            "key": "amount",
+            "value": "30862303utia"
+        }
+    ]
+}
+```
+
+Building balance updates:
+
+```json
+// Map event to balance updates
+[{
+    "address": "minter_value",
+    "amount": "amount_value"
+}]
+
+// Example
+[{
+    "address": "celestia1m3h30wlvsf8llruxtpukdvsy0km2kum8emkgad",
+    "amount": "30862303utia"
+}]
+```
