@@ -27,6 +27,7 @@ type Receiver struct {
 	blocks  chan types.BlockData
 	level   storage.Level
 	hash    []byte
+	mx      *sync.RWMutex
 	log     zerolog.Logger
 	wg      *sync.WaitGroup
 }
@@ -49,6 +50,7 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Receiver 
 		blocks:  make(chan types.BlockData, cfg.ThreadsCount*10),
 		level:   level,
 		hash:    hash,
+		mx:      new(sync.RWMutex),
 		log:     log.With().Str("module", name).Logger(),
 		wg:      new(sync.WaitGroup),
 	}
@@ -107,4 +109,19 @@ func (r *Receiver) AttachTo(outputName string, input *modules.Input) error {
 
 	output.Attach(input)
 	return nil
+}
+
+func (r *Receiver) Level() (storage.Level, []byte) {
+	r.mx.RLock()
+	defer r.mx.RUnlock()
+
+	return r.level, r.hash
+}
+
+func (r *Receiver) setLevel(level storage.Level, hash []byte) {
+	r.mx.Lock()
+	defer r.mx.Unlock()
+
+	r.level = level
+	r.hash = hash
 }

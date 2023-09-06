@@ -2,6 +2,7 @@ package receiver
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
 
@@ -30,9 +31,11 @@ func (r *Receiver) sequencer(ctx context.Context) {
 
 			if b, ok := orderedBlocks[currentBlock]; ok {
 				r.outputs[BlocksOutput].Push(b)
+				r.setLevel(storage.Level(currentBlock), b.BlockID.Hash)
 
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
 				delete(orderedBlocks, currentBlock)
+
 				currentBlock += 1
 			} else {
 				break
