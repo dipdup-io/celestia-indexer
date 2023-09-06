@@ -37,7 +37,7 @@ type Block struct {
 	MessageTypes types.MsgTypeBits `bun:"message_types,type:int8" comment:"Bit mask with containing messages"`
 
 	Hash               []byte `bun:"hash"                 comment:"Block hash"`
-	ParentHash         []byte `bun:"parent_hash"          comment:"Level of parent block"`
+	ParentHash         []byte `bun:"parent_hash"          comment:"Hash of parent block"`
 	LastCommitHash     []byte `bun:"last_commit_hash"     comment:"Last commit hash"`
 	DataHash           []byte `bun:"data_hash"            comment:"Data hash"`
 	ValidatorsHash     []byte `bun:"validators_hash"      comment:"Validators hash"`

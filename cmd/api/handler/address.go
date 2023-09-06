@@ -33,7 +33,7 @@ type getAddressRequest struct {
 //	@Description	Get address info
 //	@Tags			address
 //	@ID				get-address
-//	@Param			hash	path	string	true	"Level"	minlength(48)	maxlength(48)
+//	@Param			hash	path	string	true	"Hash"	minlength(48)	maxlength(48)
 //	@Produce		json
 //	@Success		200	{object}	responses.Address
 //	@Success		204
