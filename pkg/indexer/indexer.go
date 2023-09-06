@@ -73,9 +73,9 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 func (i *Indexer) Start(ctx context.Context) {
 	i.log.Info().Msg("starting...")
 
-	go i.storage.Start(ctx)
-	go i.parser.Start(ctx)
-	go i.receiver.Start(ctx)
+	i.storage.Start(ctx)
+	i.parser.Start(ctx)
+	i.receiver.Start(ctx)
 }
 
 func (i *Indexer) Close() error {
