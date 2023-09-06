@@ -26,19 +26,20 @@ type Receiver struct {
 	pool    *workerpool.Pool[storage.Level]
 	blocks  chan types.BlockData
 	level   storage.Level
+	hash    []byte
 	log     zerolog.Logger
 	wg      *sync.WaitGroup
 }
 
 func NewModule(cfg config.Config, api node.API, state *storage.State) Receiver {
 	var level storage.Level
-	// var levelHash []byte
+	var hash []byte
 
 	if state == nil {
 		level = storage.Level(cfg.Indexer.StartLevel)
 	} else {
 		level = state.LastHeight
-		// levelHash = state.LastBLockHash
+		hash = state.LastHash
 	}
 
 	receiver := Receiver{
@@ -47,6 +48,7 @@ func NewModule(cfg config.Config, api node.API, state *storage.State) Receiver {
 		outputs: map[string]*modules.Output{BlocksOutput: modules.NewOutput(BlocksOutput)},
 		blocks:  make(chan types.BlockData, cfg.Indexer.ThreadsCount*10),
 		level:   level,
+		hash:    hash,
 		log:     log.With().Str("module", name).Logger(),
 		wg:      new(sync.WaitGroup),
 	}
