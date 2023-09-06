@@ -63,6 +63,7 @@ func (module *Module) initState(ctx context.Context) error {
 		module.log.Info().
 			Str("indexer_name", module.state.Name).
 			Uint64("height", uint64(module.state.LastHeight)).
+			Bytes("hash", module.state.LastHash).
 			Time("last_updated", module.state.LastTime).
 			Msg("current state")
 		return nil
@@ -154,6 +155,7 @@ func (module *Module) updateState(block storage.Block, totalAccounts uint64) {
 	}
 
 	module.state.LastHeight = block.Height
+	module.state.LastHash = block.Hash
 	module.state.LastTime = block.Time
 	module.state.TotalTx += block.TxCount
 	module.state.TotalAccounts += totalAccounts
