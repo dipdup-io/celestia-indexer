@@ -61,6 +61,8 @@ Building balance updates:
 
 ### Distribution
 
+> IMPORTANT: `valoper` address does not have balance. Only delegator has balance.
+
 * `proposer_reward`
 
 Example of event:
@@ -86,14 +88,8 @@ Building balance updates:
 ```json
 // Map event to balance updates
 [{
-    "address": "validator_value",
+    "address": "delegator_address_by_validator_value",
     "amount": "amount_value"
-}]
-
-// Example
-[{
-    "address": "celestiavaloper1jwzamm3ltkzce7ey5tn7uadt8uxg6k89a9tj94",
-    "amount": "25000"
 }]
 ```
 
@@ -122,14 +118,8 @@ Building balance updates:
 ```json
 // Map event to balance updates
 [{
-    "address": "validator_value",
+    "address": "delegator_address_by_validator_value",
     "amount": "amount_value"
-}]
-
-// Example
-[{
-    "address": "celestiavaloper1jwzamm3ltkzce7ey5tn7uadt8uxg6k89a9tj94",
-    "amount": "9.272443826506892545utia"
 }]
 ```
 
@@ -158,14 +148,8 @@ Building balance updates:
 ```json
 // Map event to balance updates
 [{
-    "address": "validator_value",
+    "address": "delegator_address_by_validator_value",
     "amount": "amount_value"
-}]
-
-// Example
-[{
-    "address": "celestiavaloper1jwzamm3ltkzce7ey5tn7uadt8uxg6k89a9tj94",
-    "amount": "0.927244382650689254utia"
 }]
 ```
 
