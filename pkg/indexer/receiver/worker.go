@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (r *Receiver) worker(ctx context.Context, level storage.Level) {
+func (r *Module) worker(ctx context.Context, level storage.Level) {
 	start := time.Now()
 
 	var result types.BlockData
@@ -41,7 +41,7 @@ func (r *Receiver) worker(ctx context.Context, level storage.Level) {
 	r.blocks <- result
 }
 
-func (r *Receiver) blockData(ctx context.Context, level storage.Level) (types.BlockData, error) {
+func (r *Module) blockData(ctx context.Context, level storage.Level) (types.BlockData, error) {
 	block, err := r.api.Block(ctx, level)
 	if err != nil {
 		return types.BlockData{}, err

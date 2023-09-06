@@ -8,7 +8,7 @@ import (
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
 
-func (r *Receiver) sequencer(ctx context.Context) {
+func (r *Module) sequencer(ctx context.Context) {
 	defer r.wg.Done()
 
 	orderedBlocks := map[int64]types.BlockData{}

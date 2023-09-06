@@ -19,7 +19,7 @@ const (
 	BlocksOutput = "blocks"
 )
 
-type Receiver struct {
+type Module struct {
 	api     node.API
 	cfg     config.Indexer
 	outputs map[string]*modules.Output
@@ -32,7 +32,7 @@ type Receiver struct {
 	wg      *sync.WaitGroup
 }
 
-func NewModule(cfg config.Indexer, api node.API, state *storage.State) Receiver {
+func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 	var level storage.Level
 	var hash []byte
 
@@ -44,7 +44,7 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Receiver 
 		hash = state.LastHash
 	}
 
-	receiver := Receiver{
+	receiver := Module{
 		api:     api,
 		cfg:     cfg,
 		outputs: map[string]*modules.Output{BlocksOutput: modules.NewOutput(BlocksOutput)},
@@ -62,11 +62,11 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Receiver 
 }
 
 // Name -
-func (*Receiver) Name() string {
+func (*Module) Name() string {
 	return name
 }
 
-func (r *Receiver) Start(ctx context.Context) {
+func (r *Module) Start(ctx context.Context) {
 	r.log.Info().Msg("starting receiver...")
 	r.pool.Start(ctx)
 
@@ -77,7 +77,7 @@ func (r *Receiver) Start(ctx context.Context) {
 	go r.sync(ctx)
 }
 
-func (r *Receiver) Close() error {
+func (r *Module) Close() error {
 	r.log.Info().Msg("closing...")
 	r.wg.Wait()
 
@@ -90,7 +90,7 @@ func (r *Receiver) Close() error {
 	return nil
 }
 
-func (r *Receiver) Output(name string) (*modules.Output, error) {
+func (r *Module) Output(name string) (*modules.Output, error) {
 	output, ok := r.outputs[name]
 	if !ok {
 		return nil, errors.Wrap(modules.ErrUnknownOutput, name)
@@ -98,11 +98,11 @@ func (r *Receiver) Output(name string) (*modules.Output, error) {
 	return output, nil
 }
 
-func (r *Receiver) Input(name string) (*modules.Input, error) {
+func (r *Module) Input(name string) (*modules.Input, error) {
 	return nil, errors.Wrap(modules.ErrUnknownInput, name)
 }
 
-func (r *Receiver) AttachTo(outputName string, input *modules.Input) error {
+func (r *Module) AttachTo(outputName string, input *modules.Input) error {
 	output, err := r.Output(outputName)
 	if err != nil {
 		return err
@@ -112,14 +112,14 @@ func (r *Receiver) AttachTo(outputName string, input *modules.Input) error {
 	return nil
 }
 
-func (r *Receiver) Level() (storage.Level, []byte) {
+func (r *Module) Level() (storage.Level, []byte) {
 	r.mx.RLock()
 	defer r.mx.RUnlock()
 
 	return r.level, r.hash
 }
 
-func (r *Receiver) setLevel(level storage.Level, hash []byte) {
+func (r *Module) setLevel(level storage.Level, hash []byte) {
 	r.mx.Lock()
 	defer r.mx.Unlock()
 

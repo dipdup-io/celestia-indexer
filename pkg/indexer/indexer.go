@@ -20,7 +20,7 @@ import (
 type Indexer struct {
 	cfg      config.Config
 	api      node.API
-	receiver *receiver.Receiver
+	receiver *receiver.Module
 	parser   *parser.Module
 	storage  *storage.Module
 	wg       *sync.WaitGroup
