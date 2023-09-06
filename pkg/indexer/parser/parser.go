@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-type Parser struct {
+type Module struct {
 	input  *modules.Input
 	output *modules.Output
 	log    zerolog.Logger
@@ -22,8 +22,8 @@ const (
 	DataOutput  = "data"
 )
 
-func NewModule() Parser {
-	return Parser{
+func NewModule() Module {
+	return Module{
 		input:  modules.NewInput(BlocksInput),
 		output: modules.NewOutput(DataOutput),
 		log:    log.With().Str("module", name).Logger(),
@@ -32,25 +32,25 @@ func NewModule() Parser {
 }
 
 // Name -
-func (*Parser) Name() string {
+func (*Module) Name() string {
 	return name
 }
 
-func (p *Parser) Start(ctx context.Context) {
+func (p *Module) Start(ctx context.Context) {
 	p.log.Info().Msg("starting parser module...")
 
 	p.wg.Add(1)
 	go p.listen(ctx)
 }
 
-func (p *Parser) Close() error {
+func (p *Module) Close() error {
 	p.log.Info().Msg("closing...")
 	p.wg.Wait()
 
 	return p.input.Close()
 }
 
-func (p *Parser) Output(name string) (*modules.Output, error) {
+func (p *Module) Output(name string) (*modules.Output, error) {
 	if name != DataOutput {
 		return nil, errors.Wrap(modules.ErrUnknownOutput, name)
 	}
@@ -58,14 +58,14 @@ func (p *Parser) Output(name string) (*modules.Output, error) {
 	return p.output, nil
 }
 
-func (p *Parser) Input(name string) (*modules.Input, error) {
+func (p *Module) Input(name string) (*modules.Input, error) {
 	if name != BlocksInput {
 		return nil, errors.Wrap(modules.ErrUnknownInput, name)
 	}
 	return p.input, nil
 }
 
-func (p *Parser) AttachTo(name string, input *modules.Input) error {
+func (p *Module) AttachTo(name string, input *modules.Input) error {
 	output, err := p.Output(name)
 	if err != nil {
 		return err

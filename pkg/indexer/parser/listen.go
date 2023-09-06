@@ -5,7 +5,7 @@ import (
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
 
-func (p *Parser) listen(ctx context.Context) {
+func (p *Module) listen(ctx context.Context) {
 	defer p.wg.Done()
 
 	p.log.Info().Msg("module started")

@@ -21,7 +21,7 @@ type Indexer struct {
 	cfg      config.Config
 	api      node.API
 	receiver *receiver.Receiver
-	parser   *parser.Parser
+	parser   *parser.Module
 	storage  *storage.Module
 	wg       *sync.WaitGroup
 	log      zerolog.Logger
