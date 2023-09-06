@@ -36,7 +36,7 @@ type Module struct {
 	hash    []byte
 	mx      *sync.RWMutex
 	log     zerolog.Logger
-	wg      *sync.WaitGroup
+	g       workerpool.Group
 }
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
@@ -60,7 +60,7 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 		hash:    hash,
 		mx:      new(sync.RWMutex),
 		log:     log.With().Str("module", name).Logger(),
-		wg:      new(sync.WaitGroup),
+		g:       workerpool.NewGroup(),
 	}
 
 	receiver.pool = workerpool.NewPool(receiver.worker, int(cfg.ThreadsCount))
@@ -77,16 +77,13 @@ func (r *Module) Start(ctx context.Context) {
 	r.log.Info().Msg("starting receiver...")
 	r.pool.Start(ctx)
 
-	r.wg.Add(1)
-	go r.sequencer(ctx)
-
-	r.wg.Add(1)
-	go r.sync(ctx)
+	r.g.GoCtx(ctx, r.sequencer)
+	r.g.GoCtx(ctx, r.sync)
 }
 
 func (r *Module) Close() error {
 	r.log.Info().Msg("closing...")
-	r.wg.Wait()
+	r.g.Wait()
 
 	if err := r.pool.Close(); err != nil {
 		return err

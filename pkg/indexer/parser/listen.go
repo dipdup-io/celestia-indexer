@@ -6,8 +6,6 @@ import (
 )
 
 func (p *Module) listen(ctx context.Context) {
-	defer p.wg.Done()
-
 	p.log.Info().Msg("module started")
 
 	for {

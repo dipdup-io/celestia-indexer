@@ -2,18 +2,18 @@ package parser
 
 import (
 	"context"
+	"github.com/dipdup-io/workerpool"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"sync"
 )
 
 type Module struct {
 	input  *modules.Input
 	output *modules.Output
 	log    zerolog.Logger
-	wg     *sync.WaitGroup
+	g      workerpool.Group
 }
 
 const (
@@ -27,7 +27,7 @@ func NewModule() Module {
 		input:  modules.NewInput(BlocksInput),
 		output: modules.NewOutput(DataOutput),
 		log:    log.With().Str("module", name).Logger(),
-		wg:     new(sync.WaitGroup),
+		g:      workerpool.NewGroup(),
 	}
 }
 
@@ -38,14 +38,12 @@ func (*Module) Name() string {
 
 func (p *Module) Start(ctx context.Context) {
 	p.log.Info().Msg("starting parser module...")
-
-	p.wg.Add(1)
-	go p.listen(ctx)
+	p.g.GoCtx(ctx, p.listen)
 }
 
 func (p *Module) Close() error {
 	p.log.Info().Msg("closing...")
-	p.wg.Wait()
+	p.g.Wait()
 
 	return p.input.Close()
 }

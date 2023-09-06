@@ -8,8 +8,6 @@ import (
 )
 
 func (r *Module) sequencer(ctx context.Context) {
-	defer r.wg.Done()
-
 	orderedBlocks := map[int64]types.BlockData{}
 	currentBlock := int64(r.level)
 
