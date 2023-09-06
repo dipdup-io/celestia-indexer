@@ -3,6 +3,7 @@ package rollback
 import (
 	"context"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
+	"github.com/dipdup-io/celestia-indexer/pkg/types"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
@@ -72,7 +73,7 @@ func (module *Module) listen(ctx context.Context) {
 				continue
 			}
 
-			height, ok := msg.(storage.Level)
+			height, ok := msg.(types.Level)
 			if !ok {
 				module.log.Error().Msgf("invalid input type: %T", height)
 				continue
@@ -119,7 +120,7 @@ func (module *Module) AttachTo(name string, input *modules.Input) error {
 	output.Attach(input)
 	return nil
 }
-func (module *Module) rollback(ctx context.Context, height storage.Level) error {
+func (module *Module) rollback(ctx context.Context, height types.Level) error {
 	state, err := module.state.ByName(ctx, module.indexName)
 	if err != nil {
 		return err
@@ -150,7 +151,7 @@ func (module *Module) rollback(ctx context.Context, height storage.Level) error 
 	return nil
 }
 
-func (module *Module) rollbackBlock(ctx context.Context, height storage.Level) error {
+func (module *Module) rollbackBlock(ctx context.Context, height types.Level) error {
 	tx, err := postgres.BeginTransaction(ctx, module.tx)
 	if err != nil {
 		return err

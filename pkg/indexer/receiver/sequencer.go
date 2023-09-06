@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
-	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
 
@@ -47,7 +46,7 @@ func (r *Module) sequencer(ctx context.Context) {
 				} // TODO else: check with block from storage?
 
 				r.outputs[BlocksOutput].Push(b)
-				r.setLevel(storage.Level(currentBlock), b.BlockID.Hash)
+				r.setLevel(types.Level(currentBlock), b.BlockID.Hash)
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
 
 				currentBlock += 1

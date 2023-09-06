@@ -30,9 +30,9 @@ type Module struct {
 	api     node.API
 	cfg     config.Indexer
 	outputs map[string]*modules.Output
-	pool    *workerpool.Pool[storage.Level]
+	pool    *workerpool.Pool[types.Level]
 	blocks  chan types.BlockData
-	level   storage.Level
+	level   types.Level
 	hash    []byte
 	mx      *sync.RWMutex
 	log     zerolog.Logger
@@ -40,11 +40,11 @@ type Module struct {
 }
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
-	var level storage.Level
+	var level types.Level
 	var hash []byte
 
 	if state == nil {
-		level = storage.Level(cfg.StartLevel)
+		level = types.Level(cfg.StartLevel)
 		// TODO-DISCUSS check for hash changed of state last block
 	} else {
 		level = state.LastHeight
@@ -119,14 +119,14 @@ func (r *Module) AttachTo(outputName string, input *modules.Input) error {
 	return nil
 }
 
-func (r *Module) Level() (storage.Level, []byte) {
+func (r *Module) Level() (types.Level, []byte) {
 	r.mx.RLock()
 	defer r.mx.RUnlock()
 
 	return r.level, r.hash
 }
 
-func (r *Module) setLevel(level storage.Level, hash []byte) {
+func (r *Module) setLevel(level types.Level, hash []byte) {
 	r.mx.Lock()
 	defer r.mx.Unlock()
 
