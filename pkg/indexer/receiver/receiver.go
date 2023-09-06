@@ -19,6 +19,13 @@ const (
 	BlocksOutput = "blocks"
 )
 
+// Module - runs through chain with aim ti catch up head and identifies either block is fits in sequence or signals of rollback.
+//
+//	|----------------|
+//	|                | -- types.BlockData ->
+//	|     MODULE     |
+//	|                | -- types.Level ->
+//	|----------------|
 type Module struct {
 	api     node.API
 	cfg     config.Indexer
