@@ -25,6 +25,7 @@ type Receiver struct {
 	outputs map[string]*modules.Output
 	pool    *workerpool.Pool[storage.Level]
 	blocks  chan types.BlockData
+	level   storage.Level
 	log     zerolog.Logger
 	wg      *sync.WaitGroup
 }
@@ -35,6 +36,7 @@ func NewModule(cfg config.Config, api node.API) Receiver {
 		cfg:     cfg,
 		outputs: map[string]*modules.Output{BlocksOutput: modules.NewOutput(BlocksOutput)},
 		blocks:  make(chan types.BlockData, cfg.Indexer.ThreadsCount*10),
+		level:   storage.Level(cfg.Indexer.StartLevel), // TODO read from current state
 		log:     log.With().Str("module", name).Logger(),
 		wg:      new(sync.WaitGroup),
 	}
@@ -56,10 +58,8 @@ func (r *Receiver) Start(ctx context.Context) {
 	r.wg.Add(1)
 	go r.sequencer(ctx)
 
-	if err := r.readBlocks(ctx); err != nil {
-		r.log.Err(err).Msg("read block")
-		return
-	}
+	r.wg.Add(1)
+	go r.sync(ctx)
 }
 
 func (r *Receiver) Close() error {

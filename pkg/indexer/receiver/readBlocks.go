@@ -2,6 +2,7 @@ package receiver
 
 import (
 	"context"
+	"github.com/pkg/errors"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 )
@@ -9,24 +10,18 @@ import (
 func (r *Receiver) readBlocks(ctx context.Context) error {
 	headLevel, err := r.headLevel(ctx)
 	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			return nil
+		}
 		return err
 	}
 
-	startLevel := storage.Level(r.cfg.Indexer.StartLevel) // TODO read from current state
-	level := startLevel
-
-	for level <= headLevel {
-		for ; level <= headLevel; level++ {
-			select {
-			case <-ctx.Done():
-				return nil
-			default:
-				r.pool.AddTask(level)
-			}
-		}
-
-		if headLevel, err = r.headLevel(ctx); err != nil {
-			return err
+	for ; r.level <= headLevel; r.level++ {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			r.pool.AddTask(r.level)
 		}
 	}
 
@@ -34,7 +29,7 @@ func (r *Receiver) readBlocks(ctx context.Context) error {
 }
 
 func (r *Receiver) headLevel(ctx context.Context) (storage.Level, error) {
-	head, err := r.api.Head(ctx)
+	head, err := r.api.Head(ctx) // TODO read from status, get hash also
 	if err != nil {
 		return 0, err
 	}
