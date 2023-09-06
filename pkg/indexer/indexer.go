@@ -39,7 +39,7 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 	}
 
 	api := rpc.NewAPI(cfg.DataSources["node_rpc"])
-	r := receiver.NewModule(cfg, &api, state)
+	r := receiver.NewModule(cfg.Indexer, &api, state)
 
 	p := parser.NewModule()
 	pInput, err := p.Input(parser.BlocksInput)
