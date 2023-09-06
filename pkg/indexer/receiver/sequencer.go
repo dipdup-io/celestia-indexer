@@ -9,7 +9,7 @@ func (r *Receiver) sequencer(ctx context.Context) {
 	defer r.wg.Done()
 
 	orderedBlocks := map[int64]types.BlockData{}
-	currentBlock := r.cfg.Indexer.StartLevel
+	currentBlock := int64(r.level)
 
 	for {
 		select {

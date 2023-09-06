@@ -30,13 +30,23 @@ type Receiver struct {
 	wg      *sync.WaitGroup
 }
 
-func NewModule(cfg config.Config, api node.API) Receiver {
+func NewModule(cfg config.Config, api node.API, state *storage.State) Receiver {
+	var level storage.Level
+	// var levelHash []byte
+
+	if state == nil {
+		level = storage.Level(cfg.Indexer.StartLevel)
+	} else {
+		level = state.LastHeight
+		// levelHash = state.LastBLockHash
+	}
+
 	receiver := Receiver{
 		api:     api,
 		cfg:     cfg,
 		outputs: map[string]*modules.Output{BlocksOutput: modules.NewOutput(BlocksOutput)},
 		blocks:  make(chan types.BlockData, cfg.Indexer.ThreadsCount*10),
-		level:   storage.Level(cfg.Indexer.StartLevel), // TODO read from current state
+		level:   level,
 		log:     log.With().Str("module", name).Logger(),
 		wg:      new(sync.WaitGroup),
 	}

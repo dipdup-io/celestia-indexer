@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"context"
+	s "github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/parser"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/rpc"
@@ -27,9 +28,18 @@ type Indexer struct {
 }
 
 func New(ctx context.Context, cfg config.Config) (Indexer, error) {
+	pg, err := postgres.Create(ctx, cfg.Database)
+	if err != nil {
+		return Indexer{}, errors.Wrap(err, "while creating pg context")
+	}
+
+	state, err := LoadState(pg, ctx, cfg.Indexer.Name)
+	if err != nil {
+		return Indexer{}, errors.Wrap(err, "while loading state")
+	}
 
 	api := rpc.NewAPI(cfg.DataSources["node_rpc"])
-	r := receiver.NewModule(cfg, &api)
+	r := receiver.NewModule(cfg, &api, state)
 
 	p := parser.NewModule()
 	pInput, err := p.Input(parser.BlocksInput)
@@ -38,11 +48,6 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 	}
 	if err = r.AttachTo(receiver.BlocksOutput, pInput); err != nil {
 		return Indexer{}, err
-	}
-
-	pg, err := postgres.Create(ctx, cfg.Database)
-	if err != nil {
-		log.Err(err).Msg("creating pg context in indexer")
 	}
 
 	s := storage.NewModule(pg)
@@ -82,4 +87,17 @@ func (i *Indexer) Close() error {
 	}
 
 	return nil
+}
+
+func LoadState(pg postgres.Storage, ctx context.Context, indexerName string) (*s.State, error) {
+	state, err := pg.State.ByName(ctx, indexerName)
+	if err != nil {
+		if pg.State.IsNoRows(err) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &state, nil
 }

@@ -20,7 +20,7 @@ func (r *Receiver) sync(ctx context.Context) {
 			return
 		case <-ticker.C:
 			if err := r.readBlocks(ctx); err != nil {
-				r.log.Err(err).Msg("while reading blocks")
+				r.log.Err(err).Msg("while reading blocks by timer")
 				return
 			}
 		}
