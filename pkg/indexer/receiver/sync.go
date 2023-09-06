@@ -11,7 +11,7 @@ func (r *Receiver) sync(ctx context.Context) {
 		return
 	}
 
-	ticker := time.NewTicker(time.Second * time.Duration(r.cfg.BlockTime))
+	ticker := time.NewTicker(time.Second * time.Duration(r.cfg.BlockPeriod))
 	defer ticker.Stop()
 
 	for {
