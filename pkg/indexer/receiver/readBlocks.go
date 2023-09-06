@@ -8,7 +8,7 @@ import (
 )
 
 func (r *Receiver) readBlocks(ctx context.Context) error {
-	headLevel, headHash, err := r.headLevel(ctx)
+	headLevel, headHash, err := r.head(ctx)
 	if err != nil {
 		if errors.Is(err, context.Canceled) {
 			return nil
@@ -35,12 +35,12 @@ func (r *Receiver) readBlocks(ctx context.Context) error {
 	return nil
 }
 
-func (r *Receiver) headLevel(ctx context.Context) (storage.Level, []byte, error) {
-	head, err := r.api.Head(ctx) // TODO read from status, get hash also
+func (r *Receiver) head(ctx context.Context) (storage.Level, []byte, error) {
+	status, err := r.api.Status(ctx)
 	if err != nil {
 		return 0, nil, err
 	}
 
-	headLevel := storage.Level(head.Block.Height)
-	return headLevel, head.BlockID.Hash, nil
+	headLevel := storage.Level(status.SyncInfo.LatestBlockHeight)
+	return headLevel, status.SyncInfo.LatestBlockHash, nil
 }
