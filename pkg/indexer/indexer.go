@@ -2,7 +2,7 @@ package indexer
 
 import (
 	"context"
-	s "github.com/dipdup-io/celestia-indexer/internal/storage"
+	internalStorage "github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/parser"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/rpc"
@@ -50,7 +50,7 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 		return Indexer{}, err
 	}
 
-	s := storage.NewModule(pg)
+	s := storage.NewModule(pg, cfg.Indexer)
 	sInput, err := s.Input(storage.InputName)
 	if err != nil {
 		return Indexer{}, errors.Wrap(err, "cannot find input in storage")
@@ -89,7 +89,7 @@ func (i *Indexer) Close() error {
 	return nil
 }
 
-func LoadState(pg postgres.Storage, ctx context.Context, indexerName string) (*s.State, error) {
+func LoadState(pg postgres.Storage, ctx context.Context, indexerName string) (*internalStorage.State, error) {
 	state, err := pg.State.ByName(ctx, indexerName)
 	if err != nil {
 		if pg.State.IsNoRows(err) {

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"strconv"
 	"time"
 
@@ -16,8 +17,6 @@ import (
 
 // InputName -
 const InputName = "data"
-
-const defaultIndexerName = "celestia-indexer"
 
 // Module - saves received from input block to storage.
 //
@@ -35,20 +34,16 @@ type Module struct {
 }
 
 // NewModule -
-func NewModule(pg postgres.Storage, opts ...ModuleOption) Module {
+func NewModule(pg postgres.Storage, cfg config.Indexer) Module {
 	m := Module{
 		storage: pg,
 		input:   modules.NewInput(InputName),
 		state: &storage.State{
-			Name: defaultIndexerName,
+			Name: cfg.Name,
 		},
 		g: workerpool.NewGroup(),
 	}
 	m.log = log.With().Str("module", m.Name()).Logger()
-
-	for i := range opts {
-		opts[i](&m)
-	}
 
 	return m
 }
