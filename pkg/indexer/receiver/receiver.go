@@ -38,6 +38,7 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Receiver 
 
 	if state == nil {
 		level = storage.Level(cfg.StartLevel)
+		// TODO-DISCUSS check for hash changed of state last block
 	} else {
 		level = state.LastHeight
 		hash = state.LastHash
