@@ -42,7 +42,7 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 	r := receiver.NewModule(cfg.Indexer, &api, state)
 
 	p := parser.NewModule()
-	pInput, err := p.Input(parser.BlocksInput)
+	pInput, err := p.Input(parser.InputName)
 	if err != nil {
 		return Indexer{}, errors.Wrap(err, "cannot find input in parser")
 	}
@@ -55,7 +55,7 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 	if err != nil {
 		return Indexer{}, errors.Wrap(err, "cannot find input in storage")
 	}
-	if err = p.AttachTo(parser.DataOutput, sInput); err != nil {
+	if err = p.AttachTo(parser.OutputName, sInput); err != nil {
 		return Indexer{}, err
 	}
 
