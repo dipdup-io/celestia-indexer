@@ -1,12 +1,14 @@
 package rollback
 
 import (
+	"bytes"
 	"context"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
+	"github.com/dipdup-io/celestia-indexer/pkg/node/rpc"
 	"github.com/dipdup-io/workerpool"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	sdk "github.com/dipdup-net/indexer-sdk/pkg/storage"
@@ -20,16 +22,18 @@ const (
 	OutputName = "state"
 )
 
-// Module - executes rollback on signal from input (target height) and notify all subscribers about new state after rollback operation.
+// Module - executes rollback on signal from input and notify all subscribers about new state after rollback operation.
 //
-//	                     |----------------|
-//	                     |                |
-//	-- storage.Level ->  |     MODULE     |  -- storage.State ->
-//	                     |                |
-//	                     |----------------|
+//	                |----------------|
+//	                |                |
+//	-- struct{} ->  |     MODULE     |  -- storage.State ->
+//	                |                |
+//	                |----------------|
 type Module struct {
 	tx        sdk.Transactable
 	state     storage.IState
+	blocks    storage.IBlock
+	node      rpc.API
 	indexName string
 	input     *modules.Input
 	output    *modules.Output
@@ -37,10 +41,18 @@ type Module struct {
 	g         workerpool.Group
 }
 
-func NewModule(tx sdk.Transactable, state storage.IState, cfg config.Indexer) *Module {
+func NewModule(
+	tx sdk.Transactable,
+	state storage.IState,
+	blocks storage.IBlock,
+	node rpc.API,
+	cfg config.Indexer,
+) *Module {
 	module := Module{
 		tx:        tx,
 		state:     state,
+		blocks:    blocks,
+		node:      node,
 		input:     modules.NewInput(InputName),
 		output:    modules.NewOutput(OutputName),
 		indexName: cfg.Name,
@@ -67,19 +79,13 @@ func (module *Module) listen(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case msg, ok := <-module.input.Listen():
+		case _, ok := <-module.input.Listen():
 			if !ok {
 				module.log.Warn().Msg("can't read message from input")
-				continue
+				return
 			}
 
-			height, ok := msg.(types.Level)
-			if !ok {
-				module.log.Error().Msgf("invalid input type: %T", height)
-				continue
-			}
-
-			if err := module.rollback(ctx, height); err != nil {
+			if err := module.rollback(ctx); err != nil {
 				module.log.Err(err).Msgf("error occured")
 			}
 		}
@@ -120,33 +126,55 @@ func (module *Module) AttachTo(name string, input *modules.Input) error {
 	output.Attach(input)
 	return nil
 }
-func (module *Module) rollback(ctx context.Context, height types.Level) error {
-	state, err := module.state.ByName(ctx, module.indexName)
-	if err != nil {
-		return err
-	}
 
-	for level := state.LastHeight; level > height; level-- {
-		log.Info().
-			Uint64("height", uint64(level)).
-			Uint64("new_height", uint64(level-1)).
-			Msg("start roll back from height...")
+func (module *Module) rollback(ctx context.Context) error {
+	for {
+		select {
+		case <-ctx.Done():
+		default:
+			lastBlock, err := module.blocks.Last(ctx)
+			if err != nil {
+				return errors.Wrap(err, "receive last block from database")
+			}
 
-		if err := module.rollbackBlock(ctx, level); err != nil {
-			return err
+			nodeBlock, err := module.node.Block(ctx, lastBlock.Height)
+			if err != nil {
+				return errors.Wrapf(err, "receive block from node by height: %d", lastBlock.Height)
+			}
+
+			log.Debug().
+				Uint64("height", uint64(lastBlock.Height)).
+				Hex("db_block_hash", lastBlock.Hash).
+				Hex("node_block_hash", nodeBlock.BlockID.Hash).
+				Msg("comparing hash...")
+
+			if bytes.Equal(lastBlock.Hash, nodeBlock.BlockID.Hash) {
+				return module.finish(ctx)
+			}
+
+			log.Warn().
+				Uint64("height", uint64(lastBlock.Height)).
+				Hex("db_block_hash", lastBlock.Hash).
+				Hex("node_block_hash", nodeBlock.BlockID.Hash).
+				Msg("need rollback")
+
+			if err := module.rollbackBlock(ctx, lastBlock.Height); err != nil {
+				return errors.Wrapf(err, "rollback block: %d", lastBlock.Height)
+			}
 		}
-
-		log.Info().
-			Uint64("height", uint64(level)).
-			Uint64("new_height", uint64(level-1)).
-			Msg("rolled back from height")
 	}
+}
 
+func (module *Module) finish(ctx context.Context) error {
 	newState, err := module.state.ByName(ctx, module.indexName)
 	if err != nil {
 		return err
 	}
 	module.output.Push(newState)
+
+	log.Info().
+		Uint64("new_height", uint64(newState.LastHeight)).
+		Msg("roll backed to new height")
 
 	return nil
 }
