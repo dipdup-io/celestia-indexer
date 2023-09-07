@@ -1,12 +1,18 @@
 package storage
 
 import (
+	"context"
 	"time"
 
 	pkgTypes "github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/shopspring/decimal"
 	"github.com/uptrace/bun"
 )
+
+//go:generate mockgen -source=$GOFILE -destination=mock/$GOFILE -package=mock -typed
+type IBlockStats interface {
+	ByHeight(ctx context.Context, height uint64) (BlockStats, error)
+}
 
 type BlockStats struct {
 	bun.BaseModel `bun:"table:block_stats" comment:"Table with celestia block stats."`

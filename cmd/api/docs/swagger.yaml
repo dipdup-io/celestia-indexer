@@ -745,6 +745,35 @@ paths:
       summary: Get events from begin and end of block
       tags:
       - block
+  /v1/block/{height}/stats:
+    get:
+      description: Get block stats by height
+      operationId: get-block-stats
+      parameters:
+      - description: Block height
+        in: path
+        minimum: 1
+        name: height
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.BlockStats'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get block stats by height
+      tags:
+      - block
   /v1/head:
     get:
       description: Get current indexer head

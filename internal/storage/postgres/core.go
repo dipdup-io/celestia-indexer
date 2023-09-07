@@ -20,6 +20,7 @@ type Storage struct {
 	cfg config.Database
 
 	Blocks      models.IBlock
+	BlockStats  models.IBlockStats
 	Tx          models.ITx
 	Message     models.IMessage
 	Event       models.IEvent
@@ -43,6 +44,7 @@ func Create(ctx context.Context, cfg config.Database) (Storage, error) {
 		cfg:         cfg,
 		Storage:     strg,
 		Blocks:      NewBlocks(strg.Connection()),
+		BlockStats:  NewBlockStats(strg.Connection()),
 		Message:     NewMessage(strg.Connection()),
 		Event:       NewEvent(strg.Connection()),
 		Address:     NewAddress(strg.Connection()),

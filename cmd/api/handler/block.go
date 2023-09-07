@@ -9,14 +9,16 @@ import (
 )
 
 type BlockHandler struct {
-	block  storage.IBlock
-	events storage.IEvent
+	block      storage.IBlock
+	blockStats storage.IBlockStats
+	events     storage.IEvent
 }
 
-func NewBlockHandler(block storage.IBlock, events storage.IEvent) *BlockHandler {
+func NewBlockHandler(block storage.IBlock, blockStats storage.IBlockStats, events storage.IEvent) *BlockHandler {
 	return &BlockHandler{
-		block:  block,
-		events: events,
+		block:      block,
+		blockStats: blockStats,
+		events:     events,
 	}
 }
 
@@ -134,4 +136,29 @@ func (handler *BlockHandler) GetEvents(c echo.Context) error {
 	}
 
 	return returnArray(c, response)
+}
+
+// GetStats godoc
+//
+//	@Summary		Get block stats by height
+//	@Description	Get block stats by height
+//	@Tags			block
+//	@ID				get-block-stats
+//	@Param			height	path	integer	true	"Block height"	minimum(1)
+//	@Produce		json
+//	@Success		200	{object}		responses.BlockStats
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/v1/block/{height}/stats [get]
+func (handler *BlockHandler) GetStats(c echo.Context) error {
+	req, err := bindAndValidate[getBlockRequest](c)
+	if err != nil {
+		return badRequestError(c, err)
+	}
+
+	stats, err := handler.blockStats.ByHeight(c.Request().Context(), req.Height)
+	if err := handleError(c, err, handler.events); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, responses.NewBlockStats(stats))
 }
