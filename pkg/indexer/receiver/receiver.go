@@ -30,17 +30,19 @@ const (
 //		|                | <- storage.State   -- RollbackInput
 //	    |----------------|
 type Module struct {
-	api        node.API
-	cfg        config.Indexer
-	outputs    map[string]*modules.Output
-	stateInput *modules.Input
-	pool       *workerpool.Pool[types.Level]
-	blocks     chan types.BlockData
-	level      types.Level
-	hash       []byte
-	mx         *sync.RWMutex
-	log        zerolog.Logger
-	g          workerpool.Group
+	api              node.API
+	cfg              config.Indexer
+	outputs          map[string]*modules.Output
+	stateInput       *modules.Input
+	pool             *workerpool.Pool[types.Level]
+	blocks           chan types.BlockData
+	level            types.Level
+	hash             []byte
+	mx               *sync.RWMutex
+	log              zerolog.Logger
+	rollbackSync     *sync.WaitGroup
+	g                workerpool.Group
+	cancelReadBlocks context.CancelFunc
 }
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
@@ -62,13 +64,14 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 			BlocksOutput:   modules.NewOutput(BlocksOutput),
 			RollbackOutput: modules.NewOutput(RollbackOutput),
 		},
-		stateInput: modules.NewInput(RollbackInput),
-		blocks:     make(chan types.BlockData, cfg.ThreadsCount*10),
-		level:      level,
-		hash:       hash,
-		mx:         new(sync.RWMutex),
-		log:        log.With().Str("module", name).Logger(),
-		g:          workerpool.NewGroup(),
+		stateInput:   modules.NewInput(RollbackInput),
+		blocks:       make(chan types.BlockData, cfg.ThreadsCount*10),
+		level:        level,
+		hash:         hash,
+		mx:           new(sync.RWMutex),
+		log:          log.With().Str("module", name).Logger(),
+		rollbackSync: new(sync.WaitGroup),
+		g:            workerpool.NewGroup(),
 	}
 
 	receiver.pool = workerpool.NewPool(receiver.worker, int(cfg.ThreadsCount))
@@ -87,6 +90,7 @@ func (r *Module) Start(ctx context.Context) {
 
 	r.g.GoCtx(ctx, r.sequencer)
 	r.g.GoCtx(ctx, r.sync)
+	r.g.GoCtx(ctx, r.rollback)
 }
 
 func (r *Module) Close() error {
@@ -141,4 +145,29 @@ func (r *Module) setLevel(level types.Level, hash []byte) {
 
 	r.level = level
 	r.hash = hash
+}
+
+func (r *Module) rollback(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case msg, ok := <-r.stateInput.Listen():
+			r.rollbackSync.Done()
+
+			if !ok {
+				r.log.Warn().Msg("can't read message from rollback input")
+				continue
+			}
+
+			state, ok := msg.(storage.State)
+			if !ok {
+				r.log.Warn().Msgf("invalid message type: %T", msg)
+				continue
+			}
+
+			r.setLevel(state.LastHeight, state.LastHash)
+			r.log.Info().Msgf("caught rollack to level=%d", state.LastHeight)
+		}
+	}
 }

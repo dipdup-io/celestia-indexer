@@ -12,6 +12,8 @@ func (r *Module) sequencer(ctx context.Context) {
 	currentBlock := int64(r.level)
 
 	for {
+		r.rollbackSync.Wait()
+
 		select {
 		case <-ctx.Done():
 			return
@@ -38,7 +40,11 @@ func (r *Module) sequencer(ctx context.Context) {
 							Str("prevBlockHash", hex.EncodeToString(prevB.BlockID.Hash)).
 							Uint64("level", uint64(b.Height)).
 							Msg("rollback detected")
-						// TODO	call rollback to the rescue and wait
+
+						r.rollbackSync.Add(1)
+						r.cancelReadBlocks()
+						r.outputs[RollbackOutput].Push(struct{}{})
+
 						break
 					}
 				} // TODO else: check with block from storage?
