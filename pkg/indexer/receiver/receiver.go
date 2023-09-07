@@ -15,28 +15,32 @@ import (
 )
 
 const (
-	name         = "receiver"
-	BlocksOutput = "blocks"
+	name           = "receiver"
+	BlocksOutput   = "blocks"
+	RollbackOutput = "signal"
+	RollbackInput  = "state"
 )
 
 // Module - runs through chain with aim ti catch up head and identifies either block is fits in sequence or signals of rollback.
 //
-//	|----------------|
-//	|                | -- types.BlockData ->
-//	|     MODULE     |
-//	|                | -- types.Level ->
-//	|----------------|
+//		|----------------|
+//		|                | -- types.BlockData -> BlocksOutput
+//		|     MODULE     |
+//		|    Receiver    | -- struct{}        -> RollbackOutput
+//		|                | <- storage.State   -- RollbackInput
+//	    |----------------|
 type Module struct {
-	api     node.API
-	cfg     config.Indexer
-	outputs map[string]*modules.Output
-	pool    *workerpool.Pool[types.Level]
-	blocks  chan types.BlockData
-	level   types.Level
-	hash    []byte
-	mx      *sync.RWMutex
-	log     zerolog.Logger
-	g       workerpool.Group
+	api        node.API
+	cfg        config.Indexer
+	outputs    map[string]*modules.Output
+	stateInput *modules.Input
+	pool       *workerpool.Pool[types.Level]
+	blocks     chan types.BlockData
+	level      types.Level
+	hash       []byte
+	mx         *sync.RWMutex
+	log        zerolog.Logger
+	g          workerpool.Group
 }
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
@@ -52,15 +56,19 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 	}
 
 	receiver := Module{
-		api:     api,
-		cfg:     cfg,
-		outputs: map[string]*modules.Output{BlocksOutput: modules.NewOutput(BlocksOutput)},
-		blocks:  make(chan types.BlockData, cfg.ThreadsCount*10),
-		level:   level,
-		hash:    hash,
-		mx:      new(sync.RWMutex),
-		log:     log.With().Str("module", name).Logger(),
-		g:       workerpool.NewGroup(),
+		api: api,
+		cfg: cfg,
+		outputs: map[string]*modules.Output{
+			BlocksOutput:   modules.NewOutput(BlocksOutput),
+			RollbackOutput: modules.NewOutput(RollbackOutput),
+		},
+		stateInput: modules.NewInput(RollbackInput),
+		blocks:     make(chan types.BlockData, cfg.ThreadsCount*10),
+		level:      level,
+		hash:       hash,
+		mx:         new(sync.RWMutex),
+		log:        log.With().Str("module", name).Logger(),
+		g:          workerpool.NewGroup(),
 	}
 
 	receiver.pool = workerpool.NewPool(receiver.worker, int(cfg.ThreadsCount))
@@ -103,7 +111,11 @@ func (r *Module) Output(name string) (*modules.Output, error) {
 }
 
 func (r *Module) Input(name string) (*modules.Input, error) {
-	return nil, errors.Wrap(modules.ErrUnknownInput, name)
+	if name != RollbackInput {
+		return nil, errors.Wrap(modules.ErrUnknownInput, name)
+	}
+
+	return r.stateInput, nil
 }
 
 func (r *Module) AttachTo(outputName string, input *modules.Input) error {
