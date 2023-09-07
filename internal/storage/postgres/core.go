@@ -101,6 +101,7 @@ func createHypertables(ctx context.Context, conn *database.Bun) error {
 	return conn.DB().RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
 		for _, model := range []storage.Model{
 			&models.Block{},
+			&models.BlockStats{},
 			&models.Tx{},
 			&models.Message{},
 			&models.Event{},

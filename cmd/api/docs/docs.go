@@ -268,6 +268,12 @@ const docTemplate = `{
                         "description": "Sort order",
                         "name": "sort",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Need join stats for block",
+                        "name": "stats",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -314,6 +320,12 @@ const docTemplate = `{
                         "name": "height",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Need join stats for block",
+                        "name": "stats",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1323,10 +1335,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
                 },
-                "blobs_size": {
-                    "type": "integer",
-                    "example": 12354
-                },
                 "consensus_hash": {
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
@@ -1335,17 +1343,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
                 },
-                "events_count": {
-                    "type": "integer",
-                    "example": 18
-                },
                 "evidence_hash": {
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
-                },
-                "fee": {
-                    "type": "string",
-                    "example": "28347628346"
                 },
                 "hash": {
                     "type": "string",
@@ -1389,13 +1389,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "652452A670018D629CC116E510BA88C1CABE061336661B1F3D206D248BD558AF"
                 },
+                "stats": {
+                    "$ref": "#/definitions/responses.BlockStats"
+                },
                 "time": {
                     "type": "string",
                     "example": "2023-07-04T03:10:57+00:00"
-                },
-                "tx_count": {
-                    "type": "integer",
-                    "example": 12
                 },
                 "validators_hash": {
                     "type": "string",
@@ -1408,6 +1407,35 @@ const docTemplate = `{
                 "version_block": {
                     "type": "string",
                     "example": "11"
+                }
+            }
+        },
+        "responses.BlockStats": {
+            "type": "object",
+            "properties": {
+                "blobs_size": {
+                    "type": "integer",
+                    "example": 12354
+                },
+                "events_count": {
+                    "type": "integer",
+                    "example": 18
+                },
+                "fee": {
+                    "type": "string",
+                    "example": "28347628346"
+                },
+                "inflation_rate": {
+                    "type": "string",
+                    "example": "0.0800000"
+                },
+                "supply_change": {
+                    "type": "string",
+                    "example": "8635234"
+                },
+                "tx_count": {
+                    "type": "integer",
+                    "example": 12
                 }
             }
         },
