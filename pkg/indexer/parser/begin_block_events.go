@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"strings"
+
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/shopspring/decimal"
@@ -34,6 +36,7 @@ func getDecimalFromMap(m map[string]any, key string) decimal.Decimal {
 	if !ok {
 		return decimal.Zero
 	}
+	str = strings.TrimSuffix(str, "utia")
 	dec, err := decimal.NewFromString(str)
 	if err != nil {
 		return decimal.Zero

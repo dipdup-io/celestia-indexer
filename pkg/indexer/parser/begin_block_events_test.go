@@ -39,6 +39,13 @@ func Test_getDecimalFromMap(t *testing.T) {
 			},
 			key:  "any_key",
 			want: "123123",
+		}, {
+			name: "test 5",
+			m: map[string]any{
+				"any_key": "123123utia",
+			},
+			key:  "any_key",
+			want: "123123",
 		},
 	}
 	for _, tt := range tests {
