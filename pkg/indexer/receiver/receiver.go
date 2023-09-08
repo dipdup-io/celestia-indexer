@@ -173,8 +173,6 @@ func (r *Module) rollback(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case msg, ok := <-r.inputs[RollbackInput].Listen():
-			r.rollbackSync.Done()
-
 			if !ok {
 				r.log.Warn().Msg("can't read message from rollback input")
 				continue
@@ -187,7 +185,9 @@ func (r *Module) rollback(ctx context.Context) {
 			}
 
 			r.setLevel(state.LastHeight, state.LastHash)
-			r.log.Info().Msgf("caught rollback to level=%d", state.LastHeight)
+			r.log.Info().Msgf("caught return from rollback to level=%d", state.LastHeight)
+
+			r.rollbackSync.Done()
 		}
 	}
 }
