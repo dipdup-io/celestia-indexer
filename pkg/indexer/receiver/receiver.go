@@ -2,6 +2,8 @@ package receiver
 
 import (
 	"context"
+	"sync"
+
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
@@ -11,14 +13,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"sync"
 )
 
 const (
-	name           = "receiver"
-	BlocksOutput   = "blocks"
-	RollbackOutput = "signal"
-	RollbackInput  = "state"
+	name             = "receiver"
+	BlocksOutput     = "blocks"
+	RollbackOutput   = "signal"
+	RollbackInput    = "state"
+	GenesisOutput    = "genesis"
+	GenesisDoneInput = "genesis_done"
 )
 
 // Module - runs through chain with aim ti catch up head and identifies either block is fits in sequence or signals of rollback.
@@ -32,12 +35,14 @@ const (
 type Module struct {
 	api              node.API
 	cfg              config.Indexer
+	inputs           map[string]*modules.Input
 	outputs          map[string]*modules.Output
 	stateInput       *modules.Input
 	pool             *workerpool.Pool[types.Level]
 	blocks           chan types.BlockData
 	level            types.Level
 	hash             []byte
+	needGenesis      bool
 	mx               *sync.RWMutex
 	log              zerolog.Logger
 	rollbackSync     *sync.WaitGroup
@@ -46,13 +51,13 @@ type Module struct {
 }
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
-	var level types.Level
-	var hash []byte
-
-	if state == nil {
+	var (
 		level = types.Level(cfg.StartLevel)
+		hash  []byte
+	)
+
+	if state != nil {
 		// TODO-DISCUSS check for hash changed of state last block
-	} else {
 		level = state.LastHeight
 		hash = state.LastHash
 	}
@@ -60,12 +65,18 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 	receiver := Module{
 		api: api,
 		cfg: cfg,
+		inputs: map[string]*modules.Input{
+			RollbackInput:    modules.NewInput(RollbackInput),
+			GenesisDoneInput: modules.NewInput(GenesisDoneInput),
+		},
 		outputs: map[string]*modules.Output{
 			BlocksOutput:   modules.NewOutput(BlocksOutput),
 			RollbackOutput: modules.NewOutput(RollbackOutput),
+			GenesisOutput:  modules.NewOutput(GenesisOutput),
 		},
 		stateInput:   modules.NewInput(RollbackInput),
 		blocks:       make(chan types.BlockData, cfg.ThreadsCount*10),
+		needGenesis:  state == nil,
 		level:        level,
 		hash:         hash,
 		mx:           new(sync.RWMutex),
@@ -88,6 +99,13 @@ func (r *Module) Start(ctx context.Context) {
 	r.log.Info().Msg("starting receiver...")
 	r.pool.Start(ctx)
 
+	if r.needGenesis {
+		if err := r.receiveGenesis(ctx); err != nil {
+			log.Err(err).Msg("receiving genesis error")
+			return
+		}
+	}
+
 	r.g.GoCtx(ctx, r.sequencer)
 	r.g.GoCtx(ctx, r.sync)
 	r.g.GoCtx(ctx, r.rollback)
@@ -103,6 +121,12 @@ func (r *Module) Close() error {
 
 	close(r.blocks)
 
+	for name, input := range r.inputs {
+		if err := input.Close(); err != nil {
+			return errors.Wrapf(err, "closing error of '%s' input", name)
+		}
+	}
+
 	return nil
 }
 
@@ -115,11 +139,11 @@ func (r *Module) Output(name string) (*modules.Output, error) {
 }
 
 func (r *Module) Input(name string) (*modules.Input, error) {
-	if name != RollbackInput {
+	input, ok := r.inputs[name]
+	if !ok {
 		return nil, errors.Wrap(modules.ErrUnknownInput, name)
 	}
-
-	return r.stateInput, nil
+	return input, nil
 }
 
 func (r *Module) AttachTo(outputName string, input *modules.Input) error {
@@ -152,7 +176,7 @@ func (r *Module) rollback(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		case msg, ok := <-r.stateInput.Listen():
+		case msg, ok := <-r.inputs[RollbackInput].Listen():
 			r.rollbackSync.Done()
 
 			if !ok {
