@@ -10,7 +10,8 @@ import (
 func (r *Module) sequencer(ctx context.Context) {
 	orderedBlocks := map[int64]types.BlockData{}
 	var prevBlockHash []byte
-	currentBlock := int64(r.Level())
+	l, _ := r.Level()
+	currentBlock := int64(l)
 
 	for {
 		select {
@@ -38,7 +39,7 @@ func (r *Module) sequencer(ctx context.Context) {
 				} // TODO else: check with block from storage?
 
 				r.outputs[BlocksOutput].Push(b)
-				r.setLevel(types.Level(currentBlock))
+				r.setLevel(types.Level(currentBlock), b.BlockID.Hash)
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
 
 				prevBlockHash = b.BlockID.Hash
@@ -82,8 +83,9 @@ func (r *Module) startRollback(
 	r.rollbackSync.Wait()
 
 	// Reset sequencer state
-	currentBlock := int64(r.Level())
-	prevBlockHash = nil
+	level, hash := r.Level()
+	currentBlock := int64(level)
+	prevBlockHash = hash
 	orderedBlocks := map[int64]types.BlockData{}
 
 	// Restart workers pool that read blocks

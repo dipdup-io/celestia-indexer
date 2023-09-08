@@ -39,6 +39,7 @@ type Module struct {
 	pool             *workerpool.Pool[types.Level]
 	blocks           chan types.BlockData
 	level            types.Level
+	hash             []byte
 	needGenesis      bool
 	mx               *sync.RWMutex
 	log              zerolog.Logger
@@ -50,8 +51,10 @@ type Module struct {
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 	level := types.Level(cfg.StartLevel)
+	var lastHash []byte
 	if state != nil {
 		level = state.LastHeight
+		lastHash = state.LastHash
 	}
 
 	receiver := Module{
@@ -69,6 +72,7 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 		blocks:       make(chan types.BlockData, cfg.ThreadsCount*10),
 		needGenesis:  state == nil,
 		level:        level,
+		hash:         lastHash,
 		mx:           new(sync.RWMutex),
 		log:          log.With().Str("module", name).Logger(),
 		rollbackSync: new(sync.WaitGroup),
@@ -148,18 +152,19 @@ func (r *Module) AttachTo(outputName string, input *modules.Input) error {
 	return nil
 }
 
-func (r *Module) Level() types.Level {
+func (r *Module) Level() (types.Level, []byte) {
 	r.mx.RLock()
 	defer r.mx.RUnlock()
 
-	return r.level
+	return r.level, r.hash
 }
 
-func (r *Module) setLevel(level types.Level) {
+func (r *Module) setLevel(level types.Level, hash []byte) {
 	r.mx.Lock()
 	defer r.mx.Unlock()
 
 	r.level = level
+	r.hash = hash
 }
 
 func (r *Module) rollback(ctx context.Context) {
@@ -181,7 +186,7 @@ func (r *Module) rollback(ctx context.Context) {
 				continue
 			}
 
-			r.setLevel(state.LastHeight)
+			r.setLevel(state.LastHeight, state.LastHash)
 			r.log.Info().Msgf("caught rollback to level=%d", state.LastHeight)
 		}
 	}

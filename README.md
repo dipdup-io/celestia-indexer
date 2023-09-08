@@ -5,7 +5,7 @@ This is an indexing layer for Celestia DA written in Golang that operates on top
 
 ## Features ##
 
-- [x] RPC node reader
+- [x] RPC node client
 - [x] Rollbacks are handled
 - [x] Database is partitioned for better performance
 - [ ] Optional diagnostic mode for consistency checks
