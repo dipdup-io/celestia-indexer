@@ -63,7 +63,7 @@ func (r *Module) sequencer(ctx context.Context) {
 				r.setLevel(types.Level(currentBlock), b.BlockID.Hash)
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
 
-				prevBlockHash = b.Block.LastBlockID.Hash
+				prevBlockHash = b.BlockID.Hash
 				delete(orderedBlocks, currentBlock)
 				currentBlock += 1
 			}
