@@ -12,16 +12,8 @@ func (r *Module) sequencer(ctx context.Context) {
 	var prevBlockHash []byte
 	l, _ := r.Level()
 	currentBlock := int64(l)
-	fromRollback := false
 
 	for {
-		r.rollbackSync.Wait()
-		if fromRollback {
-			l, _ := r.Level()
-			currentBlock = int64(l)
-			fromRollback = false
-			prevBlockHash = nil
-		}
 
 		select {
 		case <-ctx.Done():
@@ -52,8 +44,13 @@ func (r *Module) sequencer(ctx context.Context) {
 						if r.cancelReadBlocks != nil {
 							r.cancelReadBlocks()
 						}
-						fromRollback = true
 						r.outputs[RollbackOutput].Push(struct{}{})
+						r.rollbackSync.Wait()
+
+						l, _ := r.Level()
+						currentBlock = int64(l)
+						prevBlockHash = nil
+						orderedBlocks = map[int64]types.BlockData{}
 
 						break
 					}
