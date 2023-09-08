@@ -2,14 +2,16 @@ package indexer
 
 import (
 	"context"
+	"sync"
+
 	internalStorage "github.com/dipdup-io/celestia-indexer/internal/storage"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/genesis"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/parser"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/rollback"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/rpc"
 	"github.com/pkg/errors"
-	"sync"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
@@ -25,6 +27,7 @@ type Indexer struct {
 	parser   *parser.Module
 	storage  *storage.Module
 	rollback *rollback.Module
+	genesis  *genesis.Module
 	wg       *sync.WaitGroup
 	log      zerolog.Logger
 }
@@ -55,6 +58,22 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 		return Indexer{}, errors.Wrap(err, "while creating storage module")
 	}
 
+	genesisModule := genesis.NewModule(pg, cfg.Indexer)
+	gInput, err := genesisModule.Input(genesis.InputName)
+	if err != nil {
+		return Indexer{}, errors.Wrap(err, "cannot find input in genesis")
+	}
+	if err = r.AttachTo(receiver.GenesisOutput, gInput); err != nil {
+		return Indexer{}, err
+	}
+	receiverGenesisDone, err := r.Input(receiver.GenesisDoneInput)
+	if err != nil {
+		return Indexer{}, errors.Wrap(err, "cannot find input in receiver")
+	}
+	if err = genesisModule.AttachTo(genesis.OutputName, receiverGenesisDone); err != nil {
+		return Indexer{}, err
+	}
+
 	return Indexer{
 		cfg:      cfg,
 		api:      &api,
@@ -62,6 +81,7 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 		parser:   &p,
 		storage:  &s,
 		rollback: rb,
+		genesis:  &genesisModule,
 		wg:       new(sync.WaitGroup),
 		log:      log.With().Str("module", "indexer").Logger(),
 	}, nil
@@ -70,6 +90,7 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 func (i *Indexer) Start(ctx context.Context) {
 	i.log.Info().Msg("starting...")
 
+	i.genesis.Start(ctx)
 	i.storage.Start(ctx)
 	i.parser.Start(ctx)
 	i.receiver.Start(ctx)
@@ -80,6 +101,15 @@ func (i *Indexer) Close() error {
 	i.wg.Wait()
 
 	if err := i.receiver.Close(); err != nil {
+		log.Err(err).Msg("closing receiver")
+	}
+	if err := i.genesis.Close(); err != nil {
+		log.Err(err).Msg("closing receiver")
+	}
+	if err := i.parser.Close(); err != nil {
+		log.Err(err).Msg("closing receiver")
+	}
+	if err := i.storage.Close(); err != nil {
 		log.Err(err).Msg("closing receiver")
 	}
 
