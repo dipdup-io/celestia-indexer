@@ -9,6 +9,7 @@ import (
 
 func (r *Module) sequencer(ctx context.Context) {
 	orderedBlocks := map[int64]types.BlockData{}
+	var prevBlockHash []byte
 	l, _ := r.Level()
 	currentBlock := int64(l)
 	fromRollback := false
@@ -19,6 +20,7 @@ func (r *Module) sequencer(ctx context.Context) {
 			l, _ := r.Level()
 			currentBlock = int64(l)
 			fromRollback = false
+			prevBlockHash = nil
 		}
 
 		select {
@@ -38,13 +40,11 @@ func (r *Module) sequencer(ctx context.Context) {
 			}
 
 			if b, ok := orderedBlocks[currentBlock]; ok {
-				prevB, ok := orderedBlocks[currentBlock-1]
-
-				if ok {
-					if !bytes.Equal(b.Block.LastBlockID.Hash, prevB.BlockID.Hash) {
+				if prevBlockHash != nil {
+					if !bytes.Equal(b.Block.LastBlockID.Hash, prevBlockHash) {
 						r.log.Info().
 							Str("current.lastBlockHash", hex.EncodeToString(b.Block.LastBlockID.Hash)).
-							Str("prevBlockHash", hex.EncodeToString(prevB.BlockID.Hash)).
+							Str("prevBlockHash", hex.EncodeToString(prevBlockHash)).
 							Uint64("level", uint64(b.Height)).
 							Msg("rollback detected")
 
@@ -63,6 +63,8 @@ func (r *Module) sequencer(ctx context.Context) {
 				r.setLevel(types.Level(currentBlock), b.BlockID.Hash)
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
 
+				prevBlockHash = b.Block.LastBlockID.Hash
+				delete(orderedBlocks, currentBlock)
 				currentBlock += 1
 			}
 		}
