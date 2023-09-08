@@ -58,20 +58,9 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 		return Indexer{}, errors.Wrap(err, "while creating storage module")
 	}
 
-	genesisModule := genesis.NewModule(pg, cfg.Indexer)
-	gInput, err := genesisModule.Input(genesis.InputName)
+	genesisModule, err := createGenesis(pg, cfg, r)
 	if err != nil {
-		return Indexer{}, errors.Wrap(err, "cannot find input in genesis")
-	}
-	if err = r.AttachTo(receiver.GenesisOutput, gInput); err != nil {
-		return Indexer{}, err
-	}
-	receiverGenesisDone, err := r.Input(receiver.GenesisDoneInput)
-	if err != nil {
-		return Indexer{}, errors.Wrap(err, "cannot find input in receiver")
-	}
-	if err = genesisModule.AttachTo(genesis.OutputName, receiverGenesisDone); err != nil {
-		return Indexer{}, err
+		return Indexer{}, errors.Wrap(err, "while creating genesis module")
 	}
 
 	return Indexer{
@@ -85,6 +74,25 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 		wg:       new(sync.WaitGroup),
 		log:      log.With().Str("module", "indexer").Logger(),
 	}, nil
+}
+
+func createGenesis(pg postgres.Storage, cfg config.Config, r receiver.Module) (genesis.Module, error) {
+	genesisModule := genesis.NewModule(pg, cfg.Indexer)
+	gInput, err := genesisModule.Input(genesis.InputName)
+	if err != nil {
+		return genesis.Module{}, errors.Wrap(err, "cannot find input in genesis")
+	}
+	if err = r.AttachTo(receiver.GenesisOutput, gInput); err != nil {
+		return genesis.Module{}, err
+	}
+	receiverGenesisDone, err := r.Input(receiver.GenesisDoneInput)
+	if err != nil {
+		return genesis.Module{}, errors.Wrap(err, "cannot find input in receiver")
+	}
+	if err = genesisModule.AttachTo(genesis.OutputName, receiverGenesisDone); err != nil {
+		return genesis.Module{}, err
+	}
+	return genesisModule, nil
 }
 
 func (i *Indexer) Start(ctx context.Context) {
