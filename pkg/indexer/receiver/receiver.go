@@ -2,8 +2,6 @@ package receiver
 
 import (
 	"context"
-	"sync"
-
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/node"
@@ -13,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"sync"
 )
 
 const (
@@ -40,7 +39,6 @@ type Module struct {
 	pool             *workerpool.Pool[types.Level]
 	blocks           chan types.BlockData
 	level            types.Level
-	hash             []byte
 	needGenesis      bool
 	mx               *sync.RWMutex
 	log              zerolog.Logger
@@ -51,15 +49,9 @@ type Module struct {
 }
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
-	var (
-		level = types.Level(cfg.StartLevel)
-		hash  []byte
-	)
-
+	var level = types.Level(cfg.StartLevel)
 	if state != nil {
-		// TODO-DISCUSS check for hash changed of state last block
 		level = state.LastHeight
-		hash = state.LastHash
 	}
 
 	receiver := Module{
@@ -77,7 +69,6 @@ func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
 		blocks:       make(chan types.BlockData, cfg.ThreadsCount*10),
 		needGenesis:  state == nil,
 		level:        level,
-		hash:         hash,
 		mx:           new(sync.RWMutex),
 		log:          log.With().Str("module", name).Logger(),
 		rollbackSync: new(sync.WaitGroup),
@@ -157,19 +148,18 @@ func (r *Module) AttachTo(outputName string, input *modules.Input) error {
 	return nil
 }
 
-func (r *Module) Level() (types.Level, []byte) {
+func (r *Module) Level() types.Level {
 	r.mx.RLock()
 	defer r.mx.RUnlock()
 
-	return r.level, r.hash
+	return r.level
 }
 
-func (r *Module) setLevel(level types.Level, hash []byte) {
+func (r *Module) setLevel(level types.Level) {
 	r.mx.Lock()
 	defer r.mx.Unlock()
 
 	r.level = level
-	r.hash = hash
 }
 
 func (r *Module) rollback(ctx context.Context) {
@@ -191,7 +181,7 @@ func (r *Module) rollback(ctx context.Context) {
 				continue
 			}
 
-			r.setLevel(state.LastHeight, state.LastHash)
+			r.setLevel(state.LastHeight)
 			r.log.Info().Msgf("caught rollback to level=%d", state.LastHeight)
 		}
 	}

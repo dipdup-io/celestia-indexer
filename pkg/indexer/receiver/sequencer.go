@@ -10,8 +10,7 @@ import (
 func (r *Module) sequencer(ctx context.Context) {
 	orderedBlocks := map[int64]types.BlockData{}
 	var prevBlockHash []byte
-	l, _ := r.Level()
-	currentBlock := int64(l)
+	currentBlock := int64(r.Level())
 
 	for {
 		select {
@@ -39,7 +38,7 @@ func (r *Module) sequencer(ctx context.Context) {
 				} // TODO else: check with block from storage?
 
 				r.outputs[BlocksOutput].Push(b)
-				r.setLevel(types.Level(currentBlock), b.BlockID.Hash)
+				r.setLevel(types.Level(currentBlock))
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
 
 				prevBlockHash = b.BlockID.Hash
@@ -61,19 +60,33 @@ func (r *Module) startRollback(
 		Uint64("level", uint64(b.Height)).
 		Msg("rollback detected")
 
+	// Pause all receiver routines
 	r.rollbackSync.Add(1)
+
+	// Stop readBlocks
 	if r.cancelReadBlocks != nil {
 		r.cancelReadBlocks()
 	}
+
+	// Stop pool workers
+	if r.cancelWorkers != nil {
+		r.cancelWorkers()
+	}
+
+	clearChannel(r.blocks)
+
+	// Start rollback
 	r.outputs[RollbackOutput].Push(struct{}{})
+
+	// Wait until rollback will be finished
 	r.rollbackSync.Wait()
 
-	l, _ := r.Level()
-	currentBlock := int64(l)
+	// Reset sequencer state
+	currentBlock := int64(r.Level())
 	prevBlockHash = nil
 	orderedBlocks := map[int64]types.BlockData{}
 
-	clearChannel(r.blocks)
+	// Restart workers pool that read blocks
 	workersCtx, cancelWorkers := context.WithCancel(ctx)
 	r.cancelWorkers = cancelWorkers
 	r.pool.Start(workersCtx)
