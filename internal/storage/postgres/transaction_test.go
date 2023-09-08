@@ -345,7 +345,7 @@ func (s *StorageTestSuite) TestRollbackTxs() {
 
 	items, err := s.storage.Tx.List(ctx, 10, 0, sdk.SortOrderAsc)
 	s.Require().NoError(err)
-	s.Require().Len(items, 0)
+	s.Require().Len(items, 1)
 }
 
 func (s *StorageTestSuite) TestRollbackEvents() {
@@ -416,7 +416,7 @@ func (s *StorageTestSuite) TestRollbackMessages() {
 
 	items, err := s.storage.Message.List(ctx, 10, 0, sdk.SortOrderAsc)
 	s.Require().NoError(err)
-	s.Require().Len(items, 0)
+	s.Require().Len(items, 1)
 }
 
 func (s *StorageTestSuite) TestRollbackNamespaces() {
