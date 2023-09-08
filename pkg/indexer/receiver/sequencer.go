@@ -64,8 +64,6 @@ func (r *Module) sequencer(ctx context.Context) {
 				r.log.Debug().Msgf("put in order block=%d", currentBlock)
 
 				currentBlock += 1
-			} else {
-				break
 			}
 		}
 	}
