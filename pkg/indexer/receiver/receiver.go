@@ -49,7 +49,7 @@ type Module struct {
 }
 
 func NewModule(cfg config.Indexer, api node.API, state *storage.State) Module {
-	var level = types.Level(cfg.StartLevel)
+	level := types.Level(cfg.StartLevel)
 	if state != nil {
 		level = state.LastHeight
 	}
