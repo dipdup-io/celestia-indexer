@@ -14,7 +14,6 @@ func (r *Module) sequencer(ctx context.Context) {
 	currentBlock := int64(l)
 
 	for {
-
 		select {
 		case <-ctx.Done():
 			return
@@ -51,6 +50,9 @@ func (r *Module) sequencer(ctx context.Context) {
 						currentBlock = int64(l)
 						prevBlockHash = nil
 						orderedBlocks = map[int64]types.BlockData{}
+
+						// clear r.blocks channel
+						//
 
 						break
 					}
