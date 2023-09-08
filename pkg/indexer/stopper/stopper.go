@@ -49,7 +49,9 @@ func (s *Module) listen(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-s.input.Listen():
-			s.stop()
+			if s.stop != nil {
+				s.stop()
+			}
 		}
 	}
 }

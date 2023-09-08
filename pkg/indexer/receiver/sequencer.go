@@ -49,7 +49,9 @@ func (r *Module) sequencer(ctx context.Context) {
 							Msg("rollback detected")
 
 						r.rollbackSync.Add(1)
-						r.cancelReadBlocks()
+						if r.cancelReadBlocks != nil {
+							r.cancelReadBlocks()
+						}
 						fromRollback = true
 						r.outputs[RollbackOutput].Push(struct{}{})
 

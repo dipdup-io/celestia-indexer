@@ -167,7 +167,7 @@ func (r *Module) rollback(ctx context.Context) {
 			}
 
 			r.setLevel(state.LastHeight, state.LastHash)
-			r.log.Info().Msgf("caught rollack to level=%d", state.LastHeight)
+			r.log.Info().Msgf("caught rollback to level=%d", state.LastHeight)
 		}
 	}
 }
