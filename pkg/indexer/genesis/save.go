@@ -75,6 +75,14 @@ func (module *Module) save(ctx context.Context, data parsedData) error {
 		if err := tx.SaveAddresses(ctx, entities...); err != nil {
 			return tx.HandleError(ctx, err)
 		}
+
+		balances := make([]storage.Balance, len(entities))
+		for i := range entities {
+			balances[i] = entities[i].Balance
+		}
+		if err := tx.SaveBalances(ctx, balances...); err != nil {
+			return tx.HandleError(ctx, err)
+		}
 	}
 
 	if len(namespaces) > 0 {
