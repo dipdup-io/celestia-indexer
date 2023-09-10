@@ -217,6 +217,10 @@ func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module
 		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to parser")
 	}
 
+	if err = s.AttachTo(storage.StopOutput, sInput); err != nil {
+		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to storage")
+	}
+
 	return sm, nil
 }
 
