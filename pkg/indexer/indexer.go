@@ -84,22 +84,6 @@ func New(ctx context.Context, cfg config.Config, cancel context.CancelFunc) (Ind
 	}, nil
 }
 
-func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, module genesis.Module) (stopper.Module, error) {
-	sm := stopper.NewModule(cancel)
-
-	// stopper <- listen signal --
-	sInput, err := sm.Input(stopper.InputName)
-	if err != nil {
-		return stopper.Module{}, err
-	}
-
-	if err = r.AttachTo(receiver.StopOutput, sInput); err != nil {
-		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to receiver")
-	}
-
-	return sm, nil
-}
-
 func (i *Indexer) Start(ctx context.Context) {
 	i.log.Info().Msg("starting...")
 
@@ -214,6 +198,26 @@ func createGenesis(pg postgres.Storage, cfg config.Config, r receiver.Module) (g
 		return genesis.Module{}, err
 	}
 	return genesisModule, nil
+}
+
+func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, module genesis.Module) (stopper.Module, error) {
+	sm := stopper.NewModule(cancel)
+
+	// stopper <- listen signal --
+	sInput, err := sm.Input(stopper.InputName)
+	if err != nil {
+		return stopper.Module{}, err
+	}
+
+	if err = r.AttachTo(receiver.StopOutput, sInput); err != nil {
+		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to receiver")
+	}
+
+	if err = p.AttachTo(parser.StopOutput, sInput); err != nil {
+		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to parser")
+	}
+
+	return sm, nil
 }
 
 func loadState(pg postgres.Storage, ctx context.Context, indexerName string) (*internalStorage.State, error) {
