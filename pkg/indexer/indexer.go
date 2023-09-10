@@ -2,7 +2,7 @@ package indexer
 
 import (
 	"context"
-	"github.com/dipdup-io/celestia-indexer/pkg/indexer/stopper"
+	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	"sync"
 
 	internalStorage "github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -22,19 +22,19 @@ import (
 )
 
 type Indexer struct {
-	cfg      config.Config
-	api      node.API
-	receiver *receiver.Module
-	parser   *parser.Module
-	storage  *storage.Module
-	rollback *rollback.Module
-	genesis  *genesis.Module
-	stopper  *stopper.Module
-	wg       *sync.WaitGroup
-	log      zerolog.Logger
+	cfg          config.Config
+	api          node.API
+	receiver     *receiver.Module
+	parser       *parser.Module
+	storage      *storage.Module
+	rollback     *rollback.Module
+	genesis      *genesis.Module
+	stopperInput *modules.Input
+	wg           *sync.WaitGroup
+	log          zerolog.Logger
 }
 
-func New(ctx context.Context, cfg config.Config, cancel context.CancelFunc) (Indexer, error) {
+func New(ctx context.Context, cfg config.Config, stopperInput *modules.Input) (Indexer, error) {
 	pg, err := postgres.Create(ctx, cfg.Database)
 	if err != nil {
 		return Indexer{}, errors.Wrap(err, "while creating pg context")
@@ -65,22 +65,22 @@ func New(ctx context.Context, cfg config.Config, cancel context.CancelFunc) (Ind
 		return Indexer{}, errors.Wrap(err, "while creating genesis module")
 	}
 
-	stopperModule, err := createStopper(cancel, r, p, s, rb, genesisModule)
+	err = attachStopper(stopperInput, r, p, s, rb, genesisModule)
 	if err != nil {
 		return Indexer{}, errors.Wrap(err, "while creating stopper module")
 	}
 
 	return Indexer{
-		cfg:      cfg,
-		api:      &api,
-		receiver: &r,
-		parser:   &p,
-		storage:  &s,
-		rollback: &rb,
-		genesis:  &genesisModule,
-		stopper:  &stopperModule,
-		wg:       new(sync.WaitGroup),
-		log:      log.With().Str("module", "indexer").Logger(),
+		cfg:          cfg,
+		api:          &api,
+		receiver:     &r,
+		parser:       &p,
+		storage:      &s,
+		rollback:     &rb,
+		genesis:      &genesisModule,
+		stopperInput: stopperInput,
+		wg:           new(sync.WaitGroup),
+		log:          log.With().Str("module", "indexer").Logger(),
 	}, nil
 }
 
@@ -200,36 +200,28 @@ func createGenesis(pg postgres.Storage, cfg config.Config, r receiver.Module) (g
 	return genesisModule, nil
 }
 
-func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, g genesis.Module) (stopper.Module, error) {
-	sm := stopper.NewModule(cancel)
-
-	// stopper <- listen signal --
-	sInput, err := sm.Input(stopper.InputName)
-	if err != nil {
-		return stopper.Module{}, err
+func attachStopper(stopperInput *modules.Input, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, g genesis.Module) error {
+	if err := r.AttachTo(receiver.StopOutput, stopperInput); err != nil {
+		return errors.Wrap(err, "while attaching stopper to receiver")
 	}
 
-	if err = r.AttachTo(receiver.StopOutput, sInput); err != nil {
-		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to receiver")
+	if err := p.AttachTo(parser.StopOutput, stopperInput); err != nil {
+		return errors.Wrap(err, "while attaching stopper to parser")
 	}
 
-	if err = p.AttachTo(parser.StopOutput, sInput); err != nil {
-		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to parser")
+	if err := s.AttachTo(storage.StopOutput, stopperInput); err != nil {
+		return errors.Wrap(err, "while attaching stopper to storage")
 	}
 
-	if err = s.AttachTo(storage.StopOutput, sInput); err != nil {
-		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to storage")
+	if err := rb.AttachTo(rollback.StopOutput, stopperInput); err != nil {
+		return errors.Wrap(err, "while attaching stopper to rollback")
 	}
 
-	if err = rb.AttachTo(rollback.StopOutput, sInput); err != nil {
-		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to rollback")
+	if err := g.AttachTo(genesis.StopOutput, stopperInput); err != nil {
+		return errors.Wrap(err, "while attaching stopper to genesis")
 	}
 
-	if err = g.AttachTo(genesis.StopOutput, sInput); err != nil {
-		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to genesis")
-	}
-
-	return sm, nil
+	return nil
 }
 
 func loadState(pg postgres.Storage, ctx context.Context, indexerName string) (*internalStorage.State, error) {
