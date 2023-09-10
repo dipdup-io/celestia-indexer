@@ -241,18 +241,18 @@ func handleMsgGrantAllowance(level types.Level, m *cosmosFeegrant.MsgGrantAllowa
 
 func handleMsgRegisterEVMAddress(level types.Level, m *qgbTypes.MsgRegisterEVMAddress) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgRegisterEVMAddress
-	addresses := createAddresses(addressesData{
+	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
 		// TODO: think about EVM addresses
 	}, level)
-	return msgType, addresses, nil
+	return msgType, addresses, err
 }
 
 func handleMsgSetWithdrawalAddress(level types.Level, m *cosmosDistributionTypes.MsgSetWithdrawAddress) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgSetWithdrawAddress
-	addresses := createAddresses(addressesData{
+	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.TxAddressTypeWithdraw, address: m.WithdrawAddress},
 	}, level)
-	return msgType, addresses, nil
+	return msgType, addresses, err
 }

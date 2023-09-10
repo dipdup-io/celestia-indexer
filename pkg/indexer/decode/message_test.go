@@ -898,8 +898,11 @@ func TestDecodeMsg_SuccessOnMsgRegisterEvmAddress(t *testing.T) {
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
-				Hash:    "celestiavaloper1f5crra7r5m9kd6saw077u76x0n7dyjkkzk0qup",
-				Balance: decimal.Zero,
+				Address: "celestiavaloper1f5crra7r5m9kd6saw077u76x0n7dyjkkzk0qup",
+				Hash:    []byte{0x4d, 0x30, 0x31, 0xf7, 0xc3, 0xa6, 0xcb, 0x66, 0xea, 0x1d, 0x73, 0xfd, 0xee, 0x7b, 0x46, 0x7c, 0xfc, 0xd2, 0x4a, 0xd6},
+				Balance: storage.Balance{
+					Total: decimal.Zero,
+				},
 			},
 		},
 	}
@@ -943,16 +946,22 @@ func TestDecodeMsg_SuccessOnMsgSetWithdrawAddress(t *testing.T) {
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
-				Hash:    "celestia1u5pshtqpexjmuudrvq6q335qym2zggzhp7kq0p",
-				Balance: decimal.Zero,
+				Address: "celestia1u5pshtqpexjmuudrvq6q335qym2zggzhp7kq0p",
+				Hash:    []byte{0xe5, 0x3, 0xb, 0xac, 0x1, 0xc9, 0xa5, 0xbe, 0x71, 0xa3, 0x60, 0x34, 0x8, 0xc6, 0x80, 0x26, 0xd4, 0x24, 0x20, 0x57},
+				Balance: storage.Balance{
+					Total: decimal.Zero,
+				},
 			},
 		}, {
 			Type: storageTypes.TxAddressTypeWithdraw,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
-				Hash:    "celestia1nasjhf82cjuk3mxyhzw6ntpc66exzfe7qhl256",
-				Balance: decimal.Zero,
+				Address: "celestia1nasjhf82cjuk3mxyhzw6ntpc66exzfe7qhl256",
+				Hash:    []byte{0x9f, 0x61, 0x2b, 0xa4, 0xea, 0xc4, 0xb9, 0x68, 0xec, 0xc4, 0xb8, 0x9d, 0xa9, 0xac, 0x38, 0xd6, 0xb2, 0x61, 0x27, 0x3e},
+				Balance: storage.Balance{
+					Total: decimal.Zero,
+				},
 			},
 		},
 	}
