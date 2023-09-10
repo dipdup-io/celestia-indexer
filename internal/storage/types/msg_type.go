@@ -16,7 +16,8 @@ package types
 		MsgCreateVestingAccount,
 		MsgCreatePeriodicVestingAccount,
 		MsgPayForBlobs,
-		MsgGrantAllowance
+		MsgGrantAllowance,
+		MsgRegisterEVMAddress
 	)
 */
 //go:generate go-enum --marshal --sql --values --noprefix

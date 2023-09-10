@@ -5,6 +5,7 @@ import (
 
 	"cosmossdk.io/math"
 	appBlobTypes "github.com/celestiaorg/celestia-app/x/blob/types"
+	qgbTypes "github.com/celestiaorg/celestia-app/x/qgb/types"
 	cosmosCodecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosVestingTypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -149,7 +150,6 @@ func createMsgEditValidator() cosmosTypes.Msg {
 		ValidatorAddress:  "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
 		CommissionRate:    nil,
 		MinSelfDelegation: nil,
-		EvmAddress:        "0x10E0271ec47d55511a047516f2a7301801d55eaB",
 	}
 
 	return &m
@@ -284,7 +284,6 @@ func createMsgCreateValidator() cosmosTypes.Msg {
 		ValidatorAddress:  "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
 		Pubkey:            nil,
 		Value:             cosmosTypes.Coin{},
-		EvmAddress:        "",
 	}
 
 	return &m
@@ -854,6 +853,53 @@ func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
 					Id:    0,
 					Total: decimal.Zero,
 				},
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.BlobsSize)
+	assert.Equal(t, msgExpected, dm.Msg)
+	assert.Equal(t, addressesExpected, dm.Addresses)
+}
+
+// MsgRegisterEvmAddress
+
+func createMsgRegisterEvmAddress() cosmosTypes.Msg {
+	m := qgbTypes.MsgRegisterEVMAddress{
+		ValidatorAddress: "celestiavaloper1f5crra7r5m9kd6saw077u76x0n7dyjkkzk0qup",
+		EvmAddress:       "0xfDC46fBDd8AF50d9Bf7536Bf44ce8560E423352c",
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgRegisterEvmAddress(t *testing.T) {
+	m := createMsgRegisterEvmAddress()
+	blob, now := testsuite.EmptyBlock()
+	position := 4
+
+	dm, err := Message(m, blob.Height, blob.Block.Time, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  4,
+		Type:      storageTypes.MsgRegisterEVMAddress,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    "celestiavaloper1f5crra7r5m9kd6saw077u76x0n7dyjkkzk0qup",
+				Balance: decimal.Zero,
 			},
 		},
 	}

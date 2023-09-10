@@ -25,6 +25,8 @@ const (
 	MsgTypeBitsCreateVestingAccount
 	MsgTypeBitsCreatePeriodicVestingAccount
 	MsgTypeBitsPayForBlobs
+	MsgTypeBitsGrantAllowance
+	MsgTypeBitsRegisterEVMAddress
 )
 
 func NewMsgTypeBitMask(values ...MsgType) MsgTypeBits {
@@ -63,6 +65,10 @@ func (mask *MsgTypeBits) SetBit(value MsgType) {
 		mask.Set(Bits(MsgTypeBitsPayForBlobs))
 	case MsgDelegate:
 		mask.Set(Bits(MsgTypeBitsDelegate))
+	case MsgGrantAllowance:
+		mask.Set(Bits(MsgTypeBitsGrantAllowance))
+	case MsgRegisterEVMAddress:
+		mask.Set(Bits(MsgTypeBitsRegisterEVMAddress))
 	}
 }
 
@@ -120,6 +126,14 @@ func (mask MsgTypeBits) Names() []MsgType {
 	}
 	if mask.Has(Bits(MsgTypeBitsPayForBlobs)) {
 		names[i] = MsgPayForBlobs
+		i++
+	}
+	if mask.Has(Bits(MsgTypeBitsGrantAllowance)) {
+		names[i] = MsgGrantAllowance
+		i++
+	}
+	if mask.Has(Bits(MsgTypeBitsRegisterEVMAddress)) {
+		names[i] = MsgRegisterEVMAddress
 	}
 
 	return names
