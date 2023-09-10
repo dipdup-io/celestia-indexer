@@ -174,6 +174,9 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg Config, db postgres.Sto
 	stateHandlers := handler.NewStateHandler(db.State)
 	v1.GET("/head", stateHandlers.Head)
 
+	searchHandler := handler.NewSearchHandler(db.Address, db.Blocks, db.Namespace, db.Tx)
+	v1.GET("/search", searchHandler.Search)
+
 	addessHandlers := handler.NewAddressHandler(db.Address, db.Tx)
 	addressGroup := v1.Group("/address")
 	{
