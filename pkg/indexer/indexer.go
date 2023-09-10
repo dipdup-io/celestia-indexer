@@ -221,6 +221,10 @@ func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module
 		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to storage")
 	}
 
+	if err = rb.AttachTo(rollback.StopOutput, sInput); err != nil {
+		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to rollback")
+	}
+
 	return sm, nil
 }
 
