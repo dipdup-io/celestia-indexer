@@ -85,8 +85,19 @@ func New(ctx context.Context, cfg config.Config, cancel context.CancelFunc) (Ind
 }
 
 func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, module genesis.Module) (stopper.Module, error) {
+	sm := stopper.NewModule(cancel)
 
-	return stopper.Module{}, nil
+	// stopper <- listen signal --
+	sInput, err := sm.Input(stopper.InputName)
+	if err != nil {
+		return stopper.Module{}, err
+	}
+
+	if err = r.AttachTo(receiver.StopOutput, sInput); err != nil {
+		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to receiver")
+	}
+
+	return sm, nil
 }
 
 func (i *Indexer) Start(ctx context.Context) {
