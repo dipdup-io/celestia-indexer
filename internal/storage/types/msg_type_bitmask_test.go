@@ -72,6 +72,10 @@ func TestMsgTypeBits_Names(t *testing.T) {
 			name: string(MsgRegisterEVMAddress),
 			Bits: Bits(MsgTypeBitsRegisterEVMAddress),
 			want: []MsgType{MsgRegisterEVMAddress},
+		}, {
+			name: string(MsgSetWithdrawAddress),
+			Bits: Bits(MsgTypeBitsSetWithdrawAddress),
+			want: []MsgType{MsgSetWithdrawAddress},
 		},
 	}
 	for _, tt := range tests {
@@ -158,6 +162,10 @@ func TestNewMsgTypeBitMask(t *testing.T) {
 			name:   "test 16",
 			values: []MsgType{MsgRegisterEVMAddress},
 			want:   MsgTypeBits{Bits(MsgTypeBitsRegisterEVMAddress)},
+		}, {
+			name:   "test 17",
+			values: []MsgType{MsgSetWithdrawAddress},
+			want:   MsgTypeBits{Bits(MsgTypeBitsSetWithdrawAddress)},
 		},
 	}
 	for _, tt := range tests {

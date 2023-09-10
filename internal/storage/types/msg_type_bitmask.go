@@ -27,6 +27,7 @@ const (
 	MsgTypeBitsPayForBlobs
 	MsgTypeBitsGrantAllowance
 	MsgTypeBitsRegisterEVMAddress
+	MsgTypeBitsSetWithdrawAddress
 )
 
 func NewMsgTypeBitMask(values ...MsgType) MsgTypeBits {
@@ -69,6 +70,9 @@ func (mask *MsgTypeBits) SetBit(value MsgType) {
 		mask.Set(Bits(MsgTypeBitsGrantAllowance))
 	case MsgRegisterEVMAddress:
 		mask.Set(Bits(MsgTypeBitsRegisterEVMAddress))
+	case MsgSetWithdrawAddress:
+		mask.Set(Bits(MsgTypeBitsSetWithdrawAddress))
+
 	}
 }
 
@@ -134,6 +138,10 @@ func (mask MsgTypeBits) Names() []MsgType {
 	}
 	if mask.Has(Bits(MsgTypeBitsRegisterEVMAddress)) {
 		names[i] = MsgRegisterEVMAddress
+		i++
+	}
+	if mask.Has(Bits(MsgTypeBitsSetWithdrawAddress)) {
+		names[i] = MsgSetWithdrawAddress
 	}
 
 	return names

@@ -910,6 +910,59 @@ func TestDecodeMsg_SuccessOnMsgRegisterEvmAddress(t *testing.T) {
 	assert.Equal(t, addressesExpected, dm.Addresses)
 }
 
+func createMsgSetWithdrawAddress() cosmosTypes.Msg {
+	m := cosmosDistributionTypes.MsgSetWithdrawAddress{
+		DelegatorAddress: "celestia1u5pshtqpexjmuudrvq6q335qym2zggzhp7kq0p",
+		WithdrawAddress:  "celestia1nasjhf82cjuk3mxyhzw6ntpc66exzfe7qhl256",
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgSetWithdrawAddress(t *testing.T) {
+	m := createMsgSetWithdrawAddress()
+	blob, now := testsuite.EmptyBlock()
+	position := 4
+
+	dm, err := Message(m, blob.Height, blob.Block.Time, position)
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  4,
+		Type:      storageTypes.MsgSetWithdrawAddress,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+	}
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    "celestia1u5pshtqpexjmuudrvq6q335qym2zggzhp7kq0p",
+				Balance: decimal.Zero,
+			},
+		}, {
+			Type: storageTypes.TxAddressTypeWithdraw,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Hash:    "celestia1nasjhf82cjuk3mxyhzw6ntpc66exzfe7qhl256",
+				Balance: decimal.Zero,
+			},
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.BlobsSize)
+	assert.Equal(t, msgExpected, dm.Msg)
+	assert.Equal(t, addressesExpected, dm.Addresses)
+}
+
 // MsgUnknown
 
 type UnknownMsgType struct{}

@@ -62,6 +62,8 @@ func Message(msg cosmosTypes.Msg, height types.Level, time time.Time, position i
 		d.Msg.Type, d.Addresses, err = handleMsgGrantAllowance(height, typedMsg)
 	case *qgbTypes.MsgRegisterEVMAddress:
 		d.Msg.Type, d.Addresses, err = handleMsgRegisterEVMAddress(height, typedMsg)
+	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
+		d.Msg.Type, d.Addresses, err = handleMsgSetWithdrawalAddress(height, typedMsg)
 	default:
 		d.Msg.Type = storageTypes.MsgUnknown
 	}
@@ -242,6 +244,15 @@ func handleMsgRegisterEVMAddress(level types.Level, m *qgbTypes.MsgRegisterEVMAd
 	addresses := createAddresses(addressesData{
 		{t: storageTypes.TxAddressTypeValidatorAddress, address: m.ValidatorAddress},
 		// TODO: think about EVM addresses
+	}, level)
+	return msgType, addresses, nil
+}
+
+func handleMsgSetWithdrawalAddress(level types.Level, m *cosmosDistributionTypes.MsgSetWithdrawAddress) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgSetWithdrawAddress
+	addresses := createAddresses(addressesData{
+		{t: storageTypes.TxAddressTypeDelegatorAddress, address: m.DelegatorAddress},
+		{t: storageTypes.TxAddressTypeWithdraw, address: m.WithdrawAddress},
 	}, level)
 	return msgType, addresses, nil
 }
