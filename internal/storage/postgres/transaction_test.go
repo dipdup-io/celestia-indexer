@@ -146,6 +146,7 @@ func (s *StorageTestSuite) TestSaveAddresses() {
 	tx, err := BeginTransaction(ctx, s.storage.Transactable)
 	s.Require().NoError(err)
 
+	replyAddress := storage.Address{}
 	addresses := make([]*storage.Address, 0, 5)
 	for i := 0; i < 5; i++ {
 		hash := make([]byte, 20)
@@ -164,6 +165,12 @@ func (s *StorageTestSuite) TestSaveAddresses() {
 			Address: addr,
 			Id:      uint64(i),
 		})
+
+		if i == 2 {
+			replyAddress.Address = addresses[i].Address
+			replyAddress.Hash = addresses[i].Hash
+			replyAddress.Height = addresses[i].Height + 1
+		}
 	}
 
 	err = tx.SaveAddresses(ctx, addresses...)
@@ -174,6 +181,16 @@ func (s *StorageTestSuite) TestSaveAddresses() {
 
 	s.Require().Greater(addresses[0].Id, uint64(0))
 	s.Require().Greater(addresses[1].Id, uint64(0))
+
+	tx2, err := BeginTransaction(ctx, s.storage.Transactable)
+	s.Require().NoError(err)
+
+	err = tx2.SaveAddresses(ctx, &replyAddress)
+	s.Require().NoError(err)
+
+	s.Require().NoError(tx2.Flush(ctx))
+	s.Require().NoError(tx2.Close(ctx))
+	s.Require().Equal(replyAddress.Id, addresses[2].Id)
 }
 
 func (s *StorageTestSuite) TestSaveTxAddresses() {

@@ -211,6 +211,8 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 		}
 	}
 
+	var txAddresses []storage.TxAddress
+
 	if len(addresses) > 0 {
 		data := make([]*storage.Address, 0, len(addresses))
 		for key := range addresses {
@@ -221,12 +223,30 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 			return tx.HandleError(ctx, err)
 		}
 
+		addToId := make(map[string]uint64)
 		balances := make([]storage.Balance, 0)
 		for i := range data {
+			addToId[data[i].Address] = data[i].Id
 			data[i].Balance.Id = data[i].Id
 			balances = append(balances, data[i].Balance)
 		}
 		if err := tx.SaveBalances(ctx, balances...); err != nil {
+			return tx.HandleError(ctx, err)
+		}
+
+		for _, transaction := range block.Txs {
+			for _, address := range transaction.Addresses {
+				if addrId, ok := addToId[address.Address.String()]; ok {
+					txAddresses = append(txAddresses, storage.TxAddress{
+						TxId:      transaction.Id,
+						AddressId: addrId,
+						Type:      address.Type,
+					})
+				}
+			}
+		}
+
+		if err := tx.SaveTxAddresses(ctx, txAddresses...); err != nil {
 			return tx.HandleError(ctx, err)
 		}
 	}
@@ -285,21 +305,6 @@ func (module *Module) saveBlock(ctx context.Context, block storage.Block) error 
 		return tx.HandleError(ctx, err)
 	}
 	if err := tx.SaveValidators(ctx, validators...); err != nil {
-		return tx.HandleError(ctx, err)
-	}
-
-	var txAddresses []storage.TxAddress
-	for _, transaction := range block.Txs {
-		for _, address := range transaction.Addresses {
-			txAddresses = append(txAddresses, storage.TxAddress{
-				TxId:      transaction.Id,
-				AddressId: address.Id,
-				Type:      address.Type,
-			})
-		}
-	}
-
-	if err := tx.SaveTxAddresses(ctx, txAddresses...); err != nil {
 		return tx.HandleError(ctx, err)
 	}
 

@@ -55,9 +55,11 @@ func (tx Transaction) SaveAddresses(ctx context.Context, addresses ...*models.Ad
 
 	_, err := tx.Tx().NewInsert().Model(&addresses).
 		Column("address", "height", "hash").
-		On("CONFLICT ON CONSTRAINT address_hash DO NOTHING").
+		On("CONFLICT ON CONSTRAINT address_idx DO UPDATE").
+		Set("hash = EXCLUDED.hash"). // update hash field which always the same only for returning id
 		Returning("id").
 		Exec(ctx)
+
 	return err
 }
 
