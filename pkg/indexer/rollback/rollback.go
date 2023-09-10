@@ -49,7 +49,7 @@ func NewModule(
 	blocks storage.IBlock,
 	node node.API,
 	cfg config.Indexer,
-) *Module {
+) Module {
 	module := Module{
 		tx:        tx,
 		state:     state,
@@ -62,7 +62,7 @@ func NewModule(
 	}
 	module.log = log.With().Str("module", module.Name()).Logger()
 
-	return &module
+	return module
 }
 
 func (*Module) Name() string {

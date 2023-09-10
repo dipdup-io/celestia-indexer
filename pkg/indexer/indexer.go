@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/stopper"
 	"sync"
 
 	internalStorage "github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -28,11 +29,12 @@ type Indexer struct {
 	storage  *storage.Module
 	rollback *rollback.Module
 	genesis  *genesis.Module
+	stopper  *stopper.Module
 	wg       *sync.WaitGroup
 	log      zerolog.Logger
 }
 
-func New(ctx context.Context, cfg config.Config) (Indexer, error) {
+func New(ctx context.Context, cfg config.Config, cancel context.CancelFunc) (Indexer, error) {
 	pg, err := postgres.Create(ctx, cfg.Database)
 	if err != nil {
 		return Indexer{}, errors.Wrap(err, "while creating pg context")
@@ -63,17 +65,28 @@ func New(ctx context.Context, cfg config.Config) (Indexer, error) {
 		return Indexer{}, errors.Wrap(err, "while creating genesis module")
 	}
 
+	stopperModule, err := createStopper(cancel, r, p, s, rb, genesisModule)
+	if err != nil {
+		return Indexer{}, errors.Wrap(err, "while creating stopper module")
+	}
+
 	return Indexer{
 		cfg:      cfg,
 		api:      &api,
 		receiver: &r,
 		parser:   &p,
 		storage:  &s,
-		rollback: rb,
+		rollback: &rb,
 		genesis:  &genesisModule,
+		stopper:  &stopperModule,
 		wg:       new(sync.WaitGroup),
 		log:      log.With().Str("module", "indexer").Logger(),
 	}, nil
+}
+
+func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, module genesis.Module) (stopper.Module, error) {
+
+	return stopper.Module{}, nil
 }
 
 func (i *Indexer) Start(ctx context.Context) {
@@ -119,27 +132,27 @@ func createReceiver(ctx context.Context, cfg config.Config, pg postgres.Storage)
 	return api, receiverModule, nil
 }
 
-func createRollback(r receiver.Module, pg postgres.Storage, api node.API, cfg config.Indexer) (*rollback.Module, error) {
+func createRollback(r receiver.Module, pg postgres.Storage, api node.API, cfg config.Indexer) (rollback.Module, error) {
 	rollbackModule := rollback.NewModule(pg.Transactable, pg.State, pg.Blocks, api, cfg)
 
 	// rollback <- listen signal -- receiver
 	rbInput, err := rollbackModule.Input(rollback.InputName)
 	if err != nil {
-		return nil, err
+		return rollback.Module{}, err
 	}
 
 	if err = r.AttachTo(receiver.RollbackOutput, rbInput); err != nil {
-		return nil, errors.Wrap(err, "while attaching rollback to receiver")
+		return rollback.Module{}, errors.Wrap(err, "while attaching rollback to receiver")
 	}
 
 	// receiver <- listen state -- rollback
 	rInput, err := r.Input(receiver.RollbackInput)
 	if err != nil {
-		return nil, err
+		return rollback.Module{}, err
 	}
 
 	if err = rollbackModule.AttachTo(rollback.OutputName, rInput); err != nil {
-		return nil, errors.Wrap(err, "while attaching receiver to rollback")
+		return rollback.Module{}, errors.Wrap(err, "while attaching receiver to rollback")
 	}
 
 	return rollbackModule, nil
