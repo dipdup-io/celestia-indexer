@@ -32,7 +32,7 @@ const (
 type Module struct {
 	storage     postgres.Storage
 	input       *modules.Input
-	output      *modules.Output
+	stop        *modules.Output
 	indexerName string
 	log         zerolog.Logger
 	g           workerpool.Group
@@ -43,7 +43,7 @@ func NewModule(pg postgres.Storage, cfg config.Indexer) Module {
 	m := Module{
 		storage:     pg,
 		input:       modules.NewInput(InputName),
-		output:      modules.NewOutput(StopOutput),
+		stop:        modules.NewOutput(StopOutput),
 		indexerName: cfg.Name,
 		g:           workerpool.NewGroup(),
 	}
@@ -82,6 +82,7 @@ func (module *Module) listen(ctx context.Context) {
 
 			if err := module.saveBlock(ctx, block); err != nil {
 				module.log.Err(err).Msg("block saving error")
+				module.stop.Push(struct{}{})
 				continue
 			}
 
@@ -105,7 +106,7 @@ func (module *Module) Output(name string) (*modules.Output, error) {
 	if name != StopOutput {
 		return nil, errors.Wrap(modules.ErrUnknownOutput, name)
 	}
-	return module.output, nil
+	return module.stop, nil
 }
 
 // Input -
