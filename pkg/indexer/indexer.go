@@ -200,7 +200,7 @@ func createGenesis(pg postgres.Storage, cfg config.Config, r receiver.Module) (g
 	return genesisModule, nil
 }
 
-func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, module genesis.Module) (stopper.Module, error) {
+func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module, s storage.Module, rb rollback.Module, g genesis.Module) (stopper.Module, error) {
 	sm := stopper.NewModule(cancel)
 
 	// stopper <- listen signal --
@@ -223,6 +223,10 @@ func createStopper(cancel context.CancelFunc, r receiver.Module, p parser.Module
 
 	if err = rb.AttachTo(rollback.StopOutput, sInput); err != nil {
 		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to rollback")
+	}
+
+	if err = g.AttachTo(genesis.StopOutput, sInput); err != nil {
+		return stopper.Module{}, errors.Wrap(err, "while attaching stopper to genesis")
 	}
 
 	return sm, nil
