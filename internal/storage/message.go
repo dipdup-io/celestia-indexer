@@ -31,7 +31,7 @@ type Message struct {
 	Data     map[string]any `bun:"data,type:jsonb"             comment:"Message data"`
 
 	Namespace []Namespace       `bun:"m2m:namespace_message,join:Message=Namespace"`
-	Validator *Validator        `bun:"belong-to"`
+	Validator *Validator        `bun:"rel:belongs-to"`
 	Addresses []AddressWithType `bun:"-"`
 }
 
