@@ -6,4 +6,4 @@ jobs:
     name: License Check
     steps:
       - uses: actions/checkout@v2
-      - uses: LavyshAlexander/go-licenses-action
+      - uses: LavyshAlexander/go-licenses-action@v0.1
