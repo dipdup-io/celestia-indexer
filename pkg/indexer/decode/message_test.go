@@ -190,6 +190,16 @@ func TestDecodeMsg_SuccessOnMsgEditValidator(t *testing.T) {
 		Data:      structs.Map(m),
 		Namespace: nil,
 		Addresses: addressesExpected,
+		Validator: &storage.Validator{
+			Address:           "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
+			Moniker:           "newAgeValidator",
+			Identity:          "UPort:1",
+			Website:           "https://google.com",
+			Contacts:          "tryme@gmail.com",
+			Details:           "trust",
+			Rate:              decimal.Zero,
+			MinSelfDelegation: decimal.Zero,
+		},
 	}
 
 	assert.NoError(t, err)
@@ -283,7 +293,7 @@ func createMsgCreateValidator() cosmosTypes.Msg {
 	m := cosmosStakingTypes.MsgCreateValidator{
 		Description:       cosmosStakingTypes.Description{},
 		Commission:        cosmosStakingTypes.CommissionRates{},
-		MinSelfDelegation: cosmosTypes.Int{}, // nolint
+		MinSelfDelegation: cosmosTypes.NewInt(1),
 		DelegatorAddress:  "celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre76",
 		ValidatorAddress:  "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
 		Pubkey:            nil,
@@ -339,6 +349,15 @@ func TestDecodeMsg_SuccessOnMsgCreateValidator(t *testing.T) {
 		Data:      structs.Map(m),
 		Namespace: nil,
 		Addresses: addressesExpected,
+		Validator: &storage.Validator{
+			Delegator:         "celestia1ws4hfsl8hlylt38ptk5cn9ura20slu2fnkre76",
+			Address:           "celestiavaloper1fg9l3xvfuu9wxremv2229966zawysg4r40gw5x",
+			Rate:              decimal.Zero,
+			MaxRate:           decimal.Zero,
+			MaxChangeRate:     decimal.Zero,
+			MinSelfDelegation: decimal.RequireFromString("1"),
+			Height:            uint64(blob.Height),
+		},
 	}
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)

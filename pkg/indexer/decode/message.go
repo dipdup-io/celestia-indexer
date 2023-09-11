@@ -133,8 +133,16 @@ func handleMsgEditValidator(level types.Level, m *cosmosStakingTypes.MsgEditVali
 		Website:           m.Description.Website,
 		Details:           m.Description.Details,
 		Contacts:          m.Description.SecurityContact,
-		Rate:              decimal.RequireFromString(m.CommissionRate.String()),
-		MinSelfDelegation: decimal.RequireFromString(m.MinSelfDelegation.String()),
+		Height:            uint64(level),
+		Rate:              decimal.Zero,
+		MinSelfDelegation: decimal.Zero,
+	}
+
+	if m.CommissionRate != nil && !m.CommissionRate.IsNil() {
+		validator.Rate = decimal.RequireFromString(m.CommissionRate.String())
+	}
+	if m.MinSelfDelegation != nil && !m.MinSelfDelegation.IsNil() {
+		validator.MinSelfDelegation = decimal.RequireFromString(m.MinSelfDelegation.String())
 	}
 	return msgType, addresses, &validator, err
 }
@@ -163,11 +171,29 @@ func handleMsgCreateValidator(level types.Level, m *cosmosStakingTypes.MsgCreate
 		Website:           m.Description.Website,
 		Details:           m.Description.Details,
 		Contacts:          m.Description.SecurityContact,
-		Rate:              decimal.RequireFromString(m.Commission.Rate.String()),
-		MaxRate:           decimal.RequireFromString(m.Commission.MaxRate.String()),
-		MaxChangeRate:     decimal.RequireFromString(m.Commission.MaxChangeRate.String()),
-		MinSelfDelegation: decimal.RequireFromString(m.MinSelfDelegation.String()),
+		Height:            uint64(level),
+		Rate:              decimal.Zero,
+		MaxRate:           decimal.Zero,
+		MaxChangeRate:     decimal.Zero,
+		MinSelfDelegation: decimal.Zero,
 	}
+
+	if !m.Commission.Rate.IsNil() {
+		validator.Rate = decimal.RequireFromString(m.Commission.Rate.String())
+	}
+
+	if !m.Commission.MaxRate.IsNil() {
+		validator.MaxRate = decimal.RequireFromString(m.Commission.MaxRate.String())
+	}
+
+	if !m.Commission.MaxChangeRate.IsNil() {
+		validator.MaxChangeRate = decimal.RequireFromString(m.Commission.MaxChangeRate.String())
+	}
+
+	if !m.MinSelfDelegation.IsNil() {
+		validator.MinSelfDelegation = decimal.RequireFromString(m.MinSelfDelegation.String())
+	}
+
 	return msgType, addresses, &validator, err
 }
 
