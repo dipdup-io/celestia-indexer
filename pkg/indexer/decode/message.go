@@ -39,11 +39,11 @@ func Message(msg cosmosTypes.Msg, height types.Level, time time.Time, position i
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgWithdrawDelegatorReward(height, typedMsg)
 	case *cosmosStakingTypes.MsgEditValidator:
-		d.Msg.Type, d.Msg.Addresses, err = handleMsgEditValidator(height, typedMsg)
+		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handleMsgEditValidator(height, typedMsg)
 	case *cosmosStakingTypes.MsgBeginRedelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgBeginRedelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgCreateValidator:
-		d.Msg.Type, d.Msg.Addresses, err = handleMsgCreateValidator(height, typedMsg)
+		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handleMsgCreateValidator(height, typedMsg)
 	case *cosmosStakingTypes.MsgDelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgDelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgUndelegate:
@@ -121,12 +121,22 @@ func handleMsgWithdrawDelegatorReward(level types.Level, m *cosmosDistributionTy
 	return msgType, addresses, err
 }
 
-func handleMsgEditValidator(level types.Level, m *cosmosStakingTypes.MsgEditValidator) (storageTypes.MsgType, []storage.AddressWithType, error) {
+func handleMsgEditValidator(level types.Level, m *cosmosStakingTypes.MsgEditValidator) (storageTypes.MsgType, []storage.AddressWithType, *storage.Validator, error) {
 	msgType := storageTypes.MsgEditValidator
 	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
 	}, level)
-	return msgType, addresses, err
+	validator := storage.Validator{
+		Address:           m.ValidatorAddress,
+		Moniker:           m.Description.Moniker,
+		Identity:          m.Description.Identity,
+		Website:           m.Description.Website,
+		Details:           m.Description.Details,
+		Contacts:          m.Description.SecurityContact,
+		Rate:              decimal.RequireFromString(m.CommissionRate.String()),
+		MinSelfDelegation: decimal.RequireFromString(m.MinSelfDelegation.String()),
+	}
+	return msgType, addresses, &validator, err
 }
 
 func handleMsgBeginRedelegate(level types.Level, m *cosmosStakingTypes.MsgBeginRedelegate) (storageTypes.MsgType, []storage.AddressWithType, error) {
@@ -139,13 +149,26 @@ func handleMsgBeginRedelegate(level types.Level, m *cosmosStakingTypes.MsgBeginR
 	return msgType, addresses, err
 }
 
-func handleMsgCreateValidator(level types.Level, m *cosmosStakingTypes.MsgCreateValidator) (storageTypes.MsgType, []storage.AddressWithType, error) {
+func handleMsgCreateValidator(level types.Level, m *cosmosStakingTypes.MsgCreateValidator) (storageTypes.MsgType, []storage.AddressWithType, *storage.Validator, error) {
 	msgType := storageTypes.MsgCreateValidator
 	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.MsgAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
 	}, level)
-	return msgType, addresses, err
+	validator := storage.Validator{
+		Delegator:         m.DelegatorAddress,
+		Address:           m.ValidatorAddress,
+		Moniker:           m.Description.Moniker,
+		Identity:          m.Description.Identity,
+		Website:           m.Description.Website,
+		Details:           m.Description.Details,
+		Contacts:          m.Description.SecurityContact,
+		Rate:              decimal.RequireFromString(m.Commission.Rate.String()),
+		MaxRate:           decimal.RequireFromString(m.Commission.MaxRate.String()),
+		MaxChangeRate:     decimal.RequireFromString(m.Commission.MaxChangeRate.String()),
+		MinSelfDelegation: decimal.RequireFromString(m.MinSelfDelegation.String()),
+	}
+	return msgType, addresses, &validator, err
 }
 
 func handleMsgDelegate(level types.Level, m *cosmosStakingTypes.MsgDelegate) (storageTypes.MsgType, []storage.AddressWithType, error) {
