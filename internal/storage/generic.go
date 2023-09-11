@@ -18,7 +18,8 @@ var Models = []any{
 	&Event{},
 	&Namespace{},
 	&NamespaceMessage{},
-	&TxAddress{},
+	&Signer{},
+	&MsgAddress{},
 	&Validator{},
 }
 

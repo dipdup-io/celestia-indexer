@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
+	"github.com/uptrace/bun"
 
 	models "github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-net/indexer-sdk/pkg/storage"
@@ -76,7 +77,25 @@ func (tx Transaction) SaveBalances(ctx context.Context, balances ...models.Balan
 	return err
 }
 
-func (tx Transaction) SaveTxAddresses(ctx context.Context, addresses ...models.TxAddress) error {
+func (tx Transaction) SaveMessages(ctx context.Context, msgs ...*models.Message) error {
+	if len(msgs) == 0 {
+		return nil
+	}
+
+	_, err := tx.Tx().NewInsert().Model(&msgs).Returning("id").Exec(ctx)
+	return err
+}
+
+func (tx Transaction) SaveSigners(ctx context.Context, addresses ...models.Signer) error {
+	if len(addresses) == 0 {
+		return nil
+	}
+
+	_, err := tx.Tx().NewInsert().Model(&addresses).Exec(ctx)
+	return err
+}
+
+func (tx Transaction) SaveMsgAddresses(ctx context.Context, addresses ...models.MsgAddress) error {
 	if len(addresses) == 0 {
 		return nil
 	}
@@ -173,5 +192,23 @@ func (tx Transaction) RollbackNamespaces(ctx context.Context, height types.Level
 
 func (tx Transaction) RollbackValidators(ctx context.Context, height types.Level) (err error) {
 	_, err = tx.Tx().NewDelete().Model((*models.Validator)(nil)).Where("height = ?", height).Returning("*").Exec(ctx)
+	return
+}
+
+func (tx Transaction) RollbackSigners(ctx context.Context, txIds []uint64) (err error) {
+	_, err = tx.Tx().NewDelete().
+		Model((*models.Signer)(nil)).
+		Where("tx_id IN (?)", bun.In(txIds)).
+		Returning("*").
+		Exec(ctx)
+	return
+}
+
+func (tx Transaction) RollbackMessageAddresses(ctx context.Context, msgIds []uint64) (err error) {
+	_, err = tx.Tx().NewDelete().
+		Model((*models.MsgAddress)(nil)).
+		Where("msg_id IN (?)", bun.In(msgIds)).
+		Returning("*").
+		Exec(ctx)
 	return
 }

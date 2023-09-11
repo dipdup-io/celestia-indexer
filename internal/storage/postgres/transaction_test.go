@@ -200,14 +200,34 @@ func (s *StorageTestSuite) TestSaveTxAddresses() {
 	tx, err := BeginTransaction(ctx, s.storage.Transactable)
 	s.Require().NoError(err)
 
-	addresses := make([]storage.TxAddress, 5)
+	addresses := make([]storage.Signer, 5)
 	for i := 0; i < 5; i++ {
 		addresses[i].AddressId = uint64(i + 1)
 		addresses[i].TxId = uint64(5 - i)
-		addresses[i].Type = types.TxAddressTypeFromAddress
 	}
 
-	err = tx.SaveTxAddresses(ctx, addresses...)
+	err = tx.SaveSigners(ctx, addresses...)
+	s.Require().NoError(err)
+
+	s.Require().NoError(tx.Flush(ctx))
+	s.Require().NoError(tx.Close(ctx))
+}
+
+func (s *StorageTestSuite) TestSaveMsgAddresses() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	tx, err := BeginTransaction(ctx, s.storage.Transactable)
+	s.Require().NoError(err)
+
+	addresses := make([]storage.MsgAddress, 5)
+	for i := 0; i < 5; i++ {
+		addresses[i].AddressId = uint64(i + 1)
+		addresses[i].MsgId = uint64(5 - i)
+		addresses[i].Type = types.MsgAddressTypeValues()[i]
+	}
+
+	err = tx.SaveMsgAddresses(ctx, addresses...)
 	s.Require().NoError(err)
 
 	s.Require().NoError(tx.Flush(ctx))

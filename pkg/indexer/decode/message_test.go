@@ -39,20 +39,9 @@ func TestDecodeMsg_SuccessOnMsgWithdrawValidatorCommission(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgWithdrawValidatorCommission,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -64,6 +53,18 @@ func TestDecodeMsg_SuccessOnMsgWithdrawValidatorCommission(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgWithdrawValidatorCommission,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -90,20 +91,9 @@ func TestDecodeMsg_SuccessOnMsgWithdrawDelegatorReward(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgWithdrawDelegatorReward,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -116,7 +106,7 @@ func TestDecodeMsg_SuccessOnMsgWithdrawDelegatorReward(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -128,6 +118,18 @@ func TestDecodeMsg_SuccessOnMsgWithdrawDelegatorReward(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgWithdrawDelegatorReward,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -162,20 +164,9 @@ func TestDecodeMsg_SuccessOnMsgEditValidator(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgEditValidator,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -187,6 +178,18 @@ func TestDecodeMsg_SuccessOnMsgEditValidator(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgEditValidator,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -214,20 +217,9 @@ func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgBeginRedelegate,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -240,7 +232,7 @@ func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeValidatorSrcAddress,
+			Type: storageTypes.MsgAddressTypeValidatorSrcAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -253,7 +245,7 @@ func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeValidatorDstAddress,
+			Type: storageTypes.MsgAddressTypeValidatorDstAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -265,6 +257,18 @@ func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgBeginRedelegate,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -296,20 +300,9 @@ func TestDecodeMsg_SuccessOnMsgCreateValidator(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgCreateValidator,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -322,7 +315,7 @@ func TestDecodeMsg_SuccessOnMsgCreateValidator(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -336,6 +329,17 @@ func TestDecodeMsg_SuccessOnMsgCreateValidator(t *testing.T) {
 		},
 	}
 
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgCreateValidator,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
+	}
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
 	assert.Equal(t, msgExpected, dm.Msg)
@@ -365,20 +369,9 @@ func TestDecodeMsg_SuccessOnMsgDelegate(t *testing.T) {
 
 	dm, err := Message(msgDelegate, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgDelegate,
-		TxId:      0,
-		Data:      structs.Map(msgDelegate),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -391,7 +384,7 @@ func TestDecodeMsg_SuccessOnMsgDelegate(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -403,6 +396,18 @@ func TestDecodeMsg_SuccessOnMsgDelegate(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgDelegate,
+		TxId:      0,
+		Data:      structs.Map(msgDelegate),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -432,20 +437,9 @@ func TestDecodeMsg_SuccessOnMsgUndelegate(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgUndelegate,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -458,7 +452,7 @@ func TestDecodeMsg_SuccessOnMsgUndelegate(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -470,6 +464,18 @@ func TestDecodeMsg_SuccessOnMsgUndelegate(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgUndelegate,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -494,20 +500,9 @@ func TestDecodeMsg_SuccessOnMsgUnjail(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgUnjail,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -521,6 +516,17 @@ func TestDecodeMsg_SuccessOnMsgUnjail(t *testing.T) {
 		},
 	}
 
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgUnjail,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
+	}
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
 	assert.Equal(t, msgExpected, dm.Msg)
@@ -551,20 +557,9 @@ func TestDecodeMsg_SuccessOnMsgSend(t *testing.T) {
 
 	dm, err := Message(msgSend, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgSend,
-		TxId:      0,
-		Data:      structs.Map(msgSend),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeFromAddress,
+			Type: storageTypes.MsgAddressTypeFromAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -577,7 +572,7 @@ func TestDecodeMsg_SuccessOnMsgSend(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeToAddress,
+			Type: storageTypes.MsgAddressTypeToAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -589,6 +584,18 @@ func TestDecodeMsg_SuccessOnMsgSend(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgSend,
+		TxId:      0,
+		Data:      structs.Map(msgSend),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -623,20 +630,9 @@ func TestDecodeMsg_SuccessOnMsgCreateVestingAccount(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgCreateVestingAccount,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeFromAddress,
+			Type: storageTypes.MsgAddressTypeFromAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -649,7 +645,7 @@ func TestDecodeMsg_SuccessOnMsgCreateVestingAccount(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeToAddress,
+			Type: storageTypes.MsgAddressTypeToAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -661,6 +657,18 @@ func TestDecodeMsg_SuccessOnMsgCreateVestingAccount(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgCreateVestingAccount,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -689,20 +697,9 @@ func TestDecodeMsg_SuccessOnMsgCreatePeriodicVestingAccount(t *testing.T) {
 
 	dm, err := Message(msgCreatePeriodicVestingAccount, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  0,
-		Type:      storageTypes.MsgCreatePeriodicVestingAccount,
-		TxId:      0,
-		Data:      structs.Map(msgCreatePeriodicVestingAccount),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeFromAddress,
+			Type: storageTypes.MsgAddressTypeFromAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -715,7 +712,7 @@ func TestDecodeMsg_SuccessOnMsgCreatePeriodicVestingAccount(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeToAddress,
+			Type: storageTypes.MsgAddressTypeToAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -727,6 +724,18 @@ func TestDecodeMsg_SuccessOnMsgCreatePeriodicVestingAccount(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  0,
+		Type:      storageTypes.MsgCreatePeriodicVestingAccount,
+		TxId:      0,
+		Data:      structs.Map(msgCreatePeriodicVestingAccount),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -755,6 +764,22 @@ func TestDecodeMsg_SuccessOnPayForBlob(t *testing.T) {
 
 	dm, err := Message(msgPayForBlob, blob.Height, blob.Block.Time, position)
 
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.MsgAddressTypeSigner,
+			Address: storage.Address{
+				Id:      0,
+				Height:  blob.Height,
+				Address: "celestia1zefjxuq43xmjq9x4hhw23wkvvz6st5uhv40tys",
+				Hash:    []byte{0x16, 0x53, 0x23, 0x70, 0x15, 0x89, 0xb7, 0x20, 0x14, 0xd5, 0xbd, 0xdc, 0xa8, 0xba, 0xcc, 0x60, 0xb5, 0x5, 0xd3, 0x97},
+				Balance: storage.Balance{
+					Id:    0,
+					Total: decimal.Zero,
+				},
+			},
+		},
+	}
+
 	msgExpected := storage.Message{
 		Id:       0,
 		Height:   blob.Height,
@@ -774,22 +799,7 @@ func TestDecodeMsg_SuccessOnPayForBlob(t *testing.T) {
 				Reserved:    false,
 			},
 		},
-	}
-
-	addressesExpected := []storage.AddressWithType{
-		{
-			Type: storageTypes.TxAddressTypeSigner,
-			Address: storage.Address{
-				Id:      0,
-				Height:  blob.Height,
-				Address: "celestia1zefjxuq43xmjq9x4hhw23wkvvz6st5uhv40tys",
-				Hash:    []byte{0x16, 0x53, 0x23, 0x70, 0x15, 0x89, 0xb7, 0x20, 0x14, 0xd5, 0xbd, 0xdc, 0xa8, 0xba, 0xcc, 0x60, 0xb5, 0x5, 0xd3, 0x97},
-				Balance: storage.Balance{
-					Id:    0,
-					Total: decimal.Zero,
-				},
-			},
-		},
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -817,20 +827,9 @@ func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  4,
-		Type:      storageTypes.MsgGrantAllowance,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeGranter,
+			Type: storageTypes.MsgAddressTypeGranter,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -843,7 +842,7 @@ func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.TxAddressTypeGrantee,
+			Type: storageTypes.MsgAddressTypeGrantee,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -855,6 +854,18 @@ func TestDecodeMsg_SuccessOnMsgGrantAllowance(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  4,
+		Type:      storageTypes.MsgGrantAllowance,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -881,20 +892,9 @@ func TestDecodeMsg_SuccessOnMsgRegisterEvmAddress(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  4,
-		Type:      storageTypes.MsgRegisterEVMAddress,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -905,6 +905,18 @@ func TestDecodeMsg_SuccessOnMsgRegisterEvmAddress(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  4,
+		Type:      storageTypes.MsgRegisterEVMAddress,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
@@ -929,20 +941,9 @@ func TestDecodeMsg_SuccessOnMsgSetWithdrawAddress(t *testing.T) {
 
 	dm, err := Message(m, blob.Height, blob.Block.Time, position)
 
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  4,
-		Type:      storageTypes.MsgSetWithdrawAddress,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-	}
-
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.TxAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegatorAddress,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -953,7 +954,7 @@ func TestDecodeMsg_SuccessOnMsgSetWithdrawAddress(t *testing.T) {
 				},
 			},
 		}, {
-			Type: storageTypes.TxAddressTypeWithdraw,
+			Type: storageTypes.MsgAddressTypeWithdraw,
 			Address: storage.Address{
 				Id:      0,
 				Height:  blob.Height,
@@ -964,6 +965,18 @@ func TestDecodeMsg_SuccessOnMsgSetWithdrawAddress(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  4,
+		Type:      storageTypes.MsgSetWithdrawAddress,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
 	}
 
 	assert.NoError(t, err)
