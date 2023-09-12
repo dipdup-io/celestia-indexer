@@ -84,7 +84,7 @@ func (module *Module) listen(ctx context.Context) {
 				module.log.Err(err).
 					Uint64("height", uint64(block.Height)).
 					Msg("block saving error")
-				// module.stop.Push(struct{}{})
+				module.stop.Push(struct{}{})
 				continue
 			}
 
