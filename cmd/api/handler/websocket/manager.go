@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"context"
+	"net/http"
 	"sync/atomic"
 
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/responses"
@@ -26,6 +27,9 @@ func NewManager(factory storage.ListenerFactory, blockRepo storage.IBlock, txRep
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
 		},
 		clientId: new(atomic.Uint64),
 		clients:  NewMap[uint64, *Client](),
@@ -69,10 +73,8 @@ func (manager *Manager) Handle(c echo.Context) error {
 
 	manager.clients.Set(sId, sub)
 
-	go sub.ReadMessages(c.Request().Context(), ws, sub, c.Logger())
-	go sub.WriteMessages(c.Request().Context(), c.Logger())
-
-	c.Logger().Infof("client %d connected", sId)
+	sub.WriteMessages(c.Request().Context(), c.Logger())
+	sub.ReadMessages(c.Request().Context(), ws, sub, c.Logger())
 	return nil
 }
 
