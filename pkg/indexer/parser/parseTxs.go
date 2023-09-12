@@ -82,6 +82,7 @@ func parseTx(b types.BlockData, index int, txRes *types.ResponseDeliverTx) (stor
 
 		if txRes.IsFailed() {
 			dm.Msg.Namespace = nil
+			dm.BlobsSize = 0
 		}
 
 		t.Messages[position] = dm.Msg
