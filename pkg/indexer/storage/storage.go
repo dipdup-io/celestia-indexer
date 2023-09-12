@@ -82,7 +82,7 @@ func (module *Module) listen(ctx context.Context) {
 
 			if err := module.saveBlock(ctx, &block); err != nil {
 				module.log.Err(err).Msg("block saving error")
-				//module.stop.Push(struct{}{})
+				// module.stop.Push(struct{}{})
 				continue
 			}
 
