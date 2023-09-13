@@ -23,7 +23,6 @@ const (
 
 type Client struct {
 	id      uint64
-	ws      *websocket.Conn
 	manager *Manager
 	filters *filters
 	ch      chan any
@@ -33,7 +32,6 @@ type Client struct {
 func newClient(id uint64, ws *websocket.Conn, manager *Manager) *Client {
 	return &Client{
 		id:      id,
-		ws:      ws,
 		manager: manager,
 		ch:      make(chan any, 1024),
 		g:       workerpool.NewGroup(),
@@ -85,16 +83,11 @@ func (c *Client) Notify(msg any) {
 
 func (c *Client) Close() error {
 	c.g.Wait()
-
-	if err := c.ws.Close(); err != nil {
-		return err
-	}
-
 	close(c.ch)
 	return nil
 }
 
-func (c *Client) writeThread(ctx context.Context, log echo.Logger) {
+func (c *Client) writeThread(ctx context.Context, ws *websocket.Conn, log echo.Logger) {
 	ticker := time.NewTicker(pingInterval)
 	defer ticker.Stop()
 
@@ -104,40 +97,42 @@ func (c *Client) writeThread(ctx context.Context, log echo.Logger) {
 			return
 
 		case <-ticker.C:
-			if err := c.ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+			if err := ws.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				log.Errorf("writemsg: %s", err)
 				return
 			}
 
 		case msg, ok := <-c.ch:
 			if !ok {
-				if err := c.ws.WriteMessage(websocket.CloseMessage, nil); err != nil {
+				if err := ws.WriteMessage(websocket.CloseMessage, nil); err != nil {
 					log.Errorf("send close message: %s", err)
 				}
 				return
 			}
 
-			if err := c.ws.WriteJSON(msg); err != nil {
+			if err := ws.WriteJSON(msg); err != nil {
 				log.Errorf("send client message: %s", err)
 			}
 		}
 	}
 }
 
-func (c *Client) WriteMessages(ctx context.Context, log echo.Logger) {
+func (c *Client) WriteMessages(ctx context.Context, ws *websocket.Conn, log echo.Logger) {
 	c.g.GoCtx(ctx, func(ctx context.Context) {
-		c.writeThread(ctx, log)
+		c.writeThread(ctx, ws, log)
 	})
 }
 
 func (c *Client) ReadMessages(ctx context.Context, ws *websocket.Conn, sub *Client, log echo.Logger) {
 	defer c.manager.clients.Delete(sub.id)
 
-	if err := c.ws.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+	if err := ws.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
 		log.Error(err)
 		return
 	}
-	c.ws.SetPongHandler(c.pongHandler)
+	ws.SetPongHandler(func(_ string) error {
+		return ws.SetReadDeadline(time.Now().Add(pongWait))
+	})
 
 	for {
 		select {
@@ -157,11 +152,6 @@ func (c *Client) ReadMessages(ctx context.Context, ws *websocket.Conn, sub *Clie
 			}
 		}
 	}
-}
-
-// pongHandler is used to handle PongMessages for the Client
-func (c *Client) pongHandler(pongMsg string) error {
-	return c.ws.SetReadDeadline(time.Now().Add(pongWait))
 }
 
 func (c *Client) read(ctx context.Context, ws *websocket.Conn) error {

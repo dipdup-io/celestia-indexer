@@ -73,9 +73,16 @@ func (manager *Manager) Handle(c echo.Context) error {
 
 	manager.clients.Set(sId, sub)
 
-	sub.WriteMessages(c.Request().Context(), c.Logger())
-	sub.ReadMessages(c.Request().Context(), ws, sub, c.Logger())
-	return nil
+	ctx, cancel := context.WithCancel(c.Request().Context())
+	sub.WriteMessages(ctx, ws, c.Logger())
+	sub.ReadMessages(ctx, ws, sub, c.Logger())
+	cancel()
+
+	if err := sub.Close(); err != nil {
+		return err
+	}
+
+	return ws.Close()
 }
 
 func (manager *Manager) Start(ctx context.Context) {
