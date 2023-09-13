@@ -88,23 +88,6 @@ func initProflier(cfg *profiler.Config) (err error) {
 	return
 }
 
-func websocketSkipper(c echo.Context) bool {
-	return strings.Contains(c.Request().URL.Path, "ws")
-}
-
-func gzipSkipper(c echo.Context) bool {
-	if strings.Contains(c.Request().URL.Path, "swagger") {
-		return true
-	}
-	if strings.Contains(c.Request().URL.Path, "metrics") {
-		return true
-	}
-	if strings.Contains(c.Request().URL.Path, "ws") {
-		return true
-	}
-	return false
-}
-
 func initEcho(cfg ApiConfig) *echo.Echo {
 	e := echo.New()
 	e.Validator = handler.NewCelestiaApiValidator()
@@ -149,15 +132,19 @@ func initEcho(cfg ApiConfig) *echo.Echo {
 		},
 	}))
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
-		Skipper: gzipSkipper,
+		Skipper: func(c echo.Context) bool {
+			if strings.Contains(c.Request().URL.Path, "swagger") {
+				return true
+			}
+			if strings.Contains(c.Request().URL.Path, "metrics") {
+				return true
+			}
+			return false
+		},
 	}))
-	e.Use(middleware.DecompressWithConfig(middleware.DecompressConfig{
-		Skipper: websocketSkipper,
-	}))
+	e.Use(middleware.Decompress())
 	e.Use(middleware.BodyLimit("2M"))
-	e.Use(middleware.CSRFWithConfig(
-		middleware.CSRFConfig{Skipper: websocketSkipper},
-	))
+	e.Use(middleware.CSRF())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Secure())
 	e.Pre(middleware.RemoveTrailingSlash())
@@ -167,23 +154,17 @@ func initEcho(cfg ApiConfig) *echo.Echo {
 		timeout = time.Duration(cfg.RequestTimeout) * time.Second
 	}
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Skipper: websocketSkipper,
+		Skipper: middleware.DefaultSkipper,
 		Timeout: timeout,
 	}))
 
 	if cfg.Prometheus {
-		e.Use(echoprometheus.NewMiddlewareWithConfig(echoprometheus.MiddlewareConfig{
-			Namespace: "celestia_api",
-			Skipper:   websocketSkipper,
-		}))
+		e.Use(echoprometheus.NewMiddleware("celestia_api"))
 	}
 	if cfg.RateLimit > 0 {
-		e.Use(middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
-			Skipper: websocketSkipper,
-			Store:   middleware.NewRateLimiterMemoryStore(rate.Limit(cfg.RateLimit)),
-		}))
-
+		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(cfg.RateLimit))))
 	}
+
 	return e
 }
 
