@@ -12,6 +12,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+type client interface {
+	Id() uint64
+	ApplyFilters(msg Subscribe) error
+	DetachFilters(msg Unsubscribe) error
+	Notify(msg any)
+	WriteMessages(ctx context.Context, ws *websocket.Conn, log echo.Logger)
+	ReadMessages(ctx context.Context, ws *websocket.Conn, sub *Client, log echo.Logger)
+	Filters() *Filters
+
+	io.Closer
+}
+
 const (
 	// pongWait is how long we will await a pong response from client
 	pongWait = 10 * time.Second
@@ -24,12 +36,12 @@ const (
 type Client struct {
 	id      uint64
 	manager *Manager
-	filters *filters
+	filters *Filters
 	ch      chan any
 	g       workerpool.Group
 }
 
-func newClient(id uint64, ws *websocket.Conn, manager *Manager) *Client {
+func newClient(id uint64, manager *Manager) *Client {
 	return &Client{
 		id:      id,
 		manager: manager,
@@ -38,9 +50,17 @@ func newClient(id uint64, ws *websocket.Conn, manager *Manager) *Client {
 	}
 }
 
+func (c *Client) Id() uint64 {
+	return c.id
+}
+
+func (c *Client) Filters() *Filters {
+	return c.filters
+}
+
 func (c *Client) ApplyFilters(msg Subscribe) error {
 	if c.filters == nil {
-		c.filters = &filters{}
+		c.filters = &Filters{}
 	}
 	switch msg.Channel {
 	case ChannelHead:

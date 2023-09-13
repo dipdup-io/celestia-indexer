@@ -69,7 +69,7 @@ func (manager *Manager) Handle(c echo.Context) error {
 	ws.SetReadLimit(1024 * 10) // 10KB
 
 	sId := manager.clientId.Add(1)
-	sub := newClient(sId, ws, manager)
+	sub := newClient(sId, manager)
 
 	manager.clients.Set(sId, sub)
 
