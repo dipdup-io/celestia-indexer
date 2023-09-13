@@ -12,12 +12,14 @@ import (
 	_ "github.com/dipdup-io/celestia-indexer/cmd/api/docs"
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler"
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/websocket"
+	"github.com/dipdup-io/celestia-indexer/internal/profiler"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
 	nodeApi "github.com/dipdup-io/celestia-indexer/pkg/node/celestia_node_api"
 	"github.com/dipdup-net/go-lib/config"
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/pyroscope-io/client/pyroscope"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -79,6 +81,30 @@ func initLogger(level string) error {
 	return nil
 }
 
+var prscp *pyroscope.Profiler
+
+func initProflier(cfg *profiler.Config) (err error) {
+	prscp, err = profiler.New(cfg, "api")
+	return
+}
+
+func websocketSkipper(c echo.Context) bool {
+	return strings.Contains(c.Request().URL.Path, "ws")
+}
+
+func gzipSkipper(c echo.Context) bool {
+	if strings.Contains(c.Request().URL.Path, "swagger") {
+		return true
+	}
+	if strings.Contains(c.Request().URL.Path, "metrics") {
+		return true
+	}
+	if strings.Contains(c.Request().URL.Path, "ws") {
+		return true
+	}
+	return false
+}
+
 func initEcho(cfg ApiConfig) *echo.Echo {
 	e := echo.New()
 	e.Validator = handler.NewCelestiaApiValidator()
@@ -123,19 +149,15 @@ func initEcho(cfg ApiConfig) *echo.Echo {
 		},
 	}))
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
-		Skipper: func(c echo.Context) bool {
-			if strings.Contains(c.Request().URL.Path, "swagger") {
-				return true
-			}
-			if strings.Contains(c.Request().URL.Path, "metrics") {
-				return true
-			}
-			return false
-		},
+		Skipper: gzipSkipper,
 	}))
-	e.Use(middleware.Decompress())
+	e.Use(middleware.DecompressWithConfig(middleware.DecompressConfig{
+		Skipper: websocketSkipper,
+	}))
 	e.Use(middleware.BodyLimit("2M"))
-	e.Use(middleware.CSRF())
+	e.Use(middleware.CSRFWithConfig(
+		middleware.CSRFConfig{Skipper: websocketSkipper},
+	))
 	e.Use(middleware.Recover())
 	e.Use(middleware.Secure())
 	e.Pre(middleware.RemoveTrailingSlash())
@@ -145,15 +167,22 @@ func initEcho(cfg ApiConfig) *echo.Echo {
 		timeout = time.Duration(cfg.RequestTimeout) * time.Second
 	}
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
-		Skipper: middleware.DefaultSkipper,
+		Skipper: websocketSkipper,
 		Timeout: timeout,
 	}))
 
 	if cfg.Prometheus {
-		e.Use(echoprometheus.NewMiddleware("celestia_api"))
+		e.Use(echoprometheus.NewMiddlewareWithConfig(echoprometheus.MiddlewareConfig{
+			Namespace: "celestia_api",
+			Skipper:   websocketSkipper,
+		}))
 	}
 	if cfg.RateLimit > 0 {
-		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(cfg.RateLimit))))
+		e.Use(middleware.RateLimiterWithConfig(middleware.RateLimiterConfig{
+			Skipper: websocketSkipper,
+			Store:   middleware.NewRateLimiterMemoryStore(rate.Limit(cfg.RateLimit)),
+		}))
+
 	}
 	return e
 }
