@@ -84,7 +84,7 @@ func BenchmarkProcessingMessage(b *testing.B) {
 	ctrl := gomock.NewController(b)
 	defer ctrl.Finish()
 	blockRepo := mock.NewMockIBlock(ctrl)
-	channel := NewChannel[storage.Block, responses.Block](
+	channel := NewChannel[storage.Block, *responses.Block](
 		storage.ChannelHead,
 		HeadProcessor,
 		newBlockRepo(blockRepo),

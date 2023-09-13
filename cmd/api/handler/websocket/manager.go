@@ -17,8 +17,8 @@ type Manager struct {
 	clientId *atomic.Uint64
 	clients  Map[uint64, *Client]
 
-	head    *Channel[storage.Block, responses.Block]
-	tx      *Channel[storage.Tx, responses.Tx]
+	head    *Channel[storage.Block, *responses.Block]
+	tx      *Channel[storage.Tx, *responses.Tx]
 	factory storage.ListenerFactory
 }
 
@@ -36,14 +36,14 @@ func NewManager(factory storage.ListenerFactory, blockRepo storage.IBlock, txRep
 		factory:  factory,
 	}
 
-	manager.head = NewChannel[storage.Block, responses.Block](
+	manager.head = NewChannel[storage.Block, *responses.Block](
 		storage.ChannelHead,
 		HeadProcessor,
 		newBlockRepo(blockRepo),
 		HeadFilter{},
 	)
 
-	manager.tx = NewChannel[storage.Tx, responses.Tx](
+	manager.tx = NewChannel[storage.Tx, *responses.Tx](
 		storage.ChannelTx,
 		TxProcessor,
 		newTxRepo(txRepo),

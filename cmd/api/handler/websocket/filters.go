@@ -12,7 +12,10 @@ type Filterable[M any] interface {
 
 type HeadFilter struct{}
 
-func (hf HeadFilter) Filter(c client, msg responses.Block) bool {
+func (hf HeadFilter) Filter(c client, msg *responses.Block) bool {
+	if msg == nil {
+		return false
+	}
 	fltrs := c.Filters()
 	if fltrs == nil {
 		return false
@@ -22,7 +25,10 @@ func (hf HeadFilter) Filter(c client, msg responses.Block) bool {
 
 type TxFilter struct{}
 
-func (hf TxFilter) Filter(c client, msg responses.Tx) bool {
+func (hf TxFilter) Filter(c client, msg *responses.Tx) bool {
+	if msg == nil {
+		return false
+	}
 	fltrs := c.Filters()
 	if fltrs == nil || fltrs.tx == nil {
 		return false
