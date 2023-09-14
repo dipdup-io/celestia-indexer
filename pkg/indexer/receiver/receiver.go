@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	name             = "receiver"
 	BlocksOutput     = "blocks"
 	RollbackOutput   = "signal"
 	RollbackInput    = "state"
