@@ -36,6 +36,7 @@ var _ modules.Module = (*Module)(nil)
 // NewModule -
 func NewModule(pg postgres.Storage, cfg config.Indexer) Module {
 	m := Module{
+		BaseModule:  modules.New("storage"),
 		storage:     pg,
 		indexerName: cfg.Name,
 	}
