@@ -29,6 +29,8 @@ type Module struct {
 	indexerName string
 }
 
+var _ modules.Module = (*Module)(nil)
+
 // NewModule -
 func NewModule(pg postgres.Storage, cfg config.Indexer) Module {
 	m := Module{
