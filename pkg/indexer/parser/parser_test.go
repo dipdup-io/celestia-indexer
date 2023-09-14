@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func TestParserModule(t *testing.T) {
+func createModules(t *testing.T) (modules.BaseModule, string, Module) {
 	writerModule := modules.New("writer-module")
 	outputName := "write"
 	writerModule.CreateOutput(outputName)
@@ -23,36 +23,7 @@ func TestParserModule(t *testing.T) {
 	err := parserModule.AttachTo(&writerModule, outputName, InputName)
 	assert.NoError(t, err)
 
-	readerModule := modules.New("reader-module")
-	readerInputName := "read"
-	readerModule.CreateInput(readerInputName)
-
-	err = readerModule.AttachTo(&parserModule, OutputName, readerInputName)
-	assert.NoError(t, err)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
-
-	parserModule.Start(ctx)
-
-	block := getBlock()
-	writerModule.MustOutput(outputName).Push(block)
-
-	for {
-		select {
-		case <-ctx.Done():
-			t.Log("stop by cancelled context")
-		case msg, ok := <-readerModule.MustInput(readerInputName).Listen():
-			assert.True(t, ok, "received value should be delivered by successful send operation")
-
-			parsedBlock, ok := msg.(storage.Block)
-			assert.Truef(t, ok, "invalid message type: %T", msg)
-
-			expectedBlock := getExpectedBlock()
-			assert.Equal(t, expectedBlock, parsedBlock)
-			return
-		}
-	}
+	return writerModule, outputName, parserModule
 }
 
 func getExpectedBlock() storage.Block {
@@ -158,5 +129,115 @@ func getBlock() types.BlockData {
 				},
 			},
 		},
+	}
+}
+
+func TestParserModule_Success(t *testing.T) {
+	writerModule, outputName, parserModule := createModules(t)
+
+	readerModule := modules.New("reader-module")
+	readerInputName := "read"
+	readerModule.CreateInput(readerInputName)
+
+	err := readerModule.AttachTo(&parserModule, OutputName, readerInputName)
+	assert.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	parserModule.Start(ctx)
+
+	block := getBlock()
+	writerModule.MustOutput(outputName).Push(block)
+
+	for {
+		select {
+		case <-ctx.Done():
+			t.Error("stop by cancelled context")
+		case msg, ok := <-readerModule.MustInput(readerInputName).Listen():
+			assert.True(t, ok, "received value should be delivered by successful send operation")
+
+			parsedBlock, ok := msg.(storage.Block)
+			assert.Truef(t, ok, "invalid message type: %T", msg)
+
+			expectedBlock := getExpectedBlock()
+			assert.Equal(t, expectedBlock, parsedBlock)
+			return
+		}
+	}
+}
+
+func TestModule_OnClosedChannel(t *testing.T) {
+	_, _, parserModule := createModules(t)
+
+	stopperModule := modules.New("stopper-module")
+	stopInputName := "stop-signal"
+	stopperModule.CreateInput(stopInputName)
+
+	err := stopperModule.AttachTo(&parserModule, StopOutput, stopInputName)
+	assert.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+	defer cancel()
+
+	parserModule.Start(ctx)
+
+	err = parserModule.MustInput(InputName).Close()
+	assert.NoError(t, err)
+
+	for {
+		select {
+		case <-ctx.Done():
+			t.Error("stop by cancelled context")
+		case msg := <-stopperModule.MustInput(stopInputName).Listen():
+			assert.Equal(t, struct{}{}, msg)
+			return
+		}
+	}
+}
+
+func TestModule_OnParseError(t *testing.T) {
+	writerModule, writerOutputName, parserModule := createModules(t)
+
+	stopperModule := modules.New("stopper-module")
+	stopInputName := "stop-signal"
+	stopperModule.CreateInput(stopInputName)
+
+	err := stopperModule.AttachTo(&parserModule, StopOutput, stopInputName)
+	assert.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+	defer cancel()
+
+	parserModule.Start(ctx)
+
+	block := getBlock()
+	block.Block.Data.Txs = tmTypes.Txs{
+		// unfinished sequence of tx bytes
+		{10, 171, 1, 10, 168, 1, 10, 35, 47, 99, 111, 115, 109, 111, 115, 46, 115, 116, 97, 107, 105, 110, 103, 46, 118, 49, 98},
+	}
+	block.Block.Data.SquareSize = 1
+	block.ResultBlockResults.TxsResults = []*types.ResponseDeliverTx{
+		{
+			Code:      0,
+			Data:      []byte{18, 45, 10, 43, 47, 99, 111, 115, 109, 111, 115, 46, 115, 116, 97, 107, 105, 110, 103, 46, 118, 49, 98, 101, 116, 97},
+			Log:       "",
+			Info:      "",
+			GasWanted: 20,
+			GasUsed:   10,
+			Events:    nil,
+			Codespace: "",
+		},
+	}
+	writerModule.MustOutput(writerOutputName).Push(block)
+
+	for {
+		select {
+		case <-ctx.Done():
+			t.Error("stop by cancelled context")
+		case msg := <-stopperModule.MustInput(stopInputName).Listen():
+			assert.Equal(t, struct{}{}, msg)
+			return
+		}
 	}
 }
