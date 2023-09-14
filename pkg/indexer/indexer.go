@@ -181,7 +181,7 @@ func createGenesis(pg postgres.Storage, cfg config.Config, receiverModule module
 }
 
 func attachStopper(stopperModule modules.Module, receiverModule modules.Module, parserModule modules.Module, storageModule modules.Module, rollbackModule modules.Module, genesisModule modules.Module) error {
-	if err := storageModule.AttachTo(receiverModule, receiver.StopOutput, stopper.InputName); err != nil {
+	if err := stopperModule.AttachTo(receiverModule, receiver.StopOutput, stopper.InputName); err != nil {
 		return errors.Wrap(err, "while attaching stopper to receiver")
 	}
 
