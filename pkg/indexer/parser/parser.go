@@ -18,9 +18,14 @@ const (
 )
 
 func NewModule() Module {
-	return Module{
+	m := Module{
 		BaseModule: modules.New("parser"),
 	}
+	m.CreateInput(InputName)
+	m.CreateOutput(OutputName)
+	m.CreateOutput(StopOutput)
+
+	return m
 }
 
 func (p *Module) Start(ctx context.Context) {
