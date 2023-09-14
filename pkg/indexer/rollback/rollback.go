@@ -39,6 +39,8 @@ type Module struct {
 	indexName string
 }
 
+var _ modules.Module = (*Module)(nil)
+
 func NewModule(
 	tx sdk.Transactable,
 	state storage.IState,
