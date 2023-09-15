@@ -18,7 +18,7 @@ func (p *Module) listen(ctx context.Context) {
 			if !ok {
 				p.Log.Warn().Msg("can't read message from input")
 				p.MustOutput(StopOutput).Push(struct{}{})
-				continue
+				return
 			}
 
 			block, ok := msg.(types.BlockData)
