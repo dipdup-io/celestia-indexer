@@ -84,7 +84,7 @@ func (module *Module) listen(ctx context.Context) {
 			}
 
 			if err := module.rollback(ctx); err != nil {
-				module.Log.Err(err).Msgf("error occured")
+				module.Log.Err(err).Msgf("error occurred")
 			}
 		}
 	}
