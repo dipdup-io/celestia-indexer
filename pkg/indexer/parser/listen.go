@@ -16,7 +16,7 @@ func (p *Module) listen(ctx context.Context) {
 			return
 		case msg, ok := <-input.Listen():
 			if !ok {
-				p.Log.Warn().Msg("can't read message from input")
+				p.Log.Warn().Msg("can't read message from input, it was drained and closed")
 				p.MustOutput(StopOutput).Push(struct{}{})
 				return
 			}
