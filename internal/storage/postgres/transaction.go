@@ -59,14 +59,10 @@ func (tx Transaction) SaveNamespaces(ctx context.Context, namespaces ...*models.
 }
 
 type addedAddress struct {
-	bun.BaseModel `bun:"address" comment:"Table with celestia addresses."`
+	bun.BaseModel `bun:"address"`
 	*models.Address
 
 	Xmax uint64 `bun:"xmax"`
-}
-
-func (addedAddress) TableName() string {
-	return "address"
 }
 
 func (tx Transaction) SaveAddresses(ctx context.Context, addresses ...*models.Address) (uint64, error) {
