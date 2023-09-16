@@ -152,7 +152,7 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackOneBlocks() {
 			state, ok := msg.(storage.State)
 			s.Require().True(ok, "got wrong type %T", msg)
 
-			s.Require().Equal(999, state.LastHeight)
+			s.Require().Equal(types.Level(999), state.LastHeight)
 			s.Require().Equal(expectedHash, state.LastHash)
 			return
 		}

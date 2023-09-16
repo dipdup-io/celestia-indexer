@@ -140,7 +140,7 @@ func (module *Module) finish(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	module.MustInput(OutputName).Push(newState)
+	module.MustOutput(OutputName).Push(newState)
 
 	log.Info().
 		Uint64("new_height", uint64(newState.LastHeight)).
