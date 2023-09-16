@@ -2,6 +2,8 @@ package rollback
 
 import (
 	"context"
+	"database/sql"
+	"github.com/go-testfixtures/testfixtures/v3"
 	"testing"
 	"time"
 
@@ -54,8 +56,19 @@ func (s *ModuleTestSuite) TearDownSuite() {
 	s.Require().NoError(s.psqlContainer.Terminate(ctx))
 }
 
-func TestModule_Success(t *testing.T) {
+func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
+	db, err := sql.Open("postgres", s.psqlContainer.GetDSN())
+	s.Require().NoError(err)
 
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(db),
+		testfixtures.Dialect("timescaledb"),
+		testfixtures.Directory("../../../test/data/rollback"),
+		testfixtures.UseAlterConstraint(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(fixtures.Load())
+	s.Require().NoError(db.Close())
 }
 
 func TestSuiteModule_Run(t *testing.T) {
