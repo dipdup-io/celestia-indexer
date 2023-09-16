@@ -32,7 +32,7 @@ adr:
 	@cp adr/adr-template.md adr/adr-$(NUM)-$(TITLE).md
 
 generate:
-	go generate -v ./internal/storage ./internal/storage/types
+	go generate -v ./internal/storage ./internal/storage/types ./pkg/node
 
 api-docs:
 	cd cmd/api && swag init --md markdown -parseDependency --parseInternal --parseDepth 1
@@ -55,8 +55,6 @@ check-licences:
     	--ignore golang.org/x/crypto/chacha20
 
 test-api:
-	# to install newman:
-	# npm install -g newman
 	newman run ./test/newman/tests.json -e ./test/newman/env.json
 
 .PHONY: init indexer api build clean compose lint test adr mock api-docs check-licences
