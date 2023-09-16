@@ -56,7 +56,7 @@ func (s *ModuleTestSuite) TearDownSuite() {
 	s.Require().NoError(s.psqlContainer.Terminate(ctx))
 }
 
-func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
+func (s *ModuleTestSuite) InitDb() {
 	db, err := sql.Open("postgres", s.psqlContainer.GetDSN())
 	s.Require().NoError(err)
 
@@ -69,6 +69,15 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
 	s.Require().NoError(err)
 	s.Require().NoError(fixtures.Load())
 	s.Require().NoError(db.Close())
+}
+
+func (s *ModuleTestSuite) InitNode() {
+
+}
+
+func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
+	s.InitDb()
+
 }
 
 func TestSuiteModule_Run(t *testing.T) {
