@@ -3,6 +3,7 @@ package rollback
 import (
 	"context"
 	"database/sql"
+	"encoding/hex"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	indexerCfg "github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/mock"
@@ -10,7 +11,6 @@ import (
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/shopspring/decimal"
-	"github.com/status-im/keycard-go/hexutils"
 	"github.com/tendermint/tendermint/libs/bytes"
 	tmTypes "github.com/tendermint/tendermint/types"
 	"go.uber.org/mock/gomock"
@@ -104,7 +104,8 @@ func GetResultBlock(hash bytes.HexBytes) types.ResultBlock {
 func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
 	s.InitDb("../../../test/data/rollback")
 
-	expectedHash := hexutils.HexToBytes("5F7A8DDFE6136FE76B65B9066D4F816D707F28C05B3362D66084664C5B39BA98")
+	expectedHash, err := hex.DecodeString("5F7A8DDFE6136FE76B65B9066D4F816D707F28C05B3362D66084664C5B39BA98")
+	s.Require().NoError(err)
 	s.InitApi(func() {
 		s.api.EXPECT().
 			Block(gomock.Any(), types.Level(1001)).
@@ -134,7 +135,7 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
 
 	stateListener := modules.New("state-listener")
 	stateListener.CreateInput("state")
-	err := stateListener.AttachTo(&rollbackModule, OutputName, "state")
+	err = stateListener.AttachTo(&rollbackModule, OutputName, "state")
 	s.Require().NoError(err)
 
 	rollbackModule.Start(ctx)
