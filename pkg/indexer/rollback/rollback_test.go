@@ -48,7 +48,7 @@ func (s *ModuleTestSuite) SetupSuite() {
 	s.Require().NoError(err)
 	s.psqlContainer = psqlContainer
 
-	storage, err := postgres.Create(ctx, config.Database{
+	st, err := postgres.Create(ctx, config.Database{
 		Kind:     config.DBKindPostgres,
 		User:     s.psqlContainer.Config.User,
 		Database: s.psqlContainer.Config.Database,
@@ -57,7 +57,7 @@ func (s *ModuleTestSuite) SetupSuite() {
 		Port:     s.psqlContainer.MappedPort().Int(),
 	})
 	s.Require().NoError(err)
-	s.storage = storage
+	s.storage = st
 }
 
 // TearDownSuite -
@@ -130,8 +130,7 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
 		indexerCfg.Indexer{Name: testIndexerName},
 	)
 
-	//ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	stateListener := modules.New("state-listener")
 	stateListener.CreateInput("state")
@@ -176,6 +175,54 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
 				Sub(decimal.NewFromInt(30930476))
 			s.Require().Equal(expectedSupply, state.TotalSupply)
 
+			return
+		}
+	}
+}
+
+func (s *ModuleTestSuite) TestModule_OnClosedInput() {
+	s.InitDb("../../../test/data/rollback")
+
+	s.InitApi(func() {
+		s.api.EXPECT().
+			Block(gomock.Any(), gomock.Any()).
+			Return(GetResultBlock(bytes.HexBytes{42}), nil).
+			MaxTimes(0)
+	})
+
+	rollbackModule := NewModule(
+		s.storage.Transactable,
+		s.storage.State,
+		s.storage.Blocks,
+		s.api,
+		indexerCfg.Indexer{Name: testIndexerName},
+	)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	stopperListener := modules.New("stopper-listener")
+	stopperListener.CreateInput("stop")
+	err := stopperListener.AttachTo(&rollbackModule, StopOutput, "stop")
+	s.Require().NoError(err)
+
+	rollbackModule.Start(ctx)
+	defer func() {
+		cancel()
+		s.Require().NoError(rollbackModule.Close())
+	}()
+
+	// Act
+	err = rollbackModule.MustInput(InputName).Close()
+	s.Require().NoError(err)
+
+	for {
+		select {
+		case <-ctx.Done():
+			s.T().Error("stop by cancelled context")
+			return
+		case msg, ok := <-stopperListener.MustInput("stop").Listen():
+			s.Require().True(ok, "received stop signal should be delivered by successful send operation")
+			s.Require().Equal(struct{}{}, msg)
 			return
 		}
 	}
