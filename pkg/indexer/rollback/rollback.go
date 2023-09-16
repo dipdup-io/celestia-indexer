@@ -79,7 +79,7 @@ func (module *Module) listen(ctx context.Context) {
 			return
 		case _, ok := <-input.Listen():
 			if !ok {
-				module.Log.Warn().Msg("can't read message from input")
+				module.Log.Warn().Msg("can't read message from input, channel was dried and closed")
 				return
 			}
 
