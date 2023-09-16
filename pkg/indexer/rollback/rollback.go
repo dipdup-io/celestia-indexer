@@ -199,6 +199,7 @@ func (module *Module) rollbackBlock(ctx context.Context, height types.Level) err
 		return tx.HandleError(ctx, err)
 	}
 	state.LastHeight = newBlock.Height
+	state.LastHash = newBlock.Hash
 	state.LastTime = newBlock.Time
 	state.TotalTx -= blockStats.TxCount
 	state.TotalBlobsSize -= blockStats.BlobsSize

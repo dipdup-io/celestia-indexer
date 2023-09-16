@@ -124,9 +124,8 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackOneBlocks() {
 		indexerCfg.Indexer{Name: testIndexerName},
 	)
 
-	//ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// ctx, cancel := context.WithCancel(context.Background())
 
 	stateListener := modules.New("state-listener")
 	stateListener.CreateInput("state")
@@ -135,6 +134,7 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackOneBlocks() {
 
 	rollbackModule.Start(ctx)
 	defer func() {
+		cancel()
 		s.Require().NoError(rollbackModule.Close())
 	}()
 
