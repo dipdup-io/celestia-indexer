@@ -11,6 +11,7 @@ import (
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
+	testsuite "github.com/dipdup-io/celestia-indexer/internal/test_suite"
 	"github.com/dipdup-net/go-lib/config"
 	"github.com/dipdup-net/go-lib/database"
 	sdk "github.com/dipdup-net/indexer-sdk/pkg/storage"
@@ -551,6 +552,63 @@ func (s *StorageTestSuite) TestRollbackNamespaceMessages() {
 	s.Require().Equal("172635712635813", state.TotalFee.String())
 	s.Require().EqualValues(324234, state.TotalBlobsSize)
 	s.Require().Equal(testIndexerName, state.Name)
+
+	s.Require().NoError(tx.Flush(ctx))
+	s.Require().NoError(tx.Close(ctx))
+}
+
+func (s *StorageTestSuite) TestDeleteBalances() {
+	db, err := sql.Open("postgres", s.psqlContainer.GetDSN())
+	s.Require().NoError(err)
+
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(db),
+		testfixtures.Dialect("timescaledb"),
+		testfixtures.Directory("../../../test/data"),
+		testfixtures.UseAlterConstraint(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(fixtures.Load())
+	s.Require().NoError(db.Close())
+
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	tx, err := BeginTransaction(ctx, s.storage.Transactable)
+	s.Require().NoError(err)
+
+	err = tx.DeleteBalances(ctx, []uint64{1})
+	s.Require().NoError(err)
+
+	s.Require().NoError(tx.Flush(ctx))
+	s.Require().NoError(tx.Close(ctx))
+}
+
+func (s *StorageTestSuite) TestLastAddressAction() {
+	db, err := sql.Open("postgres", s.psqlContainer.GetDSN())
+	s.Require().NoError(err)
+
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(db),
+		testfixtures.Dialect("timescaledb"),
+		testfixtures.Directory("../../../test/data"),
+		testfixtures.UseAlterConstraint(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(fixtures.Load())
+	s.Require().NoError(db.Close())
+
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	tx, err := BeginTransaction(ctx, s.storage.Transactable)
+	s.Require().NoError(err)
+
+	hash := testsuite.MustHexDecode("dece425b75d67115bda877e1e7a1f262f6fa51d6")
+
+	height, err := tx.LastAddressAction(ctx, hash)
+	s.Require().NoError(err)
+	s.Require().EqualValues(1000, height)
 
 	s.Require().NoError(tx.Flush(ctx))
 	s.Require().NoError(tx.Close(ctx))

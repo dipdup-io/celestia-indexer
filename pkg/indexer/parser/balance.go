@@ -2,65 +2,59 @@ package parser
 
 import (
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/decode"
 	pkgTypes "github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
 
 func parseCoinSpent(data map[string]any, height pkgTypes.Level) (*storage.Address, error) {
-	balance, err := getBalanceFromMap(data, "amount")
+	coinSpent, err := decode.NewCoinSpent(data)
 	if err != nil {
 		return nil, err
 	}
-	if balance == nil {
+
+	if coinSpent.Spender == "" {
 		return nil, nil
 	}
-
-	if senderString := getStringFromMap(data, "spender"); senderString != "" {
-		_, hash, err := pkgTypes.Address(senderString).Decode()
-		if err != nil {
-			return nil, errors.Wrapf(err, "decode sender: %s", senderString)
-		}
-		return &storage.Address{
-			Address:    senderString,
-			Hash:       hash,
-			Height:     height,
-			LastHeight: height,
-			Balance: storage.Balance{
-				Currency: balance.Denom,
-				Total:    decimal.NewFromBigInt(balance.Amount.Neg().BigInt(), 0),
-			},
-		}, nil
+	_, hash, err := pkgTypes.Address(coinSpent.Spender).Decode()
+	if err != nil {
+		return nil, errors.Wrapf(err, "decode spender: %s", coinSpent.Spender)
 	}
-
-	return nil, nil
+	return &storage.Address{
+		Address:    coinSpent.Spender,
+		Hash:       hash,
+		Height:     height,
+		LastHeight: height,
+		Balance: storage.Balance{
+			Currency: coinSpent.Amount.Denom,
+			Total:    decimal.NewFromBigInt(coinSpent.Amount.Amount.Neg().BigInt(), 0),
+		},
+	}, nil
 }
 
 func parseCoinReceived(data map[string]any, height pkgTypes.Level) (*storage.Address, error) {
-	balance, err := getBalanceFromMap(data, "amount")
+	coinReceived, err := decode.NewCoinReceived(data)
 	if err != nil {
 		return nil, err
 	}
-	if balance == nil {
+
+	if coinReceived.Receiver == "" {
 		return nil, nil
 	}
 
-	if receiverString := getStringFromMap(data, "receiver"); receiverString != "" {
-		_, hash, err := pkgTypes.Address(receiverString).Decode()
-		if err != nil {
-			return nil, errors.Wrapf(err, "decode receiver: %s", receiverString)
-		}
-		return &storage.Address{
-			Address:    receiverString,
-			Hash:       hash,
-			Height:     height,
-			LastHeight: height,
-			Balance: storage.Balance{
-				Currency: balance.Denom,
-				Total:    decimal.NewFromBigInt(balance.Amount.BigInt(), 0),
-			},
-		}, nil
+	_, hash, err := pkgTypes.Address(coinReceived.Receiver).Decode()
+	if err != nil {
+		return nil, errors.Wrapf(err, "decode receiver: %s", coinReceived.Receiver)
 	}
-
-	return nil, nil
+	return &storage.Address{
+		Address:    coinReceived.Receiver,
+		Hash:       hash,
+		Height:     height,
+		LastHeight: height,
+		Balance: storage.Balance{
+			Currency: coinReceived.Amount.Denom,
+			Total:    decimal.NewFromBigInt(coinReceived.Amount.Amount.BigInt(), 0),
+		},
+	}, nil
 }
