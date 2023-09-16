@@ -9,6 +9,7 @@ import (
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	"github.com/go-testfixtures/testfixtures/v3"
+	"github.com/shopspring/decimal"
 	"github.com/status-im/keycard-go/hexutils"
 	"github.com/tendermint/tendermint/libs/bytes"
 	tmTypes "github.com/tendermint/tendermint/types"
@@ -92,27 +93,32 @@ func (s *ModuleTestSuite) InitApi(configureApi func()) {
 	}
 }
 
-func (s *ModuleTestSuite) TestModule_SuccessOnRollbackOneBlocks() {
+func GetResultBlock(hash bytes.HexBytes) types.ResultBlock {
+	return types.ResultBlock{
+		BlockID: tmTypes.BlockID{
+			Hash: hash,
+		},
+	}
+}
+
+func (s *ModuleTestSuite) TestModule_SuccessOnRollbackTwoBlocks() {
 	s.InitDb("../../../test/data/rollback")
 
 	expectedHash := hexutils.HexToBytes("5F7A8DDFE6136FE76B65B9066D4F816D707F28C05B3362D66084664C5B39BA98")
 	s.InitApi(func() {
 		s.api.EXPECT().
+			Block(gomock.Any(), types.Level(1001)).
+			Return(GetResultBlock(bytes.HexBytes{42}), nil). // not equal with block in storage
+			MaxTimes(1)
+
+		s.api.EXPECT().
 			Block(gomock.Any(), types.Level(1000)).
-			Return(types.ResultBlock{
-				BlockID: tmTypes.BlockID{
-					Hash: bytes.HexBytes{1}, // not equal with block in storage
-				},
-			}, nil).
+			Return(GetResultBlock(bytes.HexBytes{42}), nil). // not equal with block in storage
 			MaxTimes(1)
 
 		s.api.EXPECT().
 			Block(gomock.Any(), types.Level(999)).
-			Return(types.ResultBlock{
-				BlockID: tmTypes.BlockID{
-					Hash: expectedHash,
-				},
-			}, nil).
+			Return(GetResultBlock(expectedHash), nil).
 			MaxTimes(1)
 	})
 
@@ -124,8 +130,8 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackOneBlocks() {
 		indexerCfg.Indexer{Name: testIndexerName},
 	)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	// ctx, cancel := context.WithCancel(context.Background())
+	//ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	stateListener := modules.New("state-listener")
 	stateListener.CreateInput("state")
@@ -154,6 +160,22 @@ func (s *ModuleTestSuite) TestModule_SuccessOnRollbackOneBlocks() {
 
 			s.Require().Equal(types.Level(999), state.LastHeight)
 			s.Require().Equal(expectedHash, state.LastHash)
+			s.Require().Equal("2023-07-04 03:10:56", state.LastTime.Format(time.DateTime))
+			s.Require().Equal(uint64(1), state.TotalTx)
+			s.Require().Equal(uint64(324234-100-900), state.TotalBlobsSize)
+			s.Require().Equal(uint64(1000-3), state.TotalNamespaces)
+			s.Require().Equal(uint64(12512357-1), state.TotalAccounts)
+
+			expectedFee := decimal.NewFromInt(172635712635813).
+				Sub(decimal.NewFromInt(497012)).
+				Sub(decimal.NewFromInt(2873468273))
+			s.Require().Equal(expectedFee, state.TotalFee)
+
+			expectedSupply := decimal.NewFromInt(263471253613).
+				Sub(decimal.NewFromInt(23590834)).
+				Sub(decimal.NewFromInt(30930476))
+			s.Require().Equal(expectedSupply, state.TotalSupply)
+
 			return
 		}
 	}

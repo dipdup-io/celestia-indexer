@@ -1,8 +1,8 @@
 - id: 1
-  last_height: 1000
-  last_time: '2023-07-04T03:10:57+00:00'
+  last_height: 1001
+  last_time: '2023-07-04T03:10:58+00:00'
   name: test_indexer
-  total_tx: 394067
+  total_tx: 3
   total_accounts: 12512357
   total_fee: 172635712635813
   total_namespaces: 1000
