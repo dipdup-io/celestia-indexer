@@ -160,16 +160,18 @@ func (s *StorageTestSuite) TestSaveAddresses() {
 		s.NoError(err)
 
 		addresses = append(addresses, &storage.Address{
-			Height:  pkgTypes.Level(10000 + i),
-			Hash:    hash,
-			Address: addr,
-			Id:      uint64(i),
+			Height:     pkgTypes.Level(10000 + i),
+			LastHeight: pkgTypes.Level(10000 + i),
+			Hash:       hash,
+			Address:    addr,
+			Id:         uint64(i),
 		})
 
 		if i == 2 {
 			replyAddress.Address = addresses[i].Address
 			replyAddress.Hash = addresses[i].Hash
 			replyAddress.Height = addresses[i].Height + 1
+			replyAddress.LastHeight = addresses[i].Height + 1
 		}
 	}
 
@@ -247,6 +249,7 @@ func (s *StorageTestSuite) TestSaveBalances() {
 	for i := 0; i < 5; i++ {
 		balances[i].Id = uint64(i + 1)
 		balances[i].Total = decimal.RequireFromString("1000")
+		balances[i].Currency = "utia"
 	}
 
 	err = tx.SaveBalances(ctx, balances...)
