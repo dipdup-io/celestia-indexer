@@ -78,7 +78,7 @@ func (module *Module) parse(genesis types.Genesis) (parsedData, error) {
 		}
 
 		for msgIndex, msg := range txDecoded.GetMsgs() {
-			decoded, err := decode.Message(msg, block.Height, block.Time, msgIndex)
+			decoded, err := decode.Message(msg, block.Height, block.Time, msgIndex, storageTypes.StatusSuccess)
 			if err != nil {
 				return data, errors.Wrap(err, "decode genesis message")
 			}
@@ -120,9 +120,11 @@ func (module *Module) parseTotalSupply(supply []types.Supply, block *storage.Blo
 func (module *Module) parseAccounts(accounts []types.Accounts, height pkgTypes.Level, data *parsedData) error {
 	for i := range accounts {
 		address := storage.Address{
-			Height: height,
+			Height:     height,
+			LastHeight: height,
 			Balance: storage.Balance{
-				Total: decimal.Zero,
+				Total:    decimal.Zero,
+				Currency: data.denomMetadata[0].Base,
 			},
 		}
 
@@ -170,11 +172,13 @@ func (module *Module) parseBalances(balances []types.Balances, height pkgTypes.L
 			return err
 		}
 		address := storage.Address{
-			Hash:    hash,
-			Address: balances[i].Address,
-			Height:  height,
+			Hash:       hash,
+			Address:    balances[i].Address,
+			Height:     height,
+			LastHeight: height,
 			Balance: storage.Balance{
-				Total: decimal.Zero,
+				Total:    decimal.Zero,
+				Currency: balances[i].Coins[0].Denom,
 			},
 		}
 		if balance, err := decimal.NewFromString(balances[i].Coins[0].Amount); err == nil {

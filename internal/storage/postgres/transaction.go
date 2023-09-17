@@ -58,19 +58,41 @@ func (tx Transaction) SaveNamespaces(ctx context.Context, namespaces ...*models.
 	return err
 }
 
-func (tx Transaction) SaveAddresses(ctx context.Context, addresses ...*models.Address) error {
+type addedAddress struct {
+	bun.BaseModel `bun:"address"`
+	*models.Address
+
+	Xmax uint64 `bun:"xmax"`
+}
+
+func (tx Transaction) SaveAddresses(ctx context.Context, addresses ...*models.Address) (uint64, error) {
 	if len(addresses) == 0 {
-		return nil
+		return 0, nil
 	}
 
-	_, err := tx.Tx().NewInsert().Model(&addresses).
-		Column("address", "height", "hash").
-		On("CONFLICT ON CONSTRAINT address_idx DO UPDATE").
-		Set("hash = EXCLUDED.hash"). // update hash field which always the same only for returning id
-		Returning("id").
-		Exec(ctx)
+	addr := make([]addedAddress, len(addresses))
+	for i := range addresses {
+		addr[i].Address = addresses[i]
+	}
 
-	return err
+	_, err := tx.Tx().NewInsert().Model(&addr).
+		Column("address", "height", "last_height", "hash").
+		On("CONFLICT ON CONSTRAINT address_idx DO UPDATE").
+		Set("last_height = EXCLUDED.last_height").
+		Returning("xmax, id").
+		Exec(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	var count uint64
+	for i := range addr {
+		if addr[i].Xmax == 0 {
+			count++
+		}
+	}
+
+	return count, err
 }
 
 func (tx Transaction) SaveBalances(ctx context.Context, balances ...models.Balance) error {
@@ -79,8 +101,8 @@ func (tx Transaction) SaveBalances(ctx context.Context, balances ...models.Balan
 	}
 
 	_, err := tx.Tx().NewInsert().Model(&balances).
-		Column("id", "total").
-		On("CONFLICT (id) DO UPDATE").
+		Column("id", "currency", "total").
+		On("CONFLICT (id, currency) DO UPDATE").
 		Set("total = EXCLUDED.total + balance.total").
 		Exec(ctx)
 	return err
@@ -218,4 +240,33 @@ func (tx Transaction) RollbackMessageAddresses(ctx context.Context, msgIds []uin
 		Where("msg_id IN (?)", bun.In(msgIds)).
 		Exec(ctx)
 	return
+}
+
+func (tx Transaction) DeleteBalances(ctx context.Context, ids []uint64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	_, err := tx.Tx().NewDelete().
+		Model((*models.Balance)(nil)).
+		Where("id IN (?)", bun.In(ids)).
+		Exec(ctx)
+	return err
+}
+
+func (tx Transaction) LastAddressAction(ctx context.Context, address []byte) (uint64, error) {
+	var height uint64
+	err := tx.Tx().NewSelect().
+		Model((*models.MsgAddress)(nil)).
+		ExcludeColumn("msg_id", "address_id", "type").
+		Where("address.hash = ?", address).
+		Order("msg_id desc").
+		Relation("Msg", func(q *bun.SelectQuery) *bun.SelectQuery {
+			return q.Column("height")
+		}).
+		Relation("Address", func(q *bun.SelectQuery) *bun.SelectQuery {
+			return q.ExcludeColumn("*")
+		}).
+		Scan(ctx, &height)
+	return height, err
 }

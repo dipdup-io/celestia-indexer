@@ -59,9 +59,10 @@ func parseTx(b types.BlockData, index int, txRes *types.ResponseDeliverTx) (stor
 		}
 
 		t.Signers = append(t.Signers, storage.Address{
-			Address: signer,
-			Height:  t.Height,
-			Hash:    hash,
+			Address:    signer,
+			Height:     t.Height,
+			LastHeight: t.Height,
+			Hash:       hash,
 			Balance: storage.Balance{
 				Total: decimal.Zero,
 			},
@@ -75,7 +76,7 @@ func parseTx(b types.BlockData, index int, txRes *types.ResponseDeliverTx) (stor
 
 	t.Events = parseEvents(b, txRes.Events)
 	for position, sdkMsg := range d.Messages {
-		dm, err := decode.Message(sdkMsg, b.Height, b.Block.Time, position)
+		dm, err := decode.Message(sdkMsg, b.Height, b.Block.Time, position, t.Status)
 		if err != nil {
 			return storage.Tx{}, errors.Wrapf(err, "while parsing tx=%v on index=%d", t.Hash, t.Position)
 		}

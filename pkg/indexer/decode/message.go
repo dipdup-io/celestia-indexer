@@ -1,8 +1,9 @@
 package decode
 
 import (
-	"github.com/rs/zerolog/log"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/celestiaorg/celestia-app/pkg/namespace"
 	appBlobTypes "github.com/celestiaorg/celestia-app/x/blob/types"
@@ -28,7 +29,13 @@ type DecodedMsg struct {
 	Addresses []storage.AddressWithType
 }
 
-func Message(msg cosmosTypes.Msg, height types.Level, time time.Time, position int) (d DecodedMsg, err error) {
+func Message(
+	msg cosmosTypes.Msg,
+	height types.Level,
+	time time.Time,
+	position int,
+	status storageTypes.Status,
+) (d DecodedMsg, err error) {
 	d.Msg.Height = height
 	d.Msg.Time = time
 	d.Msg.Position = uint64(position)
@@ -40,11 +47,11 @@ func Message(msg cosmosTypes.Msg, height types.Level, time time.Time, position i
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgWithdrawDelegatorReward(height, typedMsg)
 	case *cosmosStakingTypes.MsgEditValidator:
-		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handleMsgEditValidator(height, typedMsg)
+		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handleMsgEditValidator(height, status, typedMsg)
 	case *cosmosStakingTypes.MsgBeginRedelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgBeginRedelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgCreateValidator:
-		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handleMsgCreateValidator(height, typedMsg)
+		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handleMsgCreateValidator(height, status, typedMsg)
 	case *cosmosStakingTypes.MsgDelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgDelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgUndelegate:
@@ -93,9 +100,10 @@ func createAddresses(data addressesData, level types.Level) ([]storage.AddressWi
 		addresses[i] = storage.AddressWithType{
 			Type: d.t,
 			Address: storage.Address{
-				Hash:    hash,
-				Height:  level,
-				Address: d.address,
+				Hash:       hash,
+				Height:     level,
+				LastHeight: level,
+				Address:    d.address,
 				Balance: storage.Balance{
 					Total: decimal.Zero,
 				},
@@ -123,11 +131,15 @@ func handleMsgWithdrawDelegatorReward(level types.Level, m *cosmosDistributionTy
 	return msgType, addresses, err
 }
 
-func handleMsgEditValidator(level types.Level, m *cosmosStakingTypes.MsgEditValidator) (storageTypes.MsgType, []storage.AddressWithType, *storage.Validator, error) {
+func handleMsgEditValidator(level types.Level, status storageTypes.Status, m *cosmosStakingTypes.MsgEditValidator) (storageTypes.MsgType, []storage.AddressWithType, *storage.Validator, error) {
 	msgType := storageTypes.MsgEditValidator
 	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
 	}, level)
+	if status == storageTypes.StatusFailed {
+		return msgType, addresses, nil, nil
+	}
+
 	validator := storage.Validator{
 		Address:           m.ValidatorAddress,
 		Moniker:           m.Description.Moniker,
@@ -159,12 +171,16 @@ func handleMsgBeginRedelegate(level types.Level, m *cosmosStakingTypes.MsgBeginR
 	return msgType, addresses, err
 }
 
-func handleMsgCreateValidator(level types.Level, m *cosmosStakingTypes.MsgCreateValidator) (storageTypes.MsgType, []storage.AddressWithType, *storage.Validator, error) {
+func handleMsgCreateValidator(level types.Level, status storageTypes.Status, m *cosmosStakingTypes.MsgCreateValidator) (storageTypes.MsgType, []storage.AddressWithType, *storage.Validator, error) {
 	msgType := storageTypes.MsgCreateValidator
 	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.MsgAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
 	}, level)
+	if status == storageTypes.StatusFailed {
+		return msgType, addresses, nil, nil
+	}
+
 	validator := storage.Validator{
 		Delegator:         m.DelegatorAddress,
 		Address:           m.ValidatorAddress,

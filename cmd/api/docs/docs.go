@@ -1424,8 +1424,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "string",
-                    "example": "10000000000"
+                    "$ref": "#/definitions/responses.Balance"
                 },
                 "first_height": {
                     "type": "integer",
@@ -1438,6 +1437,24 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "example": 321
+                },
+                "last_height": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "responses.Balance": {
+            "description": "Balance of address information",
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string",
+                    "example": "utia"
+                },
+                "value": {
+                    "type": "string",
+                    "example": "10000000000"
                 }
             }
         },
@@ -1861,6 +1878,11 @@ const docTemplate = `{
                     "example": 56789
                 },
                 "total_fee": {
+                    "type": "string",
+                    "format": "string",
+                    "example": "312"
+                },
+                "total_supply": {
                     "type": "string",
                     "format": "string",
                     "example": "312"
