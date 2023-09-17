@@ -70,7 +70,8 @@ func (module *Module) rollbackBalances(ctx context.Context, tx postgres.Transact
 		result = append(result, addr)
 	}
 
-	return tx.SaveAddresses(ctx, result...)
+	_, err := tx.SaveAddresses(ctx, result...)
+	return err
 }
 
 func coinSpent(data map[string]any) (*storage.Address, error) {

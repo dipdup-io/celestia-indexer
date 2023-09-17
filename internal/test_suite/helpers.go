@@ -9,7 +9,7 @@ func Ptr[T any](t T) *T {
 	return &t
 }
 
-// Ptr - returns decoded hex string, if it can't decode throws panic
+// MustHexDecode - returns decoded hex string, if it can't decode throws panic
 //
 //	data := MustHexDecode("deadbeaf")
 func MustHexDecode(s string) []byte {
