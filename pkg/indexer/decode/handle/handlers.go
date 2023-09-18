@@ -1,7 +1,6 @@
 package handle
 
 import (
-	types9 "github.com/celestiaorg/celestia-app/x/qgb/types"
 	types7 "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	types6 "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
@@ -155,15 +154,6 @@ func MsgGrantAllowance(level types2.Level, m *feegrant.MsgGrantAllowance) (types
 	addresses, err := createAddresses(addressesData{
 		{t: types.MsgAddressTypeGranter, address: m.Granter},
 		{t: types.MsgAddressTypeGrantee, address: m.Grantee},
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgRegisterEVMAddress(level types2.Level, m *types9.MsgRegisterEVMAddress) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgRegisterEVMAddress
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
-		// TODO: think about EVM addresses
 	}, level)
 	return msgType, addresses, err
 }
