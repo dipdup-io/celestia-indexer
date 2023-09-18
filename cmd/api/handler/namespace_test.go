@@ -285,7 +285,6 @@ func (s *NamespaceTestSuite) TestGetMessages() {
 	s.Require().EqualValues(1, msg.Tx.Id)
 }
 
-<<<<<<< HEAD
 func (s *NamespaceTestSuite) TestCount() {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -303,7 +302,8 @@ func (s *NamespaceTestSuite) TestCount() {
 	err := json.NewDecoder(rec.Body).Decode(&count)
 	s.Require().NoError(err)
 	s.Require().EqualValues(123, count)
-=======
+}
+
 func (s *NamespaceTestSuite) TestGetActive() {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -333,5 +333,4 @@ func (s *NamespaceTestSuite) TestGetActive() {
 	s.Require().EqualValues(100, namespace.Height)
 	s.Require().EqualValues(100, namespace.Size)
 	s.Require().Equal(testTime, namespace.Time)
->>>>>>> 653fb0e (Endpoint test)
 }
