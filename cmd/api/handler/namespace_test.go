@@ -285,6 +285,7 @@ func (s *NamespaceTestSuite) TestGetMessages() {
 	s.Require().EqualValues(1, msg.Tx.Id)
 }
 
+<<<<<<< HEAD
 func (s *NamespaceTestSuite) TestCount() {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
@@ -302,4 +303,35 @@ func (s *NamespaceTestSuite) TestCount() {
 	err := json.NewDecoder(rec.Body).Decode(&count)
 	s.Require().NoError(err)
 	s.Require().EqualValues(123, count)
+=======
+func (s *NamespaceTestSuite) TestGetActive() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/namespace/active")
+
+	s.namespaces.EXPECT().
+		Active(gomock.Any(), 5).
+		Return([]storage.ActiveNamespace{
+			{
+				Height:    100,
+				Time:      testTime,
+				Namespace: testNamespace,
+			},
+		}, nil)
+
+	s.Require().NoError(s.handler.GetActive(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var ns []responses.ActiveNamespace
+	err := json.NewDecoder(rec.Body).Decode(&ns)
+	s.Require().NoError(err)
+	s.Require().Len(ns, 1)
+
+	namespace := ns[0]
+	s.Require().Equal("00010203040506070809000102030405060708090001020304050607", namespace.NamespaceID)
+	s.Require().EqualValues(100, namespace.Height)
+	s.Require().EqualValues(100, namespace.Size)
+	s.Require().Equal(testTime, namespace.Time)
+>>>>>>> 653fb0e (Endpoint test)
 }

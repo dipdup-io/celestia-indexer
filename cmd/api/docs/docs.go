@@ -688,40 +688,52 @@ const docTemplate = `{
                 }
             }
         },
-<<<<<<< HEAD
-        "/v1/namespace/count": {
-            "get": {
-                "description": "Get count of namespaces in network",
-=======
         "/v1/namespace/active": {
             "get": {
                 "description": "Get last used namespace",
->>>>>>> 416211d (Feature: add active namespaces endpoint)
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "namespace"
                 ],
-<<<<<<< HEAD
-                "summary": "Get count of namespaces in network",
-                "operationId": "get-namespace-count",
-=======
                 "summary": "Get last used namespace",
                 "operationId": "get-namespace-active",
->>>>>>> 416211d (Feature: add active namespaces endpoint)
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-<<<<<<< HEAD
-                            "type": "integer"
-=======
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/responses.ActiveNamespace"
                             }
->>>>>>> 416211d (Feature: add active namespaces endpoint)
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/namespace/count": {
+            "get": {
+                "description": "Get count of namespaces in network",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "namespace"
+                ],
+                "summary": "Get count of namespaces in network",
+                "operationId": "get-namespace-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     "500": {
