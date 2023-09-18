@@ -1,7 +1,6 @@
 package handle
 
 import (
-	types7 "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	types6 "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	types5 "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -124,24 +123,6 @@ func MsgUnjail(level types2.Level, m *types5.MsgUnjail) (types.MsgType, []storag
 
 func MsgSend(level types2.Level, m *types6.MsgSend) (types.MsgType, []storage.AddressWithType, error) {
 	msgType := types.MsgSend
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeFromAddress, address: m.FromAddress},
-		{t: types.MsgAddressTypeToAddress, address: m.ToAddress},
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgCreateVestingAccount(level types2.Level, m *types7.MsgCreateVestingAccount) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgCreateVestingAccount
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeFromAddress, address: m.FromAddress},
-		{t: types.MsgAddressTypeToAddress, address: m.ToAddress},
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgCreatePeriodicVestingAccount(level types2.Level, m *types7.MsgCreatePeriodicVestingAccount) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgCreatePeriodicVestingAccount
 	addresses, err := createAddresses(addressesData{
 		{t: types.MsgAddressTypeFromAddress, address: m.FromAddress},
 		{t: types.MsgAddressTypeToAddress, address: m.ToAddress},
