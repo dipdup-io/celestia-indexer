@@ -14,8 +14,12 @@ import (
 )
 
 func createMsgVote() types.Msg {
+	// Data from: 0A4BA0A30449C3269F313B5D974560F8D3A8179BE994054724898FF2D6866928
 	m := group.MsgVote{
-		Voter: "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		ProposalId: 1,
+		Voter:      "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		Option:     group.VOTE_OPTION_YES,
+		Metadata:   "",
 	}
 
 	return &m
