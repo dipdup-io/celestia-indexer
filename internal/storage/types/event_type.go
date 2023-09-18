@@ -33,7 +33,8 @@ package types
 		slash,
 
 		proposal_vote,
-		proposal_deposit
+		proposal_deposit,
+		submit_proposal
 	)
 */
 //go:generate go-enum --marshal --sql --values
