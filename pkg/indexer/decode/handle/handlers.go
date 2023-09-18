@@ -6,7 +6,6 @@ import (
 	types9 "github.com/celestiaorg/celestia-app/x/qgb/types"
 	types7 "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	types6 "github.com/cosmos/cosmos-sdk/x/bank/types"
-	types3 "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	types5 "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	types4 "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -16,24 +15,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
-
-func MsgWithdrawValidatorCommission(level types2.Level, m *types3.MsgWithdrawValidatorCommission) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgWithdrawValidatorCommission
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgWithdrawDelegatorReward(level types2.Level, m *types3.MsgWithdrawDelegatorReward) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgWithdrawDelegatorReward
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeDelegatorAddress, address: m.DelegatorAddress},
-		{t: types.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
-	}, level)
-
-	return msgType, addresses, err
-}
 
 func MsgEditValidator(level types2.Level, status types.Status, m *types4.MsgEditValidator) (types.MsgType, []storage.AddressWithType, *storage.Validator, error) {
 	msgType := types.MsgEditValidator
@@ -216,15 +197,6 @@ func MsgRegisterEVMAddress(level types2.Level, m *types9.MsgRegisterEVMAddress) 
 	addresses, err := createAddresses(addressesData{
 		{t: types.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
 		// TODO: think about EVM addresses
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgSetWithdrawalAddress(level types2.Level, m *types3.MsgSetWithdrawAddress) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgSetWithdrawAddress
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeDelegatorAddress, address: m.DelegatorAddress},
-		{t: types.MsgAddressTypeWithdraw, address: m.WithdrawAddress},
 	}, level)
 	return msgType, addresses, err
 }
