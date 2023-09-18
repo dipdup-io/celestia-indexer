@@ -1580,6 +1580,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 12354
                 },
+                "block_time": {
+                    "type": "integer",
+                    "example": 12354
+                },
                 "events_count": {
                     "type": "integer",
                     "example": 18
