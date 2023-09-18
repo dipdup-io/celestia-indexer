@@ -1,6 +1,7 @@
 package decode
 
 import (
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/decode/handle"
 	"time"
 
@@ -73,6 +74,10 @@ func Message(
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgRegisterEVMAddress(height, typedMsg)
 	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawalAddress(height, typedMsg)
+
+	// authz module
+	case *authz.MsgGrant:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgGrant(height, typedMsg)
 
 	// gov module
 	case *cosmosGovTypesV1.MsgVote:
