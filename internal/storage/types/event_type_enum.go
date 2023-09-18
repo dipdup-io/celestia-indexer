@@ -75,6 +75,8 @@ const (
 	EventTypeProposalDeposit EventType = "proposal_deposit"
 	// EventTypeSubmitProposal is a EventType of type submit_proposal.
 	EventTypeSubmitProposal EventType = "submit_proposal"
+	// EventTypeCosmosauthzv1beta1EventGrant is a EventType of type cosmos.authz.v1beta1.EventGrant.
+	EventTypeCosmosauthzv1beta1EventGrant EventType = "cosmos.authz.v1beta1.EventGrant"
 )
 
 var ErrInvalidEventType = errors.New("not a valid EventType")
@@ -113,6 +115,7 @@ func EventTypeValues() []EventType {
 		EventTypeProposalVote,
 		EventTypeProposalDeposit,
 		EventTypeSubmitProposal,
+		EventTypeCosmosauthzv1beta1EventGrant,
 	}
 }
 
@@ -160,6 +163,7 @@ var _EventTypeValue = map[string]EventType{
 	"proposal_vote":                     EventTypeProposalVote,
 	"proposal_deposit":                  EventTypeProposalDeposit,
 	"submit_proposal":                   EventTypeSubmitProposal,
+	"cosmos.authz.v1beta1.EventGrant":   EventTypeCosmosauthzv1beta1EventGrant,
 }
 
 // ParseEventType attempts to convert a string to a EventType.

@@ -2019,7 +2019,11 @@ const docTemplate = `{
                 "revoke_feegrant",
                 "set_feegrant",
                 "update_feegrant",
-                "slash"
+                "slash",
+                "proposal_vote",
+                "proposal_deposit",
+                "submit_proposal",
+                "cosmos.authz.v1beta1.EventGrant"
             ],
             "x-enum-varnames": [
                 "EventTypeUnknown",
@@ -2049,7 +2053,11 @@ const docTemplate = `{
                 "EventTypeRevokeFeegrant",
                 "EventTypeSetFeegrant",
                 "EventTypeUpdateFeegrant",
-                "EventTypeSlash"
+                "EventTypeSlash",
+                "EventTypeProposalVote",
+                "EventTypeProposalDeposit",
+                "EventTypeSubmitProposal",
+                "EventTypeCosmosauthzv1beta1EventGrant"
             ]
         },
         "types.MsgType": {

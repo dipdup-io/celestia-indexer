@@ -475,6 +475,10 @@ definitions:
     - set_feegrant
     - update_feegrant
     - slash
+    - proposal_vote
+    - proposal_deposit
+    - submit_proposal
+    - cosmos.authz.v1beta1.EventGrant
     type: string
     x-enum-varnames:
     - EventTypeUnknown
@@ -505,6 +509,10 @@ definitions:
     - EventTypeSetFeegrant
     - EventTypeUpdateFeegrant
     - EventTypeSlash
+    - EventTypeProposalVote
+    - EventTypeProposalDeposit
+    - EventTypeSubmitProposal
+    - EventTypeCosmosauthzv1beta1EventGrant
   types.MsgType:
     enum:
     - MsgUnknown
