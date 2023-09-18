@@ -30,7 +30,9 @@ package types
 		revoke_feegrant,
 		set_feegrant,
 		update_feegrant,
-		slash
+		slash,
+
+		proposal_vote
 	)
 */
 //go:generate go-enum --marshal --sql --values
