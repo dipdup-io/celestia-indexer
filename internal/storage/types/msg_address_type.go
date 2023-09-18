@@ -14,7 +14,8 @@ package types
 		signer,
 		withdraw,
 
-		voter
+		voter,
+		proposer,
 	)
 */
 //go:generate go-enum --marshal --sql --values

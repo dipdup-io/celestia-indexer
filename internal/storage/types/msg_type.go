@@ -21,6 +21,7 @@ package types
 		MsgSetWithdrawAddress,
 
 		MsgVote,
+		MsgSubmitProposal,
 	)
 */
 //go:generate go-enum --marshal --sql --values --noprefix

@@ -13,3 +13,11 @@ func MsgVote(level types.Level, voterAddress string) (storageTypes.MsgType, []st
 	}, level)
 	return msgType, addresses, err
 }
+
+func MsgSubmitProposal(level types.Level, proposerAddress string) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgSubmitProposal
+	addresses, err := createAddresses(addressesData{
+		{t: storageTypes.MsgAddressTypeProposer, address: proposerAddress},
+	}, level)
+	return msgType, addresses, err
+}
