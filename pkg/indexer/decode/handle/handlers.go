@@ -1,7 +1,6 @@
 package handle
 
 import (
-	types5 "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	types4 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
@@ -107,14 +106,6 @@ func MsgUndelegate(level types2.Level, m *types4.MsgUndelegate) (types.MsgType, 
 	addresses, err := createAddresses(addressesData{
 		{t: types.MsgAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: types.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgUnjail(level types2.Level, m *types5.MsgUnjail) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgUnjail
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeValidatorAddress, address: m.ValidatorAddr},
 	}, level)
 	return msgType, addresses, err
 }
