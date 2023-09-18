@@ -187,6 +187,7 @@ const docTemplate = `{
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
                             "MsgVote",
+                            "MsgVoteWeighted",
                             "MsgSubmitProposal"
                         ],
                         "type": "string",
@@ -1183,6 +1184,7 @@ const docTemplate = `{
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
                             "MsgVote",
+                            "MsgVoteWeighted",
                             "MsgSubmitProposal"
                         ],
                         "type": "string",
@@ -2082,6 +2084,7 @@ const docTemplate = `{
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
                 "MsgVote",
+                "MsgVoteWeighted",
                 "MsgSubmitProposal"
             ],
             "x-enum-varnames": [
@@ -2102,6 +2105,7 @@ const docTemplate = `{
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
                 "MsgVote",
+                "MsgVoteWeighted",
                 "MsgSubmitProposal"
             ]
         }

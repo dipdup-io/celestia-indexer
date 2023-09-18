@@ -181,6 +181,7 @@
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
                             "MsgVote",
+                            "MsgVoteWeighted",
                             "MsgSubmitProposal"
                         ],
                         "type": "string",
@@ -1177,6 +1178,7 @@
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
                             "MsgVote",
+                            "MsgVoteWeighted",
                             "MsgSubmitProposal"
                         ],
                         "type": "string",
@@ -2076,6 +2078,7 @@
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
                 "MsgVote",
+                "MsgVoteWeighted",
                 "MsgSubmitProposal"
             ],
             "x-enum-varnames": [
@@ -2096,6 +2099,7 @@
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
                 "MsgVote",
+                "MsgVoteWeighted",
                 "MsgSubmitProposal"
             ]
         }
