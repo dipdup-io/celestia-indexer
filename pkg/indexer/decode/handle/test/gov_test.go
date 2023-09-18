@@ -3,6 +3,7 @@ package handle_test
 import (
 	"github.com/cosmos/cosmos-sdk/types"
 	cosmosGovTypesV1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	cosmosGovTypesV1Beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/dipdup-io/celestia-indexer/internal/test_suite"
@@ -70,11 +71,10 @@ func TestDecodeMsg_SuccessOnMsgVote_V1(t *testing.T) {
 
 func createMsgVoteV1Beta1() types.Msg {
 	// Data from: 0A4BA0A30449C3269F313B5D974560F8D3A8179BE994054724898FF2D6866928
-	m := cosmosGovTypesV1.MsgVote{
+	m := cosmosGovTypesV1Beta1.MsgVote{
 		ProposalId: 1,
 		Voter:      "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
-		Option:     cosmosGovTypesV1.VoteOption_VOTE_OPTION_YES,
-		Metadata:   "",
+		Option:     cosmosGovTypesV1Beta1.OptionYes,
 	}
 
 	return &m
@@ -83,7 +83,7 @@ func createMsgVoteV1Beta1() types.Msg {
 func TestDecodeMsg_SuccessOnMsgVote_V1Beta1(t *testing.T) {
 	m := createMsgVoteV1Beta1()
 	blob, now := testsuite.EmptyBlock()
-	position := 7
+	position := 8
 
 	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
 
@@ -107,7 +107,7 @@ func TestDecodeMsg_SuccessOnMsgVote_V1Beta1(t *testing.T) {
 		Id:        0,
 		Height:    blob.Height,
 		Time:      now,
-		Position:  7,
+		Position:  8,
 		Type:      storageTypes.MsgVote,
 		TxId:      0,
 		Data:      structs.Map(m),

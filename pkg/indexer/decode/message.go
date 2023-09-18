@@ -74,7 +74,9 @@ func Message(
 	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawalAddress(height, typedMsg)
 
+	// gov module
 	case *cosmosGovTypesV1.MsgVote:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg.Voter)
 	case *cosmosGovTypesV1Beta1.MsgVote:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg.Voter)
 
