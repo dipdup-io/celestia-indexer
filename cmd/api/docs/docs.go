@@ -186,7 +186,8 @@ const docTemplate = `{
                             "MsgGrantAllowance",
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
-                            "MsgVote"
+                            "MsgVote",
+                            "MsgSubmitProposal"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -1181,7 +1182,8 @@ const docTemplate = `{
                             "MsgGrantAllowance",
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
-                            "MsgVote"
+                            "MsgVote",
+                            "MsgSubmitProposal"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -2079,7 +2081,8 @@ const docTemplate = `{
                 "MsgGrantAllowance",
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
-                "MsgVote"
+                "MsgVote",
+                "MsgSubmitProposal"
             ],
             "x-enum-varnames": [
                 "MsgUnknown",
@@ -2098,7 +2101,8 @@ const docTemplate = `{
                 "MsgGrantAllowance",
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
-                "MsgVote"
+                "MsgVote",
+                "MsgSubmitProposal"
             ]
         }
     }

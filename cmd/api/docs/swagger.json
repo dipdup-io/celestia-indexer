@@ -180,7 +180,8 @@
                             "MsgGrantAllowance",
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
-                            "MsgVote"
+                            "MsgVote",
+                            "MsgSubmitProposal"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -1175,7 +1176,8 @@
                             "MsgGrantAllowance",
                             "MsgRegisterEVMAddress",
                             "MsgSetWithdrawAddress",
-                            "MsgVote"
+                            "MsgVote",
+                            "MsgSubmitProposal"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -2073,7 +2075,8 @@
                 "MsgGrantAllowance",
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
-                "MsgVote"
+                "MsgVote",
+                "MsgSubmitProposal"
             ],
             "x-enum-varnames": [
                 "MsgUnknown",
@@ -2092,7 +2095,8 @@
                 "MsgGrantAllowance",
                 "MsgRegisterEVMAddress",
                 "MsgSetWithdrawAddress",
-                "MsgVote"
+                "MsgVote",
+                "MsgSubmitProposal"
             ]
         }
     }

@@ -532,6 +532,7 @@ definitions:
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
     - MsgVote
+    - MsgSubmitProposal
     type: string
     x-enum-varnames:
     - MsgUnknown
@@ -551,6 +552,7 @@ definitions:
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
     - MsgVote
+    - MsgSubmitProposal
 host: https://api.celestia.dipdup.net
 info:
   contact: {}
@@ -678,6 +680,7 @@ paths:
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
         - MsgVote
+        - MsgSubmitProposal
         in: query
         name: msg_type
         type: string
@@ -1446,6 +1449,7 @@ paths:
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
         - MsgVote
+        - MsgSubmitProposal
         in: query
         name: msg_type
         type: string

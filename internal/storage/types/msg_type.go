@@ -21,6 +21,7 @@ package types
 		MsgSetWithdrawAddress,
 
 		MsgVote,
+		MsgVoteWeighted,
 		MsgSubmitProposal,
 	)
 */
