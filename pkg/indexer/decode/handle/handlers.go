@@ -1,7 +1,6 @@
 package handle
 
 import (
-	types6 "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	types5 "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	types4 "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -117,15 +116,6 @@ func MsgUnjail(level types2.Level, m *types5.MsgUnjail) (types.MsgType, []storag
 	msgType := types.MsgUnjail
 	addresses, err := createAddresses(addressesData{
 		{t: types.MsgAddressTypeValidatorAddress, address: m.ValidatorAddr},
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgSend(level types2.Level, m *types6.MsgSend) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgSend
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeFromAddress, address: m.FromAddress},
-		{t: types.MsgAddressTypeToAddress, address: m.ToAddress},
 	}, level)
 	return msgType, addresses, err
 }
