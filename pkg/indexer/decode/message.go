@@ -13,7 +13,8 @@ import (
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	cosmosFeegrant "github.com/cosmos/cosmos-sdk/x/feegrant"
-	cosmosGroup "github.com/cosmos/cosmos-sdk/x/group"
+	cosmosGovTypesV1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	cosmosGovTypesV1Beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	cosmosSlashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -73,8 +74,9 @@ func Message(
 	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawalAddress(height, typedMsg)
 
-	case *cosmosGroup.MsgVote:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg)
+	case *cosmosGovTypesV1.MsgVote:
+	case *cosmosGovTypesV1Beta1.MsgVote:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg.Voter)
 
 	default:
 		log.Err(errors.New("unknown message type")).Msgf("got type %T", msg)
