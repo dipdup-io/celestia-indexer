@@ -8,7 +8,6 @@ import (
 	types6 "github.com/cosmos/cosmos-sdk/x/bank/types"
 	types3 "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	"github.com/cosmos/cosmos-sdk/x/group"
 	types5 "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	types4 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -226,14 +225,6 @@ func MsgSetWithdrawalAddress(level types2.Level, m *types3.MsgSetWithdrawAddress
 	addresses, err := createAddresses(addressesData{
 		{t: types.MsgAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: types.MsgAddressTypeWithdraw, address: m.WithdrawAddress},
-	}, level)
-	return msgType, addresses, err
-}
-
-func MsgVote(level types2.Level, m *group.MsgVote) (types.MsgType, []storage.AddressWithType, error) {
-	msgType := types.MsgVote
-	addresses, err := createAddresses(addressesData{
-		{t: types.MsgAddressTypeVoter, address: m.Voter},
 	}, level)
 	return msgType, addresses, err
 }
