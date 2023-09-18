@@ -17,21 +17,25 @@ import (
 	"time"
 )
 
-func createMsgVoteExpectations(
+func createExpectations(
 	blob nodeTypes.BlockData,
 	now time.Time,
 	m types.Msg,
 	position int,
+	addrType storageTypes.MsgAddressType,
+	address string,
+	hash []byte,
+	txType storageTypes.MsgType,
 ) ([]storage.AddressWithType, storage.Message) {
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.MsgAddressTypeVoter,
+			Type: addrType,
 			Address: storage.Address{
 				Id:         0,
 				Height:     blob.Height,
 				LastHeight: blob.Height,
-				Address:    "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
-				Hash:       []byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+				Address:    address,
+				Hash:       hash,
 				Balance: storage.Balance{
 					Total: decimal.Zero,
 				},
@@ -44,7 +48,7 @@ func createMsgVoteExpectations(
 		Height:    blob.Height,
 		Time:      now,
 		Position:  uint64(position),
-		Type:      storageTypes.MsgVote,
+		Type:      txType,
 		TxId:      0,
 		Data:      structs.Map(m),
 		Namespace: nil,
@@ -74,7 +78,13 @@ func TestDecodeMsg_SuccessOnMsgVote_V1(t *testing.T) {
 
 	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
 
-	addressesExpected, msgExpected := createMsgVoteExpectations(blob, now, m, position)
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeVoter,
+		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+		storageTypes.MsgVote,
+	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
@@ -102,8 +112,13 @@ func TestDecodeMsg_SuccessOnMsgVote_V1Beta1(t *testing.T) {
 
 	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
 
-	addressesExpected, msgExpected := createMsgVoteExpectations(blob, now, m, position)
-
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeVoter,
+		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+		storageTypes.MsgVote,
+	)
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
 	assert.Equal(t, msgExpected, dm.Msg)
@@ -130,8 +145,13 @@ func TestDecodeMsg_SuccessOnMsgVoteWeighted_V1(t *testing.T) {
 
 	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
 
-	addressesExpected, msgExpected := createMsgVoteExpectations(blob, now, m, position)
-
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeVoter,
+		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+		storageTypes.MsgVote,
+	)
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
 	assert.Equal(t, msgExpected, dm.Msg)
@@ -157,7 +177,13 @@ func TestDecodeMsg_SuccessOnMsgVoteWeighted_V1Beta1(t *testing.T) {
 
 	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
 
-	addressesExpected, msgExpected := createMsgVoteExpectations(blob, now, m, position)
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeVoter,
+		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+		storageTypes.MsgVote,
+	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
@@ -165,41 +191,10 @@ func TestDecodeMsg_SuccessOnMsgVoteWeighted_V1Beta1(t *testing.T) {
 	assert.Equal(t, addressesExpected, dm.Addresses)
 }
 
-func createMsgSubmitProposalExpectations(blob nodeTypes.BlockData, now time.Time, m types.Msg, position int) ([]storage.AddressWithType, storage.Message) {
-	addressesExpected := []storage.AddressWithType{
-		{
-			Type: storageTypes.MsgAddressTypeProposer,
-			Address: storage.Address{
-				Id:         0,
-				Height:     blob.Height,
-				LastHeight: blob.Height,
-				Address:    "celestia10d07y265gmmuvt4z0w9aw880jnsr700jtgz4v7",
-				Hash:       []byte{123, 95, 226, 43, 84, 70, 247, 198, 46, 162, 123, 139, 215, 28, 239, 148, 224, 63, 61, 242},
-				Balance: storage.Balance{
-					Total: decimal.Zero,
-				},
-			},
-		},
-	}
-
-	msgExpected := storage.Message{
-		Id:        0,
-		Height:    blob.Height,
-		Time:      now,
-		Position:  uint64(position),
-		Type:      storageTypes.MsgSubmitProposal,
-		TxId:      0,
-		Data:      structs.Map(m),
-		Namespace: nil,
-		Addresses: addressesExpected,
-	}
-	return addressesExpected, msgExpected
-}
-
 // v1.MsgSubmitProposal
 
 func createMsgSubmitProposalV1() types.Msg {
-	// Data from:ADDAF8EA30C75A7B3A069B1F9E24975CA6EA769CC42A850AD816432B4B0BE38F
+	// Data from: ADDAF8EA30C75A7B3A069B1F9E24975CA6EA769CC42A850AD816432B4B0BE38F
 	m := cosmosGovTypesV1.MsgSubmitProposal{
 		Messages:       make([]*codecTypes.Any, 0),
 		InitialDeposit: make([]types.Coin, 0),
@@ -217,7 +212,13 @@ func TestDecodeMsg_SuccessOnMsgSubmitProposal_V1(t *testing.T) {
 
 	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
 
-	addressesExpected, msgExpected := createMsgSubmitProposalExpectations(blob, now, m, position)
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeProposer,
+		"celestia10d07y265gmmuvt4z0w9aw880jnsr700jtgz4v7",
+		[]byte{123, 95, 226, 43, 84, 70, 247, 198, 46, 162, 123, 139, 215, 28, 239, 148, 224, 63, 61, 242},
+		storageTypes.MsgSubmitProposal,
+	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
@@ -228,7 +229,7 @@ func TestDecodeMsg_SuccessOnMsgSubmitProposal_V1(t *testing.T) {
 // v1beta1.MsgSubmitProposal
 
 func createMsgSubmitProposalV1Beta1() types.Msg {
-	// Data from:ADDAF8EA30C75A7B3A069B1F9E24975CA6EA769CC42A850AD816432B4B0BE38F
+	// Data from: ADDAF8EA30C75A7B3A069B1F9E24975CA6EA769CC42A850AD816432B4B0BE38F
 	m := cosmosGovTypesV1Beta1.MsgSubmitProposal{
 		Content:        nil,
 		InitialDeposit: make(types.Coins, 0),
@@ -245,7 +246,13 @@ func TestDecodeMsg_SuccessOnMsgSubmitProposal_V1Beta1(t *testing.T) {
 
 	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
 
-	addressesExpected, msgExpected := createMsgSubmitProposalExpectations(blob, now, m, position)
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeProposer,
+		"celestia10d07y265gmmuvt4z0w9aw880jnsr700jtgz4v7",
+		[]byte{123, 95, 226, 43, 84, 70, 247, 198, 46, 162, 123, 139, 215, 28, 239, 148, 224, 63, 61, 242},
+		storageTypes.MsgSubmitProposal,
+	)
 
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
