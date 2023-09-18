@@ -44,10 +44,16 @@ func Message(
 	d.Msg.Data = structs.Map(msg)
 
 	switch typedMsg := msg.(type) {
+
+	// distribution module
 	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawValidatorCommission(height, typedMsg)
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawDelegatorReward(height, typedMsg)
+	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawalAddress(height, typedMsg)
+
+	// staking module
 	case *cosmosStakingTypes.MsgEditValidator:
 		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handle.MsgEditValidator(height, status, typedMsg)
 	case *cosmosStakingTypes.MsgBeginRedelegate:
@@ -58,22 +64,32 @@ func Message(
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgDelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgUndelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgUndelegate(height, typedMsg)
+
+	// slashing module
 	case *cosmosSlashingTypes.MsgUnjail:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgUnjail(height, typedMsg)
+
+	// bank module
 	case *cosmosBankTypes.MsgSend:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSend(height, typedMsg)
+
+	// vesting module
 	case *cosmosVestingTypes.MsgCreateVestingAccount:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgCreateVestingAccount(height, typedMsg)
 	case *cosmosVestingTypes.MsgCreatePeriodicVestingAccount:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgCreatePeriodicVestingAccount(height, typedMsg)
+
+	// blob module
 	case *appBlobTypes.MsgPayForBlobs:
 		d.Msg.Type, d.Msg.Addresses, d.Msg.Namespace, d.BlobsSize, err = handle.MsgPayForBlobs(height, typedMsg)
+
+	// feegrant module
 	case *cosmosFeegrant.MsgGrantAllowance:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgGrantAllowance(height, typedMsg)
+
+	// qgb module
 	case *qgbTypes.MsgRegisterEVMAddress:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgRegisterEVMAddress(height, typedMsg)
-	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawalAddress(height, typedMsg)
 
 	// authz module
 	case *authz.MsgGrant:
