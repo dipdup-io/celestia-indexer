@@ -528,6 +528,7 @@ definitions:
     - MsgCreateVestingAccount
     - MsgCreatePeriodicVestingAccount
     - MsgPayForBlobs
+    - MsgGrant
     - MsgGrantAllowance
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
@@ -549,6 +550,7 @@ definitions:
     - MsgCreateVestingAccount
     - MsgCreatePeriodicVestingAccount
     - MsgPayForBlobs
+    - MsgGrant
     - MsgGrantAllowance
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
@@ -678,6 +680,7 @@ paths:
         - MsgCreateVestingAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
+        - MsgGrant
         - MsgGrantAllowance
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
@@ -1448,6 +1451,7 @@ paths:
         - MsgCreateVestingAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
+        - MsgGrant
         - MsgGrantAllowance
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
