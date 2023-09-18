@@ -47,6 +47,8 @@ const (
 	MsgSetWithdrawAddress MsgType = "MsgSetWithdrawAddress"
 	// MsgVote is a MsgType of type MsgVote.
 	MsgVote MsgType = "MsgVote"
+	// MsgVoteWeighted is a MsgType of type MsgVoteWeighted.
+	MsgVoteWeighted MsgType = "MsgVoteWeighted"
 	// MsgSubmitProposal is a MsgType of type MsgSubmitProposal.
 	MsgSubmitProposal MsgType = "MsgSubmitProposal"
 )
@@ -73,6 +75,7 @@ func MsgTypeValues() []MsgType {
 		MsgRegisterEVMAddress,
 		MsgSetWithdrawAddress,
 		MsgVote,
+		MsgVoteWeighted,
 		MsgSubmitProposal,
 	}
 }
@@ -107,6 +110,7 @@ var _MsgTypeValue = map[string]MsgType{
 	"MsgRegisterEVMAddress":           MsgRegisterEVMAddress,
 	"MsgSetWithdrawAddress":           MsgSetWithdrawAddress,
 	"MsgVote":                         MsgVote,
+	"MsgVoteWeighted":                 MsgVoteWeighted,
 	"MsgSubmitProposal":               MsgSubmitProposal,
 }
 

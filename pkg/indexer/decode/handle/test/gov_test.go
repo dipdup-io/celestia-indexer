@@ -150,7 +150,7 @@ func TestDecodeMsg_SuccessOnMsgVoteWeighted_V1(t *testing.T) {
 		storageTypes.MsgAddressTypeVoter,
 		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
 		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
-		storageTypes.MsgVote,
+		storageTypes.MsgVoteWeighted,
 	)
 	assert.NoError(t, err)
 	assert.Equal(t, uint64(0), dm.BlobsSize)
@@ -182,7 +182,7 @@ func TestDecodeMsg_SuccessOnMsgVoteWeighted_V1Beta1(t *testing.T) {
 		storageTypes.MsgAddressTypeVoter,
 		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
 		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
-		storageTypes.MsgVote,
+		storageTypes.MsgVoteWeighted,
 	)
 
 	assert.NoError(t, err)

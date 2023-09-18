@@ -80,9 +80,9 @@ func Message(
 	case *cosmosGovTypesV1Beta1.MsgVote:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg.Voter)
 	case *cosmosGovTypesV1.MsgVoteWeighted:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg.Voter)
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVoteWeighted(height, typedMsg.Voter)
 	case *cosmosGovTypesV1Beta1.MsgVoteWeighted:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg.Voter)
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVoteWeighted(height, typedMsg.Voter)
 	case *cosmosGovTypesV1.MsgSubmitProposal:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSubmitProposal(height, typedMsg.Proposer)
 	case *cosmosGovTypesV1Beta1.MsgSubmitProposal:
