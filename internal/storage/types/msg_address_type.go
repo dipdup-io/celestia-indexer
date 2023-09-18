@@ -12,7 +12,9 @@ package types
 		grantee,
 		granter,
 		signer,
-		withdraw
+		withdraw,
+
+		voter
 	)
 */
 //go:generate go-enum --marshal --sql --values

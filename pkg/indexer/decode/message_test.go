@@ -1,6 +1,7 @@
 package decode
 
 import (
+	cosmosGroup "github.com/cosmos/cosmos-sdk/x/group"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -968,6 +969,8 @@ func TestDecodeMsg_SuccessOnMsgRegisterEvmAddress(t *testing.T) {
 	assert.Equal(t, addressesExpected, dm.Addresses)
 }
 
+// MsgSetWithdrawAddress
+
 func createMsgSetWithdrawAddress() cosmosTypes.Msg {
 	m := cosmosDistributionTypes.MsgSetWithdrawAddress{
 		DelegatorAddress: "celestia1u5pshtqpexjmuudrvq6q335qym2zggzhp7kq0p",
@@ -1018,6 +1021,57 @@ func TestDecodeMsg_SuccessOnMsgSetWithdrawAddress(t *testing.T) {
 		Time:      now,
 		Position:  4,
 		Type:      storageTypes.MsgSetWithdrawAddress,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.BlobsSize)
+	assert.Equal(t, msgExpected, dm.Msg)
+	assert.Equal(t, addressesExpected, dm.Addresses)
+}
+
+// MsgVote
+
+func createMsgVote() cosmosTypes.Msg {
+	m := cosmosGroup.MsgVote{
+		Voter: "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgVote(t *testing.T) {
+	m := createMsgVote()
+	blob, now := testsuite.EmptyBlock()
+	position := 7
+
+	dm, err := Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.MsgAddressTypeVoter,
+			Address: storage.Address{
+				Id:         0,
+				Height:     blob.Height,
+				LastHeight: blob.Height,
+				Address:    "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+				Hash:       []byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+				Balance: storage.Balance{
+					Total: decimal.Zero,
+				},
+			},
+		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  7,
+		Type:      storageTypes.MsgVote,
 		TxId:      0,
 		Data:      structs.Map(m),
 		Namespace: nil,

@@ -18,7 +18,9 @@ package types
 		MsgPayForBlobs,
 		MsgGrantAllowance,
 		MsgRegisterEVMAddress,
-		MsgSetWithdrawAddress
+		MsgSetWithdrawAddress,
+
+		MsgVote,
 	)
 */
 //go:generate go-enum --marshal --sql --values --noprefix

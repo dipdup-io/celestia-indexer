@@ -523,6 +523,7 @@ definitions:
     - MsgGrantAllowance
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
+    - MsgVote
     type: string
     x-enum-varnames:
     - MsgUnknown
@@ -541,6 +542,7 @@ definitions:
     - MsgGrantAllowance
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
+    - MsgVote
 host: https://api.celestia.dipdup.net
 info:
   contact: {}
@@ -667,6 +669,7 @@ paths:
         - MsgGrantAllowance
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
+        - MsgVote
         in: query
         name: msg_type
         type: string
@@ -1434,6 +1437,7 @@ paths:
         - MsgGrantAllowance
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
+        - MsgVote
         in: query
         name: msg_type
         type: string

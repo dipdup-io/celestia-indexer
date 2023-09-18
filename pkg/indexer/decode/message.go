@@ -13,6 +13,7 @@ import (
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	cosmosFeegrant "github.com/cosmos/cosmos-sdk/x/feegrant"
+	cosmosGroup "github.com/cosmos/cosmos-sdk/x/group"
 	cosmosSlashingTypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -72,6 +73,10 @@ func Message(
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgRegisterEVMAddress(height, typedMsg)
 	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
 		d.Msg.Type, d.Msg.Addresses, err = handleMsgSetWithdrawalAddress(height, typedMsg)
+
+	case *cosmosGroup.MsgVote:
+		d.Msg.Type, d.Msg.Addresses, err = handleMsgVote(height, typedMsg)
+
 	default:
 		log.Err(errors.New("unknown message type")).Msgf("got type %T", msg)
 		d.Msg.Type = storageTypes.MsgUnknown
@@ -104,9 +109,7 @@ func createAddresses(data addressesData, level types.Level) ([]storage.AddressWi
 				Height:     level,
 				LastHeight: level,
 				Address:    d.address,
-				Balance: storage.Balance{
-					Total: decimal.Zero,
-				},
+				Balance:    storage.EmptyBalance(),
 			},
 		}
 	}
@@ -321,6 +324,14 @@ func handleMsgSetWithdrawalAddress(level types.Level, m *cosmosDistributionTypes
 	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.MsgAddressTypeDelegatorAddress, address: m.DelegatorAddress},
 		{t: storageTypes.MsgAddressTypeWithdraw, address: m.WithdrawAddress},
+	}, level)
+	return msgType, addresses, err
+}
+
+func handleMsgVote(level types.Level, m *cosmosGroup.MsgVote) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgVote
+	addresses, err := createAddresses(addressesData{
+		{t: storageTypes.MsgAddressTypeVoter, address: m.Voter},
 	}, level)
 	return msgType, addresses, err
 }
