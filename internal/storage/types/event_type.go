@@ -32,7 +32,8 @@ package types
 		update_feegrant,
 		slash,
 
-		proposal_vote
+		proposal_vote,
+		proposal_deposit
 	)
 */
 //go:generate go-enum --marshal --sql --values

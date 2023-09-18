@@ -71,6 +71,8 @@ const (
 	EventTypeSlash EventType = "slash"
 	// EventTypeProposalVote is a EventType of type proposal_vote.
 	EventTypeProposalVote EventType = "proposal_vote"
+	// EventTypeProposalDeposit is a EventType of type proposal_deposit.
+	EventTypeProposalDeposit EventType = "proposal_deposit"
 )
 
 var ErrInvalidEventType = errors.New("not a valid EventType")
@@ -107,6 +109,7 @@ func EventTypeValues() []EventType {
 		EventTypeUpdateFeegrant,
 		EventTypeSlash,
 		EventTypeProposalVote,
+		EventTypeProposalDeposit,
 	}
 }
 
@@ -152,6 +155,7 @@ var _EventTypeValue = map[string]EventType{
 	"update_feegrant":                   EventTypeUpdateFeegrant,
 	"slash":                             EventTypeSlash,
 	"proposal_vote":                     EventTypeProposalVote,
+	"proposal_deposit":                  EventTypeProposalDeposit,
 }
 
 // ParseEventType attempts to convert a string to a EventType.
