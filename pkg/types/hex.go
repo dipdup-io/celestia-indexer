@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/goccy/go-json"
 	"github.com/pkg/errors"
 )
 
@@ -32,18 +31,18 @@ func (h *Hex) UnmarshalJSON(data []byte) error {
 		*h = nil
 		return nil
 	}
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
+	length := len(data)
+	if length%2 == 1 {
+		return errors.Errorf("odd hex lenght: %d %v", length, data)
+	}
+	if data[0] != '"' || data[length-1] != '"' {
+		return errors.Errorf("hex should be quotted string: got=%s", string(data))
 	}
 
-	b, err := hex.DecodeString(s)
-	if err != nil {
-		return err
-	}
-	*h = make(Hex, len(b))
-	_ = copy(*h, b)
-	return nil
+	data = data[1 : length-1]
+	*h = make(Hex, hex.DecodedLen(len(data)))
+	_, err := hex.Decode(*h, data)
+	return err
 }
 
 func (h Hex) MarshalJSON() ([]byte, error) {
