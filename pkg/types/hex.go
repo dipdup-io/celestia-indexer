@@ -12,7 +12,7 @@ import (
 
 type Hex []byte
 
-var nullBytes = []byte("null")
+var nullBytes = "null"
 
 func HexFromString(s string) (Hex, error) {
 	data, err := hex.DecodeString(s)
@@ -27,7 +27,7 @@ func (h *Hex) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	if bytes.Equal(nullBytes, data) {
+	if nullBytes == string(data) {
 		*h = nil
 		return nil
 	}
@@ -36,18 +36,21 @@ func (h *Hex) UnmarshalJSON(data []byte) error {
 		return errors.Errorf("odd hex lenght: %d %v", length, data)
 	}
 	if data[0] != '"' || data[length-1] != '"' {
-		return errors.Errorf("hex should be quotted string: got=%s", string(data))
+		return errors.Errorf("hex should be quotted string: got=%s", data)
 	}
 
-	data = data[1 : length-1]
-	*h = make(Hex, hex.DecodedLen(len(data)))
+	data = bytes.Trim(data, `"`)
+	*h = make(Hex, hex.DecodedLen(length-1))
+	if length-1 == 0 {
+		return nil
+	}
 	_, err := hex.Decode(*h, data)
 	return err
 }
 
 func (h Hex) MarshalJSON() ([]byte, error) {
 	if h == nil {
-		return nullBytes, nil
+		return []byte(nullBytes), nil
 	}
 	return []byte(strconv.Quote(h.String())), nil
 }

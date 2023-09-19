@@ -38,6 +38,11 @@ func TestHex_UnmarshalJSON(t *testing.T) {
 			name:    "test 5",
 			json:    []byte(`{"field": 1234}`),
 			wantErr: true,
+		}, {
+			name:    "test 6",
+			json:    []byte(`{"field": ""}`),
+			want:    []byte{},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
