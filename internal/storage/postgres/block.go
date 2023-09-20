@@ -4,9 +4,11 @@ import (
 	"context"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
+	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/dipdup-net/go-lib/database"
 	sdk "github.com/dipdup-net/indexer-sdk/pkg/storage"
 	"github.com/dipdup-net/indexer-sdk/pkg/storage/postgres"
+	"github.com/uptrace/bun"
 )
 
 // Blocks -
@@ -50,8 +52,7 @@ func (b *Blocks) ByHeightWithStats(ctx context.Context, height uint64) (block st
 
 	var msgsStats []typeCount
 	err = b.DB().NewSelect().Model((*storage.Message)(nil)).
-		Column("message.type").
-		ColumnExpr("count(*)").
+		ColumnExpr("message.type, count(*)").
 		Where("message.height = ?", height).
 		Group("message.type").
 		Scan(ctx, &msgsStats)
@@ -85,6 +86,12 @@ func (b *Blocks) ByHash(ctx context.Context, hash []byte) (block storage.Block, 
 	return
 }
 
+type listTypeCount struct {
+	Height types.Level          `bun:"height"`
+	Type   storageTypes.MsgType `bun:"type"`
+	Count  int64                `bun:"count"`
+}
+
 // ListWithStats -
 func (b *Blocks) ListWithStats(ctx context.Context, limit, offset uint64, order sdk.SortOrder) (blocks []*storage.Block, err error) {
 	subQuery := b.DB().NewSelect().Model(&blocks)
@@ -98,5 +105,39 @@ func (b *Blocks) ListWithStats(ctx context.Context, limit, offset uint64, order 
 		JoinOn("stats.height = block.height")
 	query = sortScope(query, "block.id", order)
 	err = query.Scan(ctx, &blocks)
+
+	if err != nil {
+		return
+	}
+
+	heights := make([]uint64, len(blocks))
+	blocksHeighMap := make(map[types.Level]*storage.Block)
+	for i, b := range blocks {
+		heights[i] = uint64(b.Height)
+		blocksHeighMap[b.Height] = b
+	}
+
+	var listTypeCounts []listTypeCount
+	queryMsgsCounts := b.DB().NewSelect().Model((*storage.Message)(nil)).
+		ColumnExpr("message.height, message.type, count(*)").
+		Where("message.height IN (?)", bun.In(heights)).
+		Group("message.type").
+		Group("message.height")
+
+	queryMsgsCounts = sortScope(queryMsgsCounts, "message.height", order)
+	err = queryMsgsCounts.Scan(ctx, &listTypeCounts)
+
+	if err != nil {
+		return
+	}
+
+	for _, stat := range listTypeCounts {
+		if blocksHeighMap[stat.Height].Stats.MessagesCounts == nil {
+			blocksHeighMap[stat.Height].Stats.MessagesCounts = make(map[storageTypes.MsgType]int64)
+		}
+
+		blocksHeighMap[stat.Height].Stats.MessagesCounts[stat.Type] = stat.Count
+	}
+
 	return
 }

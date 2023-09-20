@@ -132,8 +132,7 @@ func (s *StorageTestSuite) TestBlockByHeight() {
 }
 
 func (s *StorageTestSuite) TestBlockByHeightWithStats() {
-	// ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	ctx, ctxCancel := context.WithCancel(context.Background())
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
 	block, err := s.storage.Blocks.ByHeightWithStats(ctx, 1000)
@@ -198,6 +197,12 @@ func (s *StorageTestSuite) TestBlockListWithStats() {
 	s.Require().EqualValues(11, block.VersionBlock)
 	s.Require().EqualValues(0, block.Stats.TxCount)
 	s.Require().EqualValues(11000, block.Stats.BlockTime)
+	s.Require().EqualValues(map[types.MsgType]int64{
+		types.MsgWithdrawDelegatorReward: 1,
+		types.MsgDelegate:                1,
+		types.MsgUnjail:                  1,
+		types.MsgPayForBlobs:             1,
+	}, block.Stats.MessagesCounts)
 
 	blocks, err = s.storage.Blocks.List(ctx, 10, 0, sdk.SortOrderDesc)
 	s.Require().NoError(err)
