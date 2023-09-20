@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/hex"
+	"github.com/shopspring/decimal"
 	"testing"
 	"time"
 
@@ -124,6 +125,36 @@ func (s *StorageTestSuite) TestBlockByHeight() {
 	s.Require().EqualValues(1, block.VersionApp)
 	s.Require().EqualValues(11, block.VersionBlock)
 	s.Require().Equal(storage.BlockStats{}, block.Stats)
+
+	hash, err := hex.DecodeString("6A30C94091DA7C436D64E62111D6890D772E351823C41496B4E52F28F5B000BF")
+	s.Require().NoError(err)
+	s.Require().Equal(hash, block.Hash.Bytes())
+}
+
+func (s *StorageTestSuite) TestBlockByHeightWithStats() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	block, err := s.storage.Blocks.ByHeightWithStats(ctx, 1000)
+	s.Require().NoError(err)
+	s.Require().EqualValues(1000, block.Height)
+	s.Require().EqualValues(1, block.VersionApp)
+	s.Require().EqualValues(11, block.VersionBlock)
+
+	loc := &time.Location{}
+	expectedStats := storage.BlockStats{
+		Id:            2,
+		Height:        1000,
+		Time:          time.Date(2023, 07, 04, 03, 10, 57, 0, loc).UTC(),
+		TxCount:       0,
+		EventsCount:   0,
+		BlobsSize:     0,
+		BlockTime:     11000,
+		SupplyChange:  decimal.NewFromInt(30930476),
+		InflationRate: decimal.NewFromFloat(0.08),
+		Fee:           decimal.NewFromInt(2873468273),
+	}
+	s.Require().Equal(expectedStats, block.Stats)
 
 	hash, err := hex.DecodeString("6A30C94091DA7C436D64E62111D6890D772E351823C41496B4E52F28F5B000BF")
 	s.Require().NoError(err)
