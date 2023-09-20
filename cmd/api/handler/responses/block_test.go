@@ -145,10 +145,10 @@ func TestNewBlock(t *testing.T) {
 					SupplyChange:  "123",
 					InflationRate: "0.08",
 					BlockTime:     11000,
-					MessagesCounts: map[string]int64{
-						"MsgSend":        1,
-						"MsgPayForBlobs": 2,
-						"MsgDelegate":    3,
+					MessagesCounts: map[storageTypes.MsgType]int64{
+						storageTypes.MsgSend:        1,
+						storageTypes.MsgPayForBlobs: 2,
+						storageTypes.MsgDelegate:    3,
 					},
 				},
 			},
@@ -201,10 +201,10 @@ func TestNewBlockStats(t *testing.T) {
 				SupplyChange:  "123",
 				InflationRate: "0.08",
 				BlockTime:     11000,
-				MessagesCounts: map[string]int64{
-					"MsgSend":        1,
-					"MsgPayForBlobs": 2,
-					"MsgDelegate":    3,
+				MessagesCounts: map[storageTypes.MsgType]int64{
+					storageTypes.MsgSend:        1,
+					storageTypes.MsgPayForBlobs: 2,
+					storageTypes.MsgDelegate:    3,
 				},
 			},
 		},
