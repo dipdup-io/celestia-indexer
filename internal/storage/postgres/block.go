@@ -25,6 +25,15 @@ func NewBlocks(db *database.Bun) *Blocks {
 func (b *Blocks) ByHeight(ctx context.Context, height uint64) (block storage.Block, err error) {
 	err = b.DB().NewSelect().Model(&block).
 		Where("block.height = ?", height).
+		Limit(1).
+		Scan(ctx)
+	return
+}
+
+// ByHeightWithStats -
+func (b *Blocks) ByHeightWithStats(ctx context.Context, height uint64) (block storage.Block, err error) {
+	err = b.DB().NewSelect().Model(&block).
+		Where("block.height = ?", height).
 		Relation("Stats").
 		Limit(1).
 		Scan(ctx)

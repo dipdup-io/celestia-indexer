@@ -118,6 +118,45 @@ func (c *IBlockByHeightCall) DoAndReturn(f func(context.Context, uint64) (storag
 	return c
 }
 
+// ByHeightWithStats mocks base method.
+func (m *MockIBlock) ByHeightWithStats(ctx context.Context, height uint64) (storage.Block, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ByHeightWithStats", ctx, height)
+	ret0, _ := ret[0].(storage.Block)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ByHeightWithStats indicates an expected call of ByHeightWithStats.
+func (mr *MockIBlockMockRecorder) ByHeightWithStats(ctx, height any) *IBlockByHeightWithStatsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ByHeightWithStats", reflect.TypeOf((*MockIBlock)(nil).ByHeightWithStats), ctx, height)
+	return &IBlockByHeightWithStatsCall{Call: call}
+}
+
+// IBlockByHeightWithStatsCall wrap *gomock.Call
+type IBlockByHeightWithStatsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *IBlockByHeightWithStatsCall) Return(arg0 storage.Block, arg1 error) *IBlockByHeightWithStatsCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *IBlockByHeightWithStatsCall) Do(f func(context.Context, uint64) (storage.Block, error)) *IBlockByHeightWithStatsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *IBlockByHeightWithStatsCall) DoAndReturn(f func(context.Context, uint64) (storage.Block, error)) *IBlockByHeightWithStatsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // CursorList mocks base method.
 func (m *MockIBlock) CursorList(ctx context.Context, id, limit uint64, order storage0.SortOrder, cmp storage0.Comparator) ([]*storage.Block, error) {
 	m.ctrl.T.Helper()
