@@ -181,7 +181,7 @@ func (s *StorageTestSuite) TestBlockListWithStats() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
-	blocks, err := s.storage.Blocks.ListWithStats(ctx, true, 10, 0, sdk.SortOrderDesc)
+	blocks, err := s.storage.Blocks.ListWithStats(ctx, 10, 0, sdk.SortOrderDesc)
 	s.Require().NoError(err)
 	s.Require().Len(blocks, 2)
 
@@ -192,7 +192,7 @@ func (s *StorageTestSuite) TestBlockListWithStats() {
 	s.Require().EqualValues(0, block.Stats.TxCount)
 	s.Require().EqualValues(11000, block.Stats.BlockTime)
 
-	blocks, err = s.storage.Blocks.ListWithStats(ctx, false, 10, 0, sdk.SortOrderDesc)
+	blocks, err = s.storage.Blocks.List(ctx, 10, 0, sdk.SortOrderDesc)
 	s.Require().NoError(err)
 	s.Require().Len(blocks, 2)
 
@@ -200,8 +200,7 @@ func (s *StorageTestSuite) TestBlockListWithStats() {
 	s.Require().EqualValues(1000, block.Height)
 	s.Require().EqualValues(1, block.VersionApp)
 	s.Require().EqualValues(11, block.VersionBlock)
-	s.Require().EqualValues(0, block.Stats.TxCount)
-	s.Require().EqualValues(0, block.Stats.BlockTime)
+	s.Require().EqualValues(storage.BlockStats{}, block.Stats)
 }
 
 func (s *StorageTestSuite) TestAddressByHash() {
