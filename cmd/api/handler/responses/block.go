@@ -71,7 +71,7 @@ type BlockStats struct {
 	SupplyChange   string           `example:"8635234"                         json:"supply_change"   swaggertype:"string"`
 	InflationRate  string           `example:"0.0800000"                       json:"inflation_rate"  swaggertype:"string"`
 	BlockTime      uint64           `example:"12354"                           json:"block_time"      swaggertype:"integer"`
-	MessagesCounts map[string]int64 `example:"{MsgPayForBlobs:10,MsgUnjail:1}" json:"messages_counts" swaggertype:"object"`
+	MessagesCounts map[string]int64 `example:"{MsgPayForBlobs:10,MsgUnjail:1}" json:"messages_counts" swaggertype:"string"`
 }
 
 func NewBlockStats(stats storage.BlockStats) *BlockStats {
