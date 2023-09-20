@@ -13,14 +13,14 @@ type ResultBlock struct {
 }
 
 type BlockId struct {
-	Hash          Hex           `json:"hash"`
-	PartSetHeader PartSetHeader `json:"parts"`
+	Hash Hex `json:"hash"`
+	// PartSetHeader PartSetHeader `json:"parts"`
 }
 
-type PartSetHeader struct {
-	Total int `json:"total"`
-	Hash  Hex `json:"hash"`
-}
+// type PartSetHeader struct {
+//	Total int `json:"total"`
+//	Hash  Hex `json:"hash"`
+// }
 
 // Block defines the atomic unit of a CometBFT blockchain.
 type Block struct {
