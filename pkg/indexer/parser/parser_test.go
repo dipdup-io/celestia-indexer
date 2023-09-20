@@ -95,7 +95,6 @@ func getBlock() types.BlockData {
 					Txs:        nil,
 					SquareSize: 0,
 				},
-				LastCommit: nil,
 			},
 		},
 		ResultBlockResults: types.ResultBlockResults{
