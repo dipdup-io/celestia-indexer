@@ -64,23 +64,31 @@ func (Block) SearchType() string {
 }
 
 type BlockStats struct {
-	TxCount       uint64 `example:"12"          json:"tx_count"       swaggertype:"integer"`
-	EventsCount   uint64 `example:"18"          json:"events_count"   swaggertype:"integer"`
-	BlobsSize     uint64 `example:"12354"       json:"blobs_size"     swaggertype:"integer"`
-	Fee           string `example:"28347628346" json:"fee"            swaggertype:"string"`
-	SupplyChange  string `example:"8635234"     json:"supply_change"  swaggertype:"string"`
-	InflationRate string `example:"0.0800000"   json:"inflation_rate" swaggertype:"string"`
-	BlockTime     uint64 `example:"12354"       json:"block_time"     swaggertype:"integer"`
+	TxCount        uint64           `example:"12"                              json:"tx_count"        swaggertype:"integer"`
+	EventsCount    uint64           `example:"18"                              json:"events_count"    swaggertype:"integer"`
+	BlobsSize      uint64           `example:"12354"                           json:"blobs_size"      swaggertype:"integer"`
+	Fee            string           `example:"28347628346"                     json:"fee"             swaggertype:"string"`
+	SupplyChange   string           `example:"8635234"                         json:"supply_change"   swaggertype:"string"`
+	InflationRate  string           `example:"0.0800000"                       json:"inflation_rate"  swaggertype:"string"`
+	BlockTime      uint64           `example:"12354"                           json:"block_time"      swaggertype:"integer"`
+	MessagesCounts map[string]int64 `example:"{MsgPayForBlobs:10,MsgUnjail:1}" json:"messages_counts" swaggertype:"object"`
 }
 
 func NewBlockStats(stats storage.BlockStats) *BlockStats {
-	return &BlockStats{
-		TxCount:       stats.TxCount,
-		EventsCount:   stats.EventsCount,
-		BlobsSize:     stats.BlobsSize,
-		Fee:           stats.Fee.String(),
-		SupplyChange:  stats.SupplyChange.String(),
-		InflationRate: stats.InflationRate.String(),
-		BlockTime:     stats.BlockTime,
+	bs := BlockStats{
+		TxCount:        stats.TxCount,
+		EventsCount:    stats.EventsCount,
+		BlobsSize:      stats.BlobsSize,
+		Fee:            stats.Fee.String(),
+		SupplyChange:   stats.SupplyChange.String(),
+		InflationRate:  stats.InflationRate.String(),
+		BlockTime:      stats.BlockTime,
+		MessagesCounts: make(map[string]int64),
 	}
+
+	for key, value := range stats.MessagesCounts {
+		bs.MessagesCounts[key.String()] = value
+	}
+
+	return &bs
 }
