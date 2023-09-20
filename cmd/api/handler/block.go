@@ -65,16 +65,13 @@ func (handler *BlockHandler) Get(c echo.Context) error {
 		return badRequestError(c, err)
 	}
 
+	var block storage.Block
 	if req.Stats {
-		block, err := handler.block.ByHeightWithStats(c.Request().Context(), req.Height)
-		if err := handleError(c, err, handler.block); err != nil {
-			return err
-		}
-
-		return c.JSON(http.StatusOK, responses.NewBlock(block, req.Stats))
+		block, err = handler.block.ByHeightWithStats(c.Request().Context(), req.Height)
+	} else {
+		block, err = handler.block.ByHeight(c.Request().Context(), req.Height)
 	}
 
-	block, err := handler.block.ByHeight(c.Request().Context(), req.Height)
 	if err := handleError(c, err, handler.block); err != nil {
 		return err
 	}

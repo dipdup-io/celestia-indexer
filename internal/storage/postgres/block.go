@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"context"
-
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
+	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/dipdup-net/go-lib/database"
 	sdk "github.com/dipdup-net/indexer-sdk/pkg/storage"
 	"github.com/dipdup-net/indexer-sdk/pkg/storage/postgres"
@@ -30,13 +30,41 @@ func (b *Blocks) ByHeight(ctx context.Context, height uint64) (block storage.Blo
 	return
 }
 
+type typeCount struct {
+	Type  storageTypes.MsgType `bun:"type"`
+	Count int64                `bun:"count"`
+}
+
 // ByHeightWithStats -
 func (b *Blocks) ByHeightWithStats(ctx context.Context, height uint64) (block storage.Block, err error) {
+
 	err = b.DB().NewSelect().Model(&block).
 		Where("block.height = ?", height).
 		Relation("Stats").
 		Limit(1).
 		Scan(ctx)
+
+	if err != nil {
+		return
+	}
+
+	var msgsStats []typeCount
+	err = b.DB().NewSelect().Model((*storage.Message)(nil)).
+		Column("message.type").
+		ColumnExpr("count(*)").
+		Where("message.height = ?", height).
+		Group("message.type").
+		Scan(ctx, &msgsStats)
+
+	if err != nil {
+		return
+	}
+
+	block.Stats.MessagesCounts = make(map[storageTypes.MsgType]int64)
+	for _, stat := range msgsStats {
+		block.Stats.MessagesCounts[stat.Type] = stat.Count
+	}
+
 	return
 }
 

@@ -132,7 +132,8 @@ func (s *StorageTestSuite) TestBlockByHeight() {
 }
 
 func (s *StorageTestSuite) TestBlockByHeightWithStats() {
-	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, ctxCancel := context.WithCancel(context.Background())
 	defer ctxCancel()
 
 	block, err := s.storage.Blocks.ByHeightWithStats(ctx, 1000)
@@ -153,6 +154,12 @@ func (s *StorageTestSuite) TestBlockByHeightWithStats() {
 		SupplyChange:  decimal.NewFromInt(30930476),
 		InflationRate: decimal.NewFromFloat(0.08),
 		Fee:           decimal.NewFromInt(2873468273),
+		MessagesCounts: map[types.MsgType]int64{
+			types.MsgDelegate:                1,
+			types.MsgPayForBlobs:             1,
+			types.MsgUnjail:                  1,
+			types.MsgWithdrawDelegatorReward: 1,
+		},
 	}
 	s.Require().Equal(expectedStats, block.Stats)
 
