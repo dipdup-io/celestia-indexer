@@ -7,6 +7,7 @@ import (
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
 
+// MsgRegisterEVMAddress registers an evm address to a validator.
 func MsgRegisterEVMAddress(level types.Level, m *qgbTypes.MsgRegisterEVMAddress) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgRegisterEVMAddress
 	addresses, err := createAddresses(addressesData{

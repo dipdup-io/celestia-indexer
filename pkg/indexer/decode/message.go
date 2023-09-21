@@ -56,14 +56,14 @@ func Message(
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgFundCommunityPool(height, typedMsg)
 
 	// staking module
-	case *cosmosStakingTypes.MsgEditValidator:
-		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handle.MsgEditValidator(height, status, typedMsg)
-	case *cosmosStakingTypes.MsgBeginRedelegate:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgBeginRedelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgCreateValidator:
 		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handle.MsgCreateValidator(height, status, typedMsg)
+	case *cosmosStakingTypes.MsgEditValidator:
+		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handle.MsgEditValidator(height, status, typedMsg)
 	case *cosmosStakingTypes.MsgDelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgDelegate(height, typedMsg)
+	case *cosmosStakingTypes.MsgBeginRedelegate:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgBeginRedelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgUndelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgUndelegate(height, typedMsg)
 
