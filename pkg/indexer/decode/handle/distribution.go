@@ -39,3 +39,13 @@ func MsgWithdrawValidatorCommission(level types.Level, m *cosmosDistributionType
 	}, level)
 	return msgType, addresses, err
 }
+
+// MsgFundCommunityPool allows an account to directly
+// fund the community pool.
+func MsgFundCommunityPool(level types.Level, m *cosmosDistributionTypes.MsgFundCommunityPool) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgFundCommunityPool
+	addresses, err := createAddresses(addressesData{
+		{t: storageTypes.MsgAddressTypeDepositor, address: m.Depositor},
+	}, level)
+	return msgType, addresses, err
+}

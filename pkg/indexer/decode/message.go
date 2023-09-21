@@ -46,12 +46,14 @@ func Message(
 	switch typedMsg := msg.(type) {
 
 	// distribution module
-	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawValidatorCommission(height, typedMsg)
-	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawDelegatorReward(height, typedMsg)
 	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawAddress(height, typedMsg)
+	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawDelegatorReward(height, typedMsg)
+	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawValidatorCommission(height, typedMsg)
+	case *cosmosDistributionTypes.MsgFundCommunityPool:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgFundCommunityPool(height, typedMsg)
 
 	// staking module
 	case *cosmosStakingTypes.MsgEditValidator:
