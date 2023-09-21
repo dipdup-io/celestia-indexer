@@ -3,11 +3,12 @@ package receiver
 import (
 	"context"
 	"database/sql"
+	ic "github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/mock"
+	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
+	"github.com/dipdup-net/indexer-sdk/pkg/modules/stopper"
 	"github.com/go-testfixtures/testfixtures/v3"
-	"github.com/tendermint/tendermint/libs/bytes"
-	tmTypes "github.com/tendermint/tendermint/types"
 	"go.uber.org/mock/gomock"
 	"testing"
 	"time"
@@ -88,16 +89,68 @@ func (s *ModuleTestSuite) InitApi(configureApi func()) {
 	}
 }
 
-func GetResultBlock(hash bytes.HexBytes) types.ResultBlock {
+func getResultBlock(hash types.Hex) types.ResultBlock {
 	return types.ResultBlock{
-		BlockID: tmTypes.BlockID{
+		BlockID: types.BlockId{
 			Hash: hash,
 		},
 	}
 }
 
-func (s *ModuleTestSuite) TestModule_OnClosedInput() {
+func (s *ModuleTestSuite) createModule() Module {
+	cfg := ic.Indexer{
+		Name:         testIndexerName,
+		ThreadsCount: 1,
+		StartLevel:   0,
+		BlockPeriod:  1,
+	}
+
+	ctx, cancelCtx := context.WithCancel(context.Background())
+	defer cancelCtx()
+
+	state, err := s.storage.State.ByName(ctx, testIndexerName)
+	s.Require().NoError(err)
+
+	receiverModule := NewModule(cfg, s.api, &state)
+
+	return receiverModule
+}
+
+func (s *ModuleTestSuite) TestModule_SuccessOnStop() {
 	s.InitDb("../../../test/data")
+	s.InitApi(func() {
+		s.api.EXPECT().Status(gomock.Any()).Return(nodeTypes.Status{}, nil).MinTimes(0)
+	})
+
+	receiverModule := s.createModule()
+
+	ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelCtx()
+
+	stopperModule := stopper.NewModule(cancelCtx)
+	err := stopperModule.AttachTo(&receiverModule, StopOutput, stopper.InputName)
+	s.Require().NoError(err)
+
+	stopperCtx, stopperCtxCancel := context.WithCancel(context.Background())
+	defer stopperCtxCancel()
+
+	stopperModule.Start(stopperCtx)
+	receiverModule.Start(ctx)
+
+	defer func() {
+		s.Require().NoError(receiverModule.Close())
+	}()
+
+	receiverModule.MustOutput(StopOutput).Push(struct{}{})
+
+	for {
+		select {
+		case <-ctx.Done():
+			s.Require().ErrorIs(context.Canceled, ctx.Err())
+			return
+		}
+	}
+
 }
 
 func TestSuiteModule_Run(t *testing.T) {
