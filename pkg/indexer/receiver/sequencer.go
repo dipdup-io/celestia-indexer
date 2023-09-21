@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
 
@@ -18,6 +19,10 @@ func (r *Module) sequencer(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case block := <-r.blocks:
+			if currentBlock > block.Block.Height {
+				continue
+			}
+
 			orderedBlocks[block.Block.Height] = block
 
 			if currentBlock == 0 {
