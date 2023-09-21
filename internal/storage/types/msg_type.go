@@ -16,8 +16,12 @@ package types
 		MsgCreateVestingAccount,
 		MsgCreatePeriodicVestingAccount,
 		MsgPayForBlobs,
+
 		MsgGrant,
+		MsgExec,
+
 		MsgGrantAllowance,
+
 		MsgRegisterEVMAddress,
 		MsgSetWithdrawAddress,
 

@@ -1,6 +1,7 @@
 package handle_test
 
 import (
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
@@ -13,7 +14,7 @@ import (
 	"testing"
 )
 
-// MsgGrantAllowance
+// MsgGrant
 
 func createMsgGrant() types.Msg {
 	m := authz.MsgGrant{
@@ -72,6 +73,59 @@ func TestDecodeMsg_SuccessOnMsgGrant(t *testing.T) {
 		Time:      now,
 		Position:  4,
 		Type:      storageTypes.MsgGrant,
+		TxId:      0,
+		Data:      structs.Map(m),
+		Namespace: nil,
+		Addresses: addressesExpected,
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.BlobsSize)
+	assert.Equal(t, msgExpected, dm.Msg)
+	assert.Equal(t, addressesExpected, dm.Addresses)
+}
+
+// MsgExec
+
+func createMsgExec() types.Msg {
+	m := authz.MsgExec{
+		Grantee: "celestia1vnflc6322f8z7cpl28r7un5dxhmjxghc20aydq",
+		Msgs:    make([]*codecTypes.Any, 0),
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgExec(t *testing.T) {
+	m := createMsgExec()
+	blob, now := testsuite.EmptyBlock()
+	position := 4
+
+	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
+
+	addressesExpected := []storage.AddressWithType{
+		{
+			Type: storageTypes.MsgAddressTypeGrantee,
+			Address: storage.Address{
+				Id:         0,
+				Height:     blob.Height,
+				LastHeight: blob.Height,
+				Address:    "celestia1vnflc6322f8z7cpl28r7un5dxhmjxghc20aydq",
+				Hash:       []byte{0x64, 0xd3, 0xfc, 0x6a, 0x2a, 0x52, 0x4e, 0x2f, 0x60, 0x3f, 0x51, 0xc7, 0xee, 0x4e, 0x8d, 0x35, 0xf7, 0x23, 0x22, 0xf8},
+				Balance: storage.Balance{
+					Id:    0,
+					Total: decimal.Zero,
+				},
+			},
+		},
+	}
+
+	msgExpected := storage.Message{
+		Id:        0,
+		Height:    blob.Height,
+		Time:      now,
+		Position:  4,
+		Type:      storageTypes.MsgExec,
 		TxId:      0,
 		Data:      structs.Map(m),
 		Namespace: nil,
