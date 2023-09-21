@@ -16,7 +16,10 @@ package types
 		MsgDelegate,
 		MsgUndelegate,
 		MsgUnjail,
+
 		MsgSend,
+		MsgMultiSend,
+
 		MsgCreateVestingAccount,
 		MsgCreatePeriodicVestingAccount,
 		MsgPayForBlobs,

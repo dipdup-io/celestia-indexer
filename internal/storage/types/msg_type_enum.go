@@ -37,6 +37,8 @@ const (
 	MsgUnjail MsgType = "MsgUnjail"
 	// MsgSend is a MsgType of type MsgSend.
 	MsgSend MsgType = "MsgSend"
+	// MsgMultiSend is a MsgType of type MsgMultiSend.
+	MsgMultiSend MsgType = "MsgMultiSend"
 	// MsgCreateVestingAccount is a MsgType of type MsgCreateVestingAccount.
 	MsgCreateVestingAccount MsgType = "MsgCreateVestingAccount"
 	// MsgCreatePeriodicVestingAccount is a MsgType of type MsgCreatePeriodicVestingAccount.
@@ -78,6 +80,7 @@ func MsgTypeValues() []MsgType {
 		MsgUndelegate,
 		MsgUnjail,
 		MsgSend,
+		MsgMultiSend,
 		MsgCreateVestingAccount,
 		MsgCreatePeriodicVestingAccount,
 		MsgPayForBlobs,
@@ -117,6 +120,7 @@ var _MsgTypeValue = map[string]MsgType{
 	"MsgUndelegate":                   MsgUndelegate,
 	"MsgUnjail":                       MsgUnjail,
 	"MsgSend":                         MsgSend,
+	"MsgMultiSend":                    MsgMultiSend,
 	"MsgCreateVestingAccount":         MsgCreateVestingAccount,
 	"MsgCreatePeriodicVestingAccount": MsgCreatePeriodicVestingAccount,
 	"MsgPayForBlobs":                  MsgPayForBlobs,

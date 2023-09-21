@@ -9,8 +9,12 @@ package types
 
 		validatorSrc,
 		validatorDst,
+
 		fromAddress,
 		toAddress,
+		input,
+		output,
+
 		grantee,
 		granter,
 		signer,
