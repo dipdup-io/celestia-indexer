@@ -19,10 +19,6 @@ func (r *Module) sequencer(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case block := <-r.blocks:
-			if currentBlock > block.Block.Height {
-				continue
-			}
-
 			orderedBlocks[block.Block.Height] = block
 
 			if currentBlock == 0 {
