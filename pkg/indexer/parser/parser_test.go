@@ -11,7 +11,6 @@ import (
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/assert"
-	"github.com/tendermint/tendermint/libs/bytes"
 	tmTypes "github.com/tendermint/tendermint/types"
 )
 
@@ -67,12 +66,8 @@ func getExpectedBlock() storage.Block {
 func getBlock() types.BlockData {
 	return types.BlockData{
 		ResultBlock: types.ResultBlock{
-			BlockID: tmTypes.BlockID{
-				Hash: bytes.HexBytes{0x0, 0x0, 0x0, 0x2},
-				PartSetHeader: tmTypes.PartSetHeader{
-					Total: 0,
-					Hash:  nil,
-				},
+			BlockID: types.BlockId{
+				Hash: types.Hex{0x0, 0x0, 0x0, 0x2},
 			},
 			Block: &types.Block{
 				Header: types.Header{
@@ -83,12 +78,8 @@ func getBlock() types.BlockData {
 					ChainID: "celestia-explorer-test",
 					Height:  1000,
 					Time:    time.Time{},
-					LastBlockID: tmTypes.BlockID{
-						Hash: bytes.HexBytes{0x0, 0x0, 0x0, 0x1},
-						PartSetHeader: tmTypes.PartSetHeader{
-							Total: 0,
-							Hash:  nil,
-						},
+					LastBlockID: types.BlockId{
+						Hash: types.Hex{0x0, 0x0, 0x0, 0x1},
 					},
 					LastCommitHash:     types.Hex{0x0, 0x0, 0x1, 0x1},
 					DataHash:           types.Hex{0x0, 0x0, 0x1, 0x2},
@@ -104,7 +95,6 @@ func getBlock() types.BlockData {
 					Txs:        nil,
 					SquareSize: 0,
 				},
-				LastCommit: nil,
 			},
 		},
 		ResultBlockResults: types.ResultBlockResults{

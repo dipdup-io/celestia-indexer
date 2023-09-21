@@ -209,28 +209,35 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg Config, db postgres.Sto
 	searchHandler := handler.NewSearchHandler(db.Address, db.Blocks, db.Namespace, db.Tx)
 	v1.GET("/search", searchHandler.Search)
 
-	addessHandlers := handler.NewAddressHandler(db.Address, db.Tx)
+	addessHandlers := handler.NewAddressHandler(db.Address, db.Tx, db.State, cfg.Indexer.Name)
 	addressGroup := v1.Group("/address")
 	{
 		addressGroup.GET("", addessHandlers.List)
+		addressGroup.GET("/count", addessHandlers.Count)
 		addressGroup.GET("/:hash", addessHandlers.Get)
 		addressGroup.GET("/:hash/txs", addessHandlers.Transactions)
 	}
 
-	blockHandlers := handler.NewBlockHandler(db.Blocks, db.BlockStats, db.Event, db.Namespace)
+	blockHandlers := handler.NewBlockHandler(db.Blocks, db.BlockStats, db.Event, db.Namespace, db.State, cfg.Indexer.Name)
 	blockGroup := v1.Group("/block")
 	{
 		blockGroup.GET("", blockHandlers.List)
-		blockGroup.GET("/:height", blockHandlers.Get)
-		blockGroup.GET("/:height/events", blockHandlers.GetEvents)
-		blockGroup.GET("/:height/stats", blockHandlers.GetStats)
-		blockGroup.GET("/:height/namespace", blockHandlers.GetNamespaces)
+		blockGroup.GET("/count", blockHandlers.Count)
+		heightGroup := blockGroup.Group("/:height")
+		{
+			heightGroup.GET("", blockHandlers.Get)
+			heightGroup.GET("/events", blockHandlers.GetEvents)
+			heightGroup.GET("/stats", blockHandlers.GetStats)
+			heightGroup.GET("/namespace", blockHandlers.GetNamespaces)
+			heightGroup.GET("/namespace/count", blockHandlers.GetNamespacesCount)
+		}
 	}
 
-	txHandlers := handler.NewTxHandler(db.Tx, db.Event, db.Message)
+	txHandlers := handler.NewTxHandler(db.Tx, db.Event, db.Message, db.State, cfg.Indexer.Name)
 	txGroup := v1.Group("/tx")
 	{
 		txGroup.GET("", txHandlers.List)
+		txGroup.GET("/count", txHandlers.Count)
 		txGroup.GET("/:hash", txHandlers.Get)
 		txGroup.GET("/:hash/events", txHandlers.GetEvents)
 		txGroup.GET("/:hash/messages", txHandlers.GetMessages)
@@ -245,10 +252,12 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg Config, db postgres.Sto
 		WithAuthToken(os.Getenv("CELESTIA_NODE_AUTH_TOKEN")).
 		WithRateLimit(datasource.RequestsPerSecond)
 
-	namespaceHandlers := handler.NewNamespaceHandler(db.Namespace, blobReceiver)
+	namespaceHandlers := handler.NewNamespaceHandler(db.Namespace, db.State, cfg.Indexer.Name, blobReceiver)
 	namespaceGroup := v1.Group("/namespace")
 	{
 		namespaceGroup.GET("", namespaceHandlers.List)
+		namespaceGroup.GET("/count", namespaceHandlers.Count)
+		namespaceGroup.GET("/active", namespaceHandlers.GetActive)
 		namespaceGroup.GET("/:id", namespaceHandlers.Get)
 		namespaceGroup.GET("/:id/:version", namespaceHandlers.GetWithVersion)
 		namespaceGroup.GET("/:id/:version/messages", namespaceHandlers.GetMessages)
@@ -257,7 +266,8 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg Config, db postgres.Sto
 	namespaceByHash := v1.Group("/namespace_by_hash")
 	{
 		namespaceByHash.GET("/:hash", namespaceHandlers.GetByHash)
-		namespaceByHash.GET("/:hash/:height", namespaceHandlers.GetBlob)
+		namespaceByHash.GET("/:hash/:height", namespaceHandlers.GetBlobs)
+		namespaceByHash.GET("/:hash/:height/:commitment", namespaceHandlers.GetBlob)
 	}
 
 	statsHandler := handler.NewStatsHandler(db.Stats)

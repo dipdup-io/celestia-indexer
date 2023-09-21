@@ -9,10 +9,12 @@ import (
 )
 
 type BlockHandler struct {
-	block      storage.IBlock
-	blockStats storage.IBlockStats
-	events     storage.IEvent
-	namespace  storage.INamespace
+	block       storage.IBlock
+	blockStats  storage.IBlockStats
+	events      storage.IEvent
+	namespace   storage.INamespace
+	state       storage.IState
+	indexerName string
 }
 
 func NewBlockHandler(
@@ -20,12 +22,16 @@ func NewBlockHandler(
 	blockStats storage.IBlockStats,
 	events storage.IEvent,
 	namespace storage.INamespace,
+	state storage.IState,
+	indexerName string,
 ) *BlockHandler {
 	return &BlockHandler{
-		block:      block,
-		blockStats: blockStats,
-		events:     events,
-		namespace:  namespace,
+		block:       block,
+		blockStats:  blockStats,
+		events:      events,
+		namespace:   namespace,
+		state:       state,
+		indexerName: indexerName,
 	}
 }
 
@@ -59,7 +65,13 @@ func (handler *BlockHandler) Get(c echo.Context) error {
 		return badRequestError(c, err)
 	}
 
-	block, err := handler.block.ByHeight(c.Request().Context(), req.Height)
+	var block storage.Block
+	if req.Stats {
+		block, err = handler.block.ByHeightWithStats(c.Request().Context(), req.Height)
+	} else {
+		block, err = handler.block.ByHeight(c.Request().Context(), req.Height)
+	}
+
 	if err := handleError(c, err, handler.block); err != nil {
 		return err
 	}
@@ -105,14 +117,20 @@ func (handler *BlockHandler) List(c echo.Context) error {
 	}
 	req.SetDefault()
 
-	blocks, err := handler.block.ListWithStats(c.Request().Context(), req.Stats, req.Limit, req.Offset, pgSort(req.Sort))
+	var blocks []*storage.Block
+	if req.Stats {
+		blocks, err = handler.block.ListWithStats(c.Request().Context(), req.Limit, req.Offset, pgSort(req.Sort))
+	} else {
+		blocks, err = handler.block.List(c.Request().Context(), req.Limit, req.Offset, pgSort(req.Sort))
+	}
+
 	if err := handleError(c, err, handler.block); err != nil {
 		return err
 	}
 
 	response := make([]responses.Block, len(blocks))
 	for i := range blocks {
-		response[i] = responses.NewBlock(blocks[i], req.Stats)
+		response[i] = responses.NewBlock(*blocks[i], req.Stats)
 	}
 
 	return returnArray(c, response)
@@ -209,4 +227,47 @@ func (handler *BlockHandler) GetNamespaces(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, response)
+}
+
+// GetNamespacesCount godoc
+//
+//	@Summary		Get count of affected in the block namespaces
+//	@Description	Get count of affected in the block namespaces
+//	@Tags			block
+//	@ID				get-block-namespaces-count
+//	@Param			height	path	integer	true	"Block height"	minimum(1)
+//	@Produce		json
+//	@Success		200	{integer} 	uint64
+//	@Failure		500	{object}	Error
+//	@Router			/v1/block/{height}/namespace/count [get]
+func (handler *BlockHandler) GetNamespacesCount(c echo.Context) error {
+	req, err := bindAndValidate[getBlockByHeightRequest](c)
+	if err != nil {
+		return badRequestError(c, err)
+	}
+
+	count, err := handler.namespace.CountMessagesByHeight(c.Request().Context(), req.Height)
+	if err := handleError(c, err, handler.namespace); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, count)
+}
+
+// Count godoc
+//
+//	@Summary		Get count of blocks in network
+//	@Description	Get count of blocks in network
+//	@Tags			block
+//	@ID				get-block-count
+//	@Produce		json
+//	@Success		200	{integer}   uint64
+//	@Failure		500	{object}	Error
+//	@Router			/v1/block/count [get]
+func (handler *BlockHandler) Count(c echo.Context) error {
+	state, err := handler.state.ByName(c.Request().Context(), handler.indexerName)
+	if err := handleError(c, err, handler.state); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, state.LastHeight+1) // + genesis block
 }

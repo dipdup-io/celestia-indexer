@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
-	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
 	"github.com/pkg/errors"
 )
 
@@ -14,7 +13,7 @@ var errInvalidPayForBlob = errors.New("invalid MsgPayForBlob content")
 
 func (module *Module) rollbackNamespaces(
 	ctx context.Context,
-	tx postgres.Transaction,
+	tx storage.Transaction,
 	nsMsgs []storage.NamespaceMessage,
 	deletedNs []storage.Namespace,
 	deletedMsgs []storage.Message,
@@ -72,7 +71,8 @@ func (module *Module) rollbackNamespaces(
 		namespaces = append(namespaces, diffs[key])
 	}
 
-	return tx.SaveNamespaces(ctx, namespaces...)
+	_, err := tx.SaveNamespaces(ctx, namespaces...)
+	return err
 }
 
 type namespaceSize map[string]uint64

@@ -33,6 +33,7 @@ var (
 		EventsCount: 2,
 		Time:        testTime,
 		Height:      100,
+		BlockTime:   11043,
 	}
 	testBlockWithStats = storage.Block{
 		Id:           1,
@@ -55,6 +56,7 @@ type BlockTestSuite struct {
 	blockStats *mock.MockIBlockStats
 	events     *mock.MockIEvent
 	namespace  *mock.MockINamespace
+	state      *mock.MockIState
 	echo       *echo.Echo
 	handler    *BlockHandler
 	ctrl       *gomock.Controller
@@ -69,7 +71,8 @@ func (s *BlockTestSuite) SetupSuite() {
 	s.blockStats = mock.NewMockIBlockStats(s.ctrl)
 	s.events = mock.NewMockIEvent(s.ctrl)
 	s.namespace = mock.NewMockINamespace(s.ctrl)
-	s.handler = NewBlockHandler(s.blocks, s.blockStats, s.events, s.namespace)
+	s.state = mock.NewMockIState(s.ctrl)
+	s.handler = NewBlockHandler(s.blocks, s.blockStats, s.events, s.namespace, s.state, testIndexerName)
 }
 
 // TearDownSuite -
@@ -153,7 +156,7 @@ func (s *BlockTestSuite) TestGetWithStats() {
 	c.SetParamValues("100")
 
 	s.blocks.EXPECT().
-		ByHeight(gomock.Any(), uint64(100)).
+		ByHeightWithStats(gomock.Any(), uint64(100)).
 		Return(testBlockWithStats, nil)
 
 	s.Require().NoError(s.handler.Get(c))
@@ -198,10 +201,43 @@ func (s *BlockTestSuite) TestList() {
 	c.SetPath("/block")
 
 	s.blocks.EXPECT().
-		ListWithStats(gomock.Any(), false, gomock.Any(), gomock.Any(), gomock.Any()).
-		Return([]storage.Block{
-			testBlock,
-		}, nil)
+		List(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return([]*storage.Block{
+			&testBlock,
+		}, nil).
+		MaxTimes(1)
+
+	s.Require().NoError(s.handler.List(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var blocks []responses.Block
+	err := json.NewDecoder(rec.Body).Decode(&blocks)
+	s.Require().NoError(err)
+	s.Require().Len(blocks, 1)
+	s.Require().EqualValues(1, blocks[0].Id)
+	s.Require().EqualValues(100, blocks[0].Height)
+	s.Require().Equal("1", blocks[0].VersionApp)
+	s.Require().Equal("11", blocks[0].VersionBlock)
+	s.Require().Equal("000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F", blocks[0].Hash.String())
+	s.Require().Equal(testTime, blocks[0].Time)
+	s.Require().Equal([]types.MsgType{types.MsgSend}, blocks[0].MessageTypes)
+}
+
+func (s *BlockTestSuite) TestListWithStats() {
+	q := make(url.Values)
+	q.Set("stats", "true")
+
+	req := httptest.NewRequest(http.MethodGet, "/?"+q.Encode(), nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/block")
+
+	s.blocks.EXPECT().
+		ListWithStats(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+		Return([]*storage.Block{
+			&testBlockWithStats,
+		}, nil).
+		MaxTimes(1)
 
 	s.Require().NoError(s.handler.List(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
@@ -277,6 +313,7 @@ func (s *BlockTestSuite) TestGetStats() {
 	s.Require().NoError(err)
 	s.Require().EqualValues(1, stats.TxCount)
 	s.Require().EqualValues(2, stats.EventsCount)
+	s.Require().EqualValues(11043, stats.BlockTime)
 }
 
 func (s *BlockTestSuite) TestGetNamespaces() {
@@ -322,4 +359,44 @@ func (s *BlockTestSuite) TestGetNamespaces() {
 	s.Require().Equal(testTime, msg.Time)
 	s.Require().EqualValues(string(types.MsgBeginRedelegate), msg.Type)
 	s.Require().EqualValues(1, msg.Tx.Id)
+}
+
+func (s *BlockTestSuite) TestGetNamespacesCount() {
+	req := httptest.NewRequest(http.MethodGet, "/?", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/block/:height/namespace/count")
+	c.SetParamNames("height")
+	c.SetParamValues("100")
+
+	s.namespace.EXPECT().
+		CountMessagesByHeight(gomock.Any(), uint64(100)).
+		Return(12, nil)
+
+	s.Require().NoError(s.handler.GetNamespacesCount(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var count int
+	err := json.NewDecoder(rec.Body).Decode(&count)
+	s.Require().NoError(err)
+	s.Require().EqualValues(count, 12)
+}
+
+func (s *BlockTestSuite) TestCount() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/address/count")
+
+	s.state.EXPECT().
+		ByName(gomock.Any(), testIndexerName).
+		Return(testState, nil)
+
+	s.Require().NoError(s.handler.Count(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var count uint64
+	err := json.NewDecoder(rec.Body).Decode(&count)
+	s.Require().NoError(err)
+	s.Require().EqualValues(80001, count)
 }

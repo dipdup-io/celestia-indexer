@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/dipdup-net/go-lib/config"
@@ -123,7 +125,43 @@ func (s *StorageTestSuite) TestBlockByHeight() {
 	s.Require().EqualValues(1000, block.Height)
 	s.Require().EqualValues(1, block.VersionApp)
 	s.Require().EqualValues(11, block.VersionBlock)
-	s.Require().EqualValues(0, block.Stats.TxCount)
+	s.Require().Equal(storage.BlockStats{}, block.Stats)
+
+	hash, err := hex.DecodeString("6A30C94091DA7C436D64E62111D6890D772E351823C41496B4E52F28F5B000BF")
+	s.Require().NoError(err)
+	s.Require().Equal(hash, block.Hash.Bytes())
+}
+
+func (s *StorageTestSuite) TestBlockByHeightWithStats() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	block, err := s.storage.Blocks.ByHeightWithStats(ctx, 1000)
+	s.Require().NoError(err)
+	s.Require().EqualValues(1000, block.Height)
+	s.Require().EqualValues(1, block.VersionApp)
+	s.Require().EqualValues(11, block.VersionBlock)
+
+	loc := &time.Location{}
+	expectedStats := storage.BlockStats{
+		Id:            2,
+		Height:        1000,
+		Time:          time.Date(2023, 07, 04, 03, 10, 57, 0, loc).UTC(),
+		TxCount:       0,
+		EventsCount:   0,
+		BlobsSize:     0,
+		BlockTime:     11000,
+		SupplyChange:  decimal.NewFromInt(30930476),
+		InflationRate: decimal.NewFromFloat(0.08),
+		Fee:           decimal.NewFromInt(2873468273),
+		MessagesCounts: map[types.MsgType]int64{
+			types.MsgDelegate:                1,
+			types.MsgPayForBlobs:             1,
+			types.MsgUnjail:                  1,
+			types.MsgWithdrawDelegatorReward: 1,
+		},
+	}
+	s.Require().Equal(expectedStats, block.Stats)
 
 	hash, err := hex.DecodeString("6A30C94091DA7C436D64E62111D6890D772E351823C41496B4E52F28F5B000BF")
 	s.Require().NoError(err)
@@ -144,6 +182,38 @@ func (s *StorageTestSuite) TestBlockByHash() {
 	s.Require().EqualValues(11, block.VersionBlock)
 	s.Require().EqualValues(0, block.Stats.TxCount)
 	s.Require().Equal(hash, block.Hash.Bytes())
+}
+
+func (s *StorageTestSuite) TestBlockListWithStats() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	blocks, err := s.storage.Blocks.ListWithStats(ctx, 10, 0, sdk.SortOrderDesc)
+	s.Require().NoError(err)
+	s.Require().Len(blocks, 2)
+
+	block := blocks[0]
+	s.Require().EqualValues(1000, block.Height)
+	s.Require().EqualValues(1, block.VersionApp)
+	s.Require().EqualValues(11, block.VersionBlock)
+	s.Require().EqualValues(0, block.Stats.TxCount)
+	s.Require().EqualValues(11000, block.Stats.BlockTime)
+	s.Require().EqualValues(map[types.MsgType]int64{
+		types.MsgWithdrawDelegatorReward: 1,
+		types.MsgDelegate:                1,
+		types.MsgUnjail:                  1,
+		types.MsgPayForBlobs:             1,
+	}, block.Stats.MessagesCounts)
+
+	blocks, err = s.storage.Blocks.List(ctx, 10, 0, sdk.SortOrderDesc)
+	s.Require().NoError(err)
+	s.Require().Len(blocks, 2)
+
+	block = blocks[0]
+	s.Require().EqualValues(1000, block.Height)
+	s.Require().EqualValues(1, block.VersionApp)
+	s.Require().EqualValues(11, block.VersionBlock)
+	s.Require().EqualValues(storage.BlockStats{}, block.Stats)
 }
 
 func (s *StorageTestSuite) TestAddressByHash() {
@@ -266,7 +336,7 @@ func (s *StorageTestSuite) TestNamespaceMessages() {
 
 	msgs, err := s.storage.Namespace.Messages(ctx, 2, 10, 0)
 	s.Require().NoError(err)
-	s.Require().Len(msgs, 1)
+	s.Require().Len(msgs, 2)
 
 	msg := msgs[0]
 	s.Require().EqualValues(3, msg.MsgId)
@@ -282,9 +352,9 @@ func (s *StorageTestSuite) TestNamespaceMessagesByHeight() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
-	msgs, err := s.storage.Namespace.MessagesByHeight(ctx, 1000, 10, 0)
+	msgs, err := s.storage.Namespace.MessagesByHeight(ctx, 1000, 2, 0)
 	s.Require().NoError(err)
-	s.Require().Len(msgs, 1)
+	s.Require().Len(msgs, 2)
 
 	msg := msgs[0]
 	s.Require().EqualValues(3, msg.MsgId)
@@ -295,6 +365,30 @@ func (s *StorageTestSuite) TestNamespaceMessagesByHeight() {
 	s.Require().Equal(types.MsgUnjail, msg.Message.Type)
 	s.Require().EqualValues(2, msg.Tx.Id)
 	s.Require().EqualValues(1255, msg.Namespace.Size)
+}
+
+func (s *StorageTestSuite) TestNamespaceCountMessagesByHeight() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	count, err := s.storage.Namespace.CountMessagesByHeight(ctx, 1000)
+	s.Require().NoError(err)
+	s.Require().EqualValues(count, 3)
+}
+
+func (s *StorageTestSuite) TestNamespaceActive() {
+	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer ctxCancel()
+
+	ns, err := s.storage.Namespace.Active(ctx, 2)
+	s.Require().NoError(err)
+	s.Require().Len(ns, 2)
+
+	namespace := ns[0]
+	s.Require().EqualValues(1000, namespace.Height)
+	s.Require().EqualValues(2, namespace.Id)
+	s.Require().NotNil(namespace.Namespace)
+	s.Require().EqualValues(1255, namespace.Namespace.Size)
 }
 
 func (s *StorageTestSuite) TestTxByHash() {

@@ -26,6 +26,7 @@ var (
 		Version:     1,
 		NamespaceID: []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7},
 		Size:        100,
+		PfbCount:    12,
 	}
 	testNamespaceId     = "00010203040506070809000102030405060708090001020304050607"
 	testNamespaceBase64 = "AQABAgMEBQYHCAkAAQIDBAUGBwgJAAECAwQFBgc="
@@ -35,6 +36,7 @@ var (
 type NamespaceTestSuite struct {
 	suite.Suite
 	namespaces   *mock.MockINamespace
+	state        *mock.MockIState
 	blobReceiver *nodeMock.MockCelestiaNodeApi
 	echo         *echo.Echo
 	handler      *NamespaceHandler
@@ -47,8 +49,9 @@ func (s *NamespaceTestSuite) SetupSuite() {
 	s.echo.Validator = NewCelestiaApiValidator()
 	s.ctrl = gomock.NewController(s.T())
 	s.namespaces = mock.NewMockINamespace(s.ctrl)
+	s.state = mock.NewMockIState(s.ctrl)
 	s.blobReceiver = nodeMock.NewMockCelestiaNodeApi(s.ctrl)
-	s.handler = NewNamespaceHandler(s.namespaces, s.blobReceiver)
+	s.handler = NewNamespaceHandler(s.namespaces, s.state, testIndexerName, s.blobReceiver)
 }
 
 // TearDownSuite -
@@ -83,6 +86,7 @@ func (s *NamespaceTestSuite) TestGet() {
 	s.Require().EqualValues(1, namespace[0].ID)
 	s.Require().EqualValues(100, namespace[0].Size)
 	s.Require().EqualValues(1, namespace[0].Version)
+	s.Require().EqualValues(12, namespace[0].PfbCount)
 	s.Require().Equal(testNamespaceId, namespace[0].NamespaceID)
 	s.Require().Equal(testNamespaceBase64, namespace[0].Hash)
 }
@@ -126,6 +130,7 @@ func (s *NamespaceTestSuite) TestList() {
 	s.Require().EqualValues(1, namespaces[0].ID)
 	s.Require().EqualValues(100, namespaces[0].Size)
 	s.Require().EqualValues(1, namespaces[0].Version)
+	s.Require().EqualValues(12, namespaces[0].PfbCount)
 	s.Require().Equal(testNamespaceId, namespaces[0].NamespaceID)
 	s.Require().Equal(testNamespaceBase64, namespaces[0].Hash)
 }
@@ -151,6 +156,7 @@ func (s *NamespaceTestSuite) TestGetWithVersion() {
 	s.Require().EqualValues(1, namespace.ID)
 	s.Require().EqualValues(100, namespace.Size)
 	s.Require().EqualValues(1, namespace.Version)
+	s.Require().EqualValues(12, namespace.PfbCount)
 	s.Require().Equal(testNamespaceId, namespace.NamespaceID)
 	s.Require().Equal(testNamespaceBase64, namespace.Hash)
 }
@@ -176,11 +182,12 @@ func (s *NamespaceTestSuite) TestGetByHash() {
 	s.Require().EqualValues(1, namespace.ID)
 	s.Require().EqualValues(100, namespace.Size)
 	s.Require().EqualValues(1, namespace.Version)
+	s.Require().EqualValues(12, namespace.PfbCount)
 	s.Require().Equal(testNamespaceId, namespace.NamespaceID)
 	s.Require().Equal(testNamespaceBase64, namespace.Hash)
 }
 
-func (s *NamespaceTestSuite) TestGetBlob() {
+func (s *NamespaceTestSuite) TestGetBlobs() {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := s.echo.NewContext(req, rec)
@@ -212,7 +219,7 @@ func (s *NamespaceTestSuite) TestGetBlob() {
 		MaxTimes(1).
 		MinTimes(1)
 
-	s.Require().NoError(s.handler.GetBlob(c))
+	s.Require().NoError(s.handler.GetBlobs(c))
 	s.Require().Equal(http.StatusOK, rec.Code)
 
 	var blobs []nodeTypes.Blob
@@ -226,6 +233,45 @@ func (s *NamespaceTestSuite) TestGetBlob() {
 	s.Require().Equal(result[0].Namespace, blob.Namespace)
 	s.Require().Equal(result[0].Data, blob.Data)
 	s.Require().Equal(result[0].Commitment, blob.Commitment)
+
+}
+
+func (s *NamespaceTestSuite) TestGetBlob() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/namespace_by_hash/:hash/:height/:commitment")
+	c.SetParamNames("hash", "height", "commitment")
+	c.SetParamValues(testNamespaceBase64, "1000", "Bw==")
+
+	data := make([]byte, 88)
+	_, err := rand.Read(data)
+	s.Require().NoError(err)
+
+	result := nodeTypes.Blob{
+		Namespace:    testNamespaceBase64,
+		Data:         base64.StdEncoding.EncodeToString(data),
+		Commitment:   "Bw==",
+		ShareVersion: 0,
+	}
+
+	s.blobReceiver.EXPECT().
+		Blob(gomock.Any(), uint64(1000), testNamespaceBase64, "Bw==").
+		Return(result, nil).
+		MaxTimes(1).
+		MinTimes(1)
+
+	s.Require().NoError(s.handler.GetBlob(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var blob nodeTypes.Blob
+	err = json.NewDecoder(rec.Body).Decode(&blob)
+	s.Require().NoError(err)
+
+	s.Require().EqualValues(0, blob.ShareVersion)
+	s.Require().Equal(testNamespaceBase64, blob.Namespace)
+	s.Require().Equal(result.Data, blob.Data)
+	s.Require().Equal("Bw==", blob.Commitment)
 
 }
 
@@ -276,4 +322,54 @@ func (s *NamespaceTestSuite) TestGetMessages() {
 	s.Require().Equal(testTime, msg.Time)
 	s.Require().EqualValues(string(types.MsgBeginRedelegate), msg.Type)
 	s.Require().EqualValues(1, msg.Tx.Id)
+}
+
+func (s *NamespaceTestSuite) TestCount() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/namespace/count")
+
+	s.state.EXPECT().
+		ByName(gomock.Any(), testIndexerName).
+		Return(testState, nil)
+
+	s.Require().NoError(s.handler.Count(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var count uint64
+	err := json.NewDecoder(rec.Body).Decode(&count)
+	s.Require().NoError(err)
+	s.Require().EqualValues(123, count)
+}
+
+func (s *NamespaceTestSuite) TestGetActive() {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := s.echo.NewContext(req, rec)
+	c.SetPath("/namespace/active")
+
+	s.namespaces.EXPECT().
+		Active(gomock.Any(), 5).
+		Return([]storage.ActiveNamespace{
+			{
+				Height:    100,
+				Time:      testTime,
+				Namespace: testNamespace,
+			},
+		}, nil)
+
+	s.Require().NoError(s.handler.GetActive(c))
+	s.Require().Equal(http.StatusOK, rec.Code)
+
+	var ns []responses.ActiveNamespace
+	err := json.NewDecoder(rec.Body).Decode(&ns)
+	s.Require().NoError(err)
+	s.Require().Len(ns, 1)
+
+	namespace := ns[0]
+	s.Require().Equal("00010203040506070809000102030405060708090001020304050607", namespace.NamespaceID)
+	s.Require().EqualValues(100, namespace.Height)
+	s.Require().EqualValues(100, namespace.Size)
+	s.Require().Equal(testTime, namespace.Time)
 }

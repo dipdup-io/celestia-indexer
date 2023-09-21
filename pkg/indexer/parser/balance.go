@@ -1,14 +1,13 @@
 package parser
 
 import (
+	"github.com/dipdup-io/celestia-indexer/internal/consts"
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-io/celestia-indexer/pkg/indexer/decode"
 	pkgTypes "github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 )
-
-const defaultCurrency = "utia"
 
 func parseCoinSpent(data map[string]any, height pkgTypes.Level) (*storage.Address, error) {
 	coinSpent, err := decode.NewCoinSpent(data)
@@ -30,7 +29,7 @@ func parseCoinSpent(data map[string]any, height pkgTypes.Level) (*storage.Addres
 		Height:     height,
 		LastHeight: height,
 		Balance: storage.Balance{
-			Currency: defaultCurrency,
+			Currency: consts.DefaultCurrency,
 			Total:    decimal.Zero,
 		},
 	}
@@ -63,14 +62,14 @@ func parseCoinReceived(data map[string]any, height pkgTypes.Level) (*storage.Add
 		Height:     height,
 		LastHeight: height,
 		Balance: storage.Balance{
-			Currency: defaultCurrency,
+			Currency: consts.DefaultCurrency,
 			Total:    decimal.Zero,
 		},
 	}
 
 	if coinReceived.Amount != nil {
 		address.Balance.Currency = coinReceived.Amount.Denom
-		address.Balance.Total = decimal.NewFromBigInt(coinReceived.Amount.Amount.Neg().BigInt(), 0)
+		address.Balance.Total = decimal.NewFromBigInt(coinReceived.Amount.Amount.BigInt(), 0) // TODO: unit test
 	}
 
 	return address, nil

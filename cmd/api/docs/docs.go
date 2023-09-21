@@ -76,6 +76,33 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/address/count": {
+            "get": {
+                "description": "Get count of addresses in network",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "address"
+                ],
+                "summary": "Get count of addresses in network",
+                "operationId": "get-address-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/address/{hash}": {
             "get": {
                 "description": "Get address info",
@@ -183,9 +210,13 @@ const docTemplate = `{
                             "MsgCreateVestingAccount",
                             "MsgCreatePeriodicVestingAccount",
                             "MsgPayForBlobs",
+                            "MsgGrant",
                             "MsgGrantAllowance",
                             "MsgRegisterEVMAddress",
-                            "MsgSetWithdrawAddress"
+                            "MsgSetWithdrawAddress",
+                            "MsgVote",
+                            "MsgVoteWeighted",
+                            "MsgSubmitProposal"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -292,6 +323,33 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/block/count": {
+            "get": {
+                "description": "Get count of blocks in network",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "block"
+                ],
+                "summary": "Get count of blocks in network",
+                "operationId": "get-block-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     "500": {
@@ -449,6 +507,43 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/block/{height}/namespace/count": {
+            "get": {
+                "description": "Get count of affected in the block namespaces",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "block"
+                ],
+                "summary": "Get count of affected in the block namespaces",
+                "operationId": "get-block-namespaces-count",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Block height",
+                        "name": "height",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     "500": {
@@ -619,6 +714,63 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/namespace/active": {
+            "get": {
+                "description": "Get last used namespace",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "namespace"
+                ],
+                "summary": "Get last used namespace",
+                "operationId": "get-namespace-active",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responses.ActiveNamespace"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/namespace/count": {
+            "get": {
+                "description": "Get count of namespaces in network",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "namespace"
+                ],
+                "summary": "Get count of namespaces in network",
+                "operationId": "get-namespace-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     "500": {
@@ -848,15 +1000,15 @@ const docTemplate = `{
         },
         "/v1/namespace_by_hash/{hash}/{height}": {
             "get": {
-                "description": "Returns blob (bytes array)",
+                "description": "Returns blobs",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "namespace"
                 ],
-                "summary": "Get namespace blob on height",
-                "operationId": "get-namespace-blob",
+                "summary": "Get namespace blobs on height",
+                "operationId": "get-namespace-blobs",
                 "parameters": [
                     {
                         "type": "string",
@@ -882,6 +1034,57 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/responses.Blob"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/namespace_by_hash/{hash}/{height}/{commitment}": {
+            "get": {
+                "description": "Returns blob",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "namespace"
+                ],
+                "summary": "Get namespace blob by commitment on height",
+                "operationId": "get-namespace-blob",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Base64-encoded namespace id and version",
+                        "name": "hash",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Block heigth",
+                        "name": "height",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Blob commitment",
+                        "name": "commitment",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Blob"
                         }
                     },
                     "400": {
@@ -1177,9 +1380,13 @@ const docTemplate = `{
                             "MsgCreateVestingAccount",
                             "MsgCreatePeriodicVestingAccount",
                             "MsgPayForBlobs",
+                            "MsgGrant",
                             "MsgGrantAllowance",
                             "MsgRegisterEVMAddress",
-                            "MsgSetWithdrawAddress"
+                            "MsgSetWithdrawAddress",
+                            "MsgVote",
+                            "MsgVoteWeighted",
+                            "MsgSubmitProposal"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -1219,6 +1426,33 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handler.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tx/count": {
+            "get": {
+                "description": "Get count of transactions in network",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Get count of transactions in network",
+                "operationId": "get-transactions-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     "500": {
@@ -1419,6 +1653,54 @@ const docTemplate = `{
                 }
             }
         },
+        "responses.ActiveNamespace": {
+            "type": "object",
+            "properties": {
+                "hash": {
+                    "type": "string",
+                    "format": "base64",
+                    "example": "U3dhZ2dlciByb2Nrcw=="
+                },
+                "height": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 100
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "integer",
+                    "example": 321
+                },
+                "namespace_id": {
+                    "type": "string",
+                    "format": "binary",
+                    "example": "4723ce10b187716adfc55ff7e6d9179c226e6b5440b02577cca49d02"
+                },
+                "pfb_count": {
+                    "type": "integer",
+                    "format": "integer",
+                    "example": 12
+                },
+                "reserved": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "size": {
+                    "type": "integer",
+                    "format": "integer",
+                    "example": 12345
+                },
+                "time": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2023-07-04T03:10:57+00:00"
+                },
+                "version": {
+                    "type": "integer",
+                    "format": "byte"
+                }
+            }
+        },
         "responses.Address": {
             "description": "Celestia address information",
             "type": "object",
@@ -1572,6 +1854,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 12354
                 },
+                "block_time": {
+                    "type": "integer",
+                    "example": 12354
+                },
                 "events_count": {
                     "type": "integer",
                     "example": 18
@@ -1583,6 +1869,10 @@ const docTemplate = `{
                 "inflation_rate": {
                     "type": "string",
                     "example": "0.0800000"
+                },
+                "messages_counts": {
+                    "type": "string",
+                    "example": "{MsgPayForBlobs:10,MsgUnjail:1}"
                 },
                 "supply_change": {
                     "type": "string",
@@ -1762,6 +2052,11 @@ const docTemplate = `{
                     "type": "string",
                     "format": "binary",
                     "example": "4723ce10b187716adfc55ff7e6d9179c226e6b5440b02577cca49d02"
+                },
+                "pfb_count": {
+                    "type": "integer",
+                    "format": "integer",
+                    "example": 12
                 },
                 "reserved": {
                     "type": "boolean",
@@ -2017,7 +2312,11 @@ const docTemplate = `{
                 "revoke_feegrant",
                 "set_feegrant",
                 "update_feegrant",
-                "slash"
+                "slash",
+                "proposal_vote",
+                "proposal_deposit",
+                "submit_proposal",
+                "cosmos.authz.v1beta1.EventGrant"
             ],
             "x-enum-varnames": [
                 "EventTypeUnknown",
@@ -2047,7 +2346,11 @@ const docTemplate = `{
                 "EventTypeRevokeFeegrant",
                 "EventTypeSetFeegrant",
                 "EventTypeUpdateFeegrant",
-                "EventTypeSlash"
+                "EventTypeSlash",
+                "EventTypeProposalVote",
+                "EventTypeProposalDeposit",
+                "EventTypeSubmitProposal",
+                "EventTypeCosmosauthzv1beta1EventGrant"
             ]
         },
         "types.MsgType": {
@@ -2066,9 +2369,13 @@ const docTemplate = `{
                 "MsgCreateVestingAccount",
                 "MsgCreatePeriodicVestingAccount",
                 "MsgPayForBlobs",
+                "MsgGrant",
                 "MsgGrantAllowance",
                 "MsgRegisterEVMAddress",
-                "MsgSetWithdrawAddress"
+                "MsgSetWithdrawAddress",
+                "MsgVote",
+                "MsgVoteWeighted",
+                "MsgSubmitProposal"
             ],
             "x-enum-varnames": [
                 "MsgUnknown",
@@ -2084,9 +2391,13 @@ const docTemplate = `{
                 "MsgCreateVestingAccount",
                 "MsgCreatePeriodicVestingAccount",
                 "MsgPayForBlobs",
+                "MsgGrant",
                 "MsgGrantAllowance",
                 "MsgRegisterEVMAddress",
-                "MsgSetWithdrawAddress"
+                "MsgSetWithdrawAddress",
+                "MsgVote",
+                "MsgVoteWeighted",
+                "MsgSubmitProposal"
             ]
         }
     }

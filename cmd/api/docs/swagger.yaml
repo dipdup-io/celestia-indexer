@@ -24,6 +24,43 @@ definitions:
       message:
         type: string
     type: object
+  responses.ActiveNamespace:
+    properties:
+      hash:
+        example: U3dhZ2dlciByb2Nrcw==
+        format: base64
+        type: string
+      height:
+        example: 100
+        format: int64
+        type: integer
+      id:
+        example: 321
+        format: integer
+        type: integer
+      namespace_id:
+        example: 4723ce10b187716adfc55ff7e6d9179c226e6b5440b02577cca49d02
+        format: binary
+        type: string
+      pfb_count:
+        example: 12
+        format: integer
+        type: integer
+      reserved:
+        example: true
+        type: boolean
+      size:
+        example: 12345
+        format: integer
+        type: integer
+      time:
+        example: "2023-07-04T03:10:57+00:00"
+        format: date-time
+        type: string
+      version:
+        format: byte
+        type: integer
+    type: object
   responses.Address:
     description: Celestia address information
     properties:
@@ -136,6 +173,9 @@ definitions:
       blobs_size:
         example: 12354
         type: integer
+      block_time:
+        example: 12354
+        type: integer
       events_count:
         example: 18
         type: integer
@@ -144,6 +184,9 @@ definitions:
         type: string
       inflation_rate:
         example: "0.0800000"
+        type: string
+      messages_counts:
+        example: '{MsgPayForBlobs:10,MsgUnjail:1}'
         type: string
       supply_change:
         example: "8635234"
@@ -273,6 +316,10 @@ definitions:
         example: 4723ce10b187716adfc55ff7e6d9179c226e6b5440b02577cca49d02
         format: binary
         type: string
+      pfb_count:
+        example: 12
+        format: integer
+        type: integer
       reserved:
         example: true
         type: boolean
@@ -475,6 +522,10 @@ definitions:
     - set_feegrant
     - update_feegrant
     - slash
+    - proposal_vote
+    - proposal_deposit
+    - submit_proposal
+    - cosmos.authz.v1beta1.EventGrant
     type: string
     x-enum-varnames:
     - EventTypeUnknown
@@ -505,6 +556,10 @@ definitions:
     - EventTypeSetFeegrant
     - EventTypeUpdateFeegrant
     - EventTypeSlash
+    - EventTypeProposalVote
+    - EventTypeProposalDeposit
+    - EventTypeSubmitProposal
+    - EventTypeCosmosauthzv1beta1EventGrant
   types.MsgType:
     enum:
     - MsgUnknown
@@ -520,9 +575,13 @@ definitions:
     - MsgCreateVestingAccount
     - MsgCreatePeriodicVestingAccount
     - MsgPayForBlobs
+    - MsgGrant
     - MsgGrantAllowance
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
+    - MsgVote
+    - MsgVoteWeighted
+    - MsgSubmitProposal
     type: string
     x-enum-varnames:
     - MsgUnknown
@@ -538,9 +597,13 @@ definitions:
     - MsgCreateVestingAccount
     - MsgCreatePeriodicVestingAccount
     - MsgPayForBlobs
+    - MsgGrant
     - MsgGrantAllowance
     - MsgRegisterEVMAddress
     - MsgSetWithdrawAddress
+    - MsgVote
+    - MsgVoteWeighted
+    - MsgSubmitProposal
 host: https://api.celestia.dipdup.net
 info:
   contact: {}
@@ -664,9 +727,13 @@ paths:
         - MsgCreateVestingAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
+        - MsgGrant
         - MsgGrantAllowance
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
+        - MsgVote
+        - MsgVoteWeighted
+        - MsgSubmitProposal
         in: query
         name: msg_type
         type: string
@@ -700,6 +767,24 @@ paths:
           schema:
             $ref: '#/definitions/handler.Error'
       summary: Get address transactions
+      tags:
+      - address
+  /v1/address/count:
+    get:
+      description: Get count of addresses in network
+      operationId: get-address-count
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get count of addresses in network
       tags:
       - address
   /v1/block:
@@ -853,6 +938,31 @@ paths:
       summary: Get namesapces affected in the block
       tags:
       - block
+  /v1/block/{height}/namespace/count:
+    get:
+      description: Get count of affected in the block namespaces
+      operationId: get-block-namespaces-count
+      parameters:
+      - description: Block height
+        in: path
+        minimum: 1
+        name: height
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get count of affected in the block namespaces
+      tags:
+      - block
   /v1/block/{height}/stats:
     get:
       description: Get block stats by height
@@ -880,6 +990,24 @@ paths:
           schema:
             $ref: '#/definitions/handler.Error'
       summary: Get block stats by height
+      tags:
+      - block
+  /v1/block/count:
+    get:
+      description: Get count of blocks in network
+      operationId: get-block-count
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get count of blocks in network
       tags:
       - block
   /v1/constants:
@@ -1084,6 +1212,44 @@ paths:
       summary: Get namespace messages by id and version
       tags:
       - namespace
+  /v1/namespace/active:
+    get:
+      description: Get last used namespace
+      operationId: get-namespace-active
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responses.ActiveNamespace'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get last used namespace
+      tags:
+      - namespace
+  /v1/namespace/count:
+    get:
+      description: Get count of namespaces in network
+      operationId: get-namespace-count
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get count of namespaces in network
+      tags:
+      - namespace
   /v1/namespace_by_hash/{hash}:
     get:
       description: Returns namespace by base64 encoded identity
@@ -1116,8 +1282,8 @@ paths:
       - namespace
   /v1/namespace_by_hash/{hash}/{height}:
     get:
-      description: Returns blob (bytes array)
-      operationId: get-namespace-blob
+      description: Returns blobs
+      operationId: get-namespace-blobs
       parameters:
       - description: Base64-encoded namespace id and version
         in: path
@@ -1143,7 +1309,42 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handler.Error'
-      summary: Get namespace blob on height
+      summary: Get namespace blobs on height
+      tags:
+      - namespace
+  /v1/namespace_by_hash/{hash}/{height}/{commitment}:
+    get:
+      description: Returns blob
+      operationId: get-namespace-blob
+      parameters:
+      - description: Base64-encoded namespace id and version
+        in: path
+        name: hash
+        required: true
+        type: string
+      - description: Block heigth
+        in: path
+        minimum: 1
+        name: height
+        required: true
+        type: integer
+      - description: Blob commitment
+        in: path
+        name: commitment
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Blob'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get namespace blob by commitment on height
       tags:
       - namespace
   /v1/search:
@@ -1431,9 +1632,13 @@ paths:
         - MsgCreateVestingAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
+        - MsgGrant
         - MsgGrantAllowance
         - MsgRegisterEVMAddress
         - MsgSetWithdrawAddress
+        - MsgVote
+        - MsgVoteWeighted
+        - MsgSubmitProposal
         in: query
         name: msg_type
         type: string
@@ -1563,6 +1768,24 @@ paths:
           schema:
             $ref: '#/definitions/handler.Error'
       summary: Get transaction messages
+      tags:
+      - transactions
+  /v1/tx/count:
+    get:
+      description: Get count of transactions in network
+      operationId: get-transactions-count
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get count of transactions in network
       tags:
       - transactions
   /v1/ws:
