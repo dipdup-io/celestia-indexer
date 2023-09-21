@@ -10,7 +10,7 @@ import (
 func MsgUnjail(level types.Level, m *cosmosSlashingTypes.MsgUnjail) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgUnjail
 	addresses, err := createAddresses(addressesData{
-		{t: storageTypes.MsgAddressTypeValidatorAddress, address: m.ValidatorAddr},
+		{t: storageTypes.MsgAddressTypeValidator, address: m.ValidatorAddr},
 	}, level)
 	return msgType, addresses, err
 }

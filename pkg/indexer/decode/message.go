@@ -51,7 +51,7 @@ func Message(
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawDelegatorReward(height, typedMsg)
 	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawalAddress(height, typedMsg)
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawAddress(height, typedMsg)
 
 	// staking module
 	case *cosmosStakingTypes.MsgEditValidator:

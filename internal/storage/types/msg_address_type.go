@@ -3,8 +3,10 @@ package types
 // swagger:enum MsgAddressType
 /*
 	ENUM(
-		validatorAddress,
-		delegatorAddress,
+		validator,
+		delegator,
+		depositor,
+
 		validatorSrcAddress,
 		validatorDstAddress,
 		fromAddress,

@@ -32,7 +32,7 @@ func TestDecodeMsg_SuccessOnMsgWithdrawValidatorCommission(t *testing.T) {
 
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.MsgAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidator,
 			Address: storage.Address{
 				Id:         0,
 				Height:     blob.Height,
@@ -85,7 +85,7 @@ func TestDecodeMsg_SuccessOnMsgWithdrawDelegatorReward(t *testing.T) {
 
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.MsgAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegator,
 			Address: storage.Address{
 				Id:         0,
 				Height:     blob.Height,
@@ -99,7 +99,7 @@ func TestDecodeMsg_SuccessOnMsgWithdrawDelegatorReward(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.MsgAddressTypeValidatorAddress,
+			Type: storageTypes.MsgAddressTypeValidator,
 			Address: storage.Address{
 				Id:         0,
 				Height:     blob.Height,
@@ -152,7 +152,7 @@ func TestDecodeMsg_SuccessOnMsgSetWithdrawAddress(t *testing.T) {
 
 	addressesExpected := []storage.AddressWithType{
 		{
-			Type: storageTypes.MsgAddressTypeDelegatorAddress,
+			Type: storageTypes.MsgAddressTypeDelegator,
 			Address: storage.Address{
 				Id:         0,
 				Height:     blob.Height,

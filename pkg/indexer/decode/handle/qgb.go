@@ -10,7 +10,7 @@ import (
 func MsgRegisterEVMAddress(level types.Level, m *qgbTypes.MsgRegisterEVMAddress) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgRegisterEVMAddress
 	addresses, err := createAddresses(addressesData{
-		{t: storageTypes.MsgAddressTypeValidatorAddress, address: m.ValidatorAddress},
+		{t: storageTypes.MsgAddressTypeValidator, address: m.ValidatorAddress},
 		// TODO: think about EVM addresses
 	}, level)
 	return msgType, addresses, err

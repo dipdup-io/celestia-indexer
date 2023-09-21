@@ -13,10 +13,12 @@ import (
 )
 
 const (
-	// MsgAddressTypeValidatorAddress is a MsgAddressType of type validatorAddress.
-	MsgAddressTypeValidatorAddress MsgAddressType = "validatorAddress"
-	// MsgAddressTypeDelegatorAddress is a MsgAddressType of type delegatorAddress.
-	MsgAddressTypeDelegatorAddress MsgAddressType = "delegatorAddress"
+	// MsgAddressTypeValidator is a MsgAddressType of type validator.
+	MsgAddressTypeValidator MsgAddressType = "validator"
+	// MsgAddressTypeDelegator is a MsgAddressType of type delegator.
+	MsgAddressTypeDelegator MsgAddressType = "delegator"
+	// MsgAddressTypeDepositor is a MsgAddressType of type depositor.
+	MsgAddressTypeDepositor MsgAddressType = "depositor"
 	// MsgAddressTypeValidatorSrcAddress is a MsgAddressType of type validatorSrcAddress.
 	MsgAddressTypeValidatorSrcAddress MsgAddressType = "validatorSrcAddress"
 	// MsgAddressTypeValidatorDstAddress is a MsgAddressType of type validatorDstAddress.
@@ -44,8 +46,9 @@ var ErrInvalidMsgAddressType = errors.New("not a valid MsgAddressType")
 // MsgAddressTypeValues returns a list of the values for MsgAddressType
 func MsgAddressTypeValues() []MsgAddressType {
 	return []MsgAddressType{
-		MsgAddressTypeValidatorAddress,
-		MsgAddressTypeDelegatorAddress,
+		MsgAddressTypeValidator,
+		MsgAddressTypeDelegator,
+		MsgAddressTypeDepositor,
 		MsgAddressTypeValidatorSrcAddress,
 		MsgAddressTypeValidatorDstAddress,
 		MsgAddressTypeFromAddress,
@@ -72,8 +75,9 @@ func (x MsgAddressType) IsValid() bool {
 }
 
 var _MsgAddressTypeValue = map[string]MsgAddressType{
-	"validatorAddress":    MsgAddressTypeValidatorAddress,
-	"delegatorAddress":    MsgAddressTypeDelegatorAddress,
+	"validator":           MsgAddressTypeValidator,
+	"delegator":           MsgAddressTypeDelegator,
+	"depositor":           MsgAddressTypeDepositor,
 	"validatorSrcAddress": MsgAddressTypeValidatorSrcAddress,
 	"validatorDstAddress": MsgAddressTypeValidatorDstAddress,
 	"fromAddress":         MsgAddressTypeFromAddress,
