@@ -42,8 +42,8 @@ func MsgBeginRedelegate(level types.Level, m *cosmosStakingTypes.MsgBeginRedeleg
 	msgType := storageTypes.MsgBeginRedelegate
 	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.MsgAddressTypeDelegator, address: m.DelegatorAddress},
-		{t: storageTypes.MsgAddressTypeValidatorSrcAddress, address: m.ValidatorSrcAddress},
-		{t: storageTypes.MsgAddressTypeValidatorDstAddress, address: m.ValidatorDstAddress},
+		{t: storageTypes.MsgAddressTypeValidatorSrc, address: m.ValidatorSrcAddress},
+		{t: storageTypes.MsgAddressTypeValidatorDst, address: m.ValidatorDstAddress},
 	}, level)
 	return msgType, addresses, err
 }

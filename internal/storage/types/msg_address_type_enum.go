@@ -19,10 +19,10 @@ const (
 	MsgAddressTypeDelegator MsgAddressType = "delegator"
 	// MsgAddressTypeDepositor is a MsgAddressType of type depositor.
 	MsgAddressTypeDepositor MsgAddressType = "depositor"
-	// MsgAddressTypeValidatorSrcAddress is a MsgAddressType of type validatorSrcAddress.
-	MsgAddressTypeValidatorSrcAddress MsgAddressType = "validatorSrcAddress"
-	// MsgAddressTypeValidatorDstAddress is a MsgAddressType of type validatorDstAddress.
-	MsgAddressTypeValidatorDstAddress MsgAddressType = "validatorDstAddress"
+	// MsgAddressTypeValidatorSrc is a MsgAddressType of type validatorSrc.
+	MsgAddressTypeValidatorSrc MsgAddressType = "validatorSrc"
+	// MsgAddressTypeValidatorDst is a MsgAddressType of type validatorDst.
+	MsgAddressTypeValidatorDst MsgAddressType = "validatorDst"
 	// MsgAddressTypeFromAddress is a MsgAddressType of type fromAddress.
 	MsgAddressTypeFromAddress MsgAddressType = "fromAddress"
 	// MsgAddressTypeToAddress is a MsgAddressType of type toAddress.
@@ -49,8 +49,8 @@ func MsgAddressTypeValues() []MsgAddressType {
 		MsgAddressTypeValidator,
 		MsgAddressTypeDelegator,
 		MsgAddressTypeDepositor,
-		MsgAddressTypeValidatorSrcAddress,
-		MsgAddressTypeValidatorDstAddress,
+		MsgAddressTypeValidatorSrc,
+		MsgAddressTypeValidatorDst,
 		MsgAddressTypeFromAddress,
 		MsgAddressTypeToAddress,
 		MsgAddressTypeGrantee,
@@ -75,19 +75,19 @@ func (x MsgAddressType) IsValid() bool {
 }
 
 var _MsgAddressTypeValue = map[string]MsgAddressType{
-	"validator":           MsgAddressTypeValidator,
-	"delegator":           MsgAddressTypeDelegator,
-	"depositor":           MsgAddressTypeDepositor,
-	"validatorSrcAddress": MsgAddressTypeValidatorSrcAddress,
-	"validatorDstAddress": MsgAddressTypeValidatorDstAddress,
-	"fromAddress":         MsgAddressTypeFromAddress,
-	"toAddress":           MsgAddressTypeToAddress,
-	"grantee":             MsgAddressTypeGrantee,
-	"granter":             MsgAddressTypeGranter,
-	"signer":              MsgAddressTypeSigner,
-	"withdraw":            MsgAddressTypeWithdraw,
-	"voter":               MsgAddressTypeVoter,
-	"proposer":            MsgAddressTypeProposer,
+	"validator":    MsgAddressTypeValidator,
+	"delegator":    MsgAddressTypeDelegator,
+	"depositor":    MsgAddressTypeDepositor,
+	"validatorSrc": MsgAddressTypeValidatorSrc,
+	"validatorDst": MsgAddressTypeValidatorDst,
+	"fromAddress":  MsgAddressTypeFromAddress,
+	"toAddress":    MsgAddressTypeToAddress,
+	"grantee":      MsgAddressTypeGrantee,
+	"granter":      MsgAddressTypeGranter,
+	"signer":       MsgAddressTypeSigner,
+	"withdraw":     MsgAddressTypeWithdraw,
+	"voter":        MsgAddressTypeVoter,
+	"proposer":     MsgAddressTypeProposer,
 }
 
 // ParseMsgAddressType attempts to convert a string to a MsgAddressType.

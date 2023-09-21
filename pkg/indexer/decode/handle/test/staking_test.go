@@ -120,7 +120,7 @@ func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.MsgAddressTypeValidatorSrcAddress,
+			Type: storageTypes.MsgAddressTypeValidatorSrc,
 			Address: storage.Address{
 				Id:         0,
 				Height:     blob.Height,
@@ -134,7 +134,7 @@ func TestDecodeMsg_SuccessOnMsgBeginRedelegate(t *testing.T) {
 			},
 		},
 		{
-			Type: storageTypes.MsgAddressTypeValidatorDstAddress,
+			Type: storageTypes.MsgAddressTypeValidatorDst,
 			Address: storage.Address{
 				Id:         0,
 				Height:     blob.Height,
