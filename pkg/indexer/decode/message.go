@@ -96,6 +96,8 @@ func Message(
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgGrant(height, typedMsg)
 	case *authz.MsgExec:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgExec(height, typedMsg)
+	case *authz.MsgRevoke:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgRevoke(height, typedMsg)
 
 	// gov module
 	case *cosmosGovTypesV1.MsgVote:

@@ -34,3 +34,14 @@ func MsgExec(level types.Level, m *authz.MsgExec) (storageTypes.MsgType, []stora
 
 	return msgType, addresses, err
 }
+
+// MsgRevoke revokes any authorization with the provided sdk.Msg type on the
+// granter's account with that has been granted to the grantee.
+func MsgRevoke(level types.Level, m *authz.MsgRevoke) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgRevoke
+	addresses, err := createAddresses(addressesData{
+		{t: storageTypes.MsgAddressTypeGranter, address: m.Granter},
+		{t: storageTypes.MsgAddressTypeGrantee, address: m.Grantee},
+	}, level)
+	return msgType, addresses, err
+}

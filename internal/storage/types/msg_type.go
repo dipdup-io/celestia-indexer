@@ -19,6 +19,7 @@ package types
 
 		MsgGrant,
 		MsgExec,
+		MsgRevoke,
 
 		MsgGrantAllowance,
 
