@@ -19,5 +19,19 @@ func MsgSend(level types.Level, m *cosmosBankTypes.MsgSend) (storageTypes.MsgTyp
 
 // MsgMultiSend represents an arbitrary multi-in, multi-out send message.
 func MsgMultiSend(level types.Level, m *cosmosBankTypes.MsgMultiSend) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgMultiSend
+	aData := make(addressesData, len(m.Inputs)+len(m.Outputs))
 
+	var i int64
+	for _, input := range m.Inputs {
+		aData[i] = addressData{t: storageTypes.MsgAddressTypeInput, address: input.Address}
+		i++
+	}
+	for _, output := range m.Outputs {
+		aData[i] = addressData{t: storageTypes.MsgAddressTypeOutput, address: output.Address}
+		i++
+	}
+
+	addresses, err := createAddresses(aData, level)
+	return msgType, addresses, err
 }
