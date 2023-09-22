@@ -291,3 +291,68 @@ func TestDecodeMsg_SuccessOnMsgVoteWeighted_V1Beta1(t *testing.T) {
 	assert.Equal(t, msgExpected, dm.Msg)
 	assert.Equal(t, addressesExpected, dm.Addresses)
 }
+
+// v1.MsgDeposit
+
+func createMsgDepositV1() types.Msg {
+	m := cosmosGovTypesV1.MsgDeposit{
+		ProposalId: 1,
+		Depositor:  "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		Amount:     make([]types.Coin, 0),
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessMsgDeposit_V1(t *testing.T) {
+	m := createMsgDepositV1()
+	blob, now := testsuite.EmptyBlock()
+	position := 7
+
+	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
+
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeDepositor,
+		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+		storageTypes.MsgDeposit,
+	)
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.BlobsSize)
+	assert.Equal(t, msgExpected, dm.Msg)
+	assert.Equal(t, addressesExpected, dm.Addresses)
+}
+
+// v1beta1.MsgDeposit
+
+func createMsgDepositV1Beta1() types.Msg {
+	m := cosmosGovTypesV1Beta1.MsgDeposit{
+		ProposalId: 1,
+		Depositor:  "celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		Amount:     make(types.Coins, 0),
+	}
+
+	return &m
+}
+
+func TestDecodeMsg_SuccessOnMsgDeposit_V1Beta1(t *testing.T) {
+	m := createMsgDepositV1Beta1()
+	blob, now := testsuite.EmptyBlock()
+	position := 8
+
+	dm, err := decode.Message(m, blob.Height, blob.Block.Time, position, storageTypes.StatusSuccess)
+
+	addressesExpected, msgExpected := createExpectations(
+		blob, now, m, position,
+		storageTypes.MsgAddressTypeDepositor,
+		"celestia1prxtghtsjrdwdtkt82kye3a7yukmcay6x9uyts",
+		[]byte{8, 204, 180, 93, 112, 144, 218, 230, 174, 203, 58, 172, 76, 199, 190, 39, 45, 188, 116, 154},
+		storageTypes.MsgDeposit,
+	)
+
+	assert.NoError(t, err)
+	assert.Equal(t, uint64(0), dm.BlobsSize)
+	assert.Equal(t, msgExpected, dm.Msg)
+	assert.Equal(t, addressesExpected, dm.Addresses)
+}

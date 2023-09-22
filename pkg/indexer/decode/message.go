@@ -119,6 +119,10 @@ func Message(
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVoteWeighted(height, typedMsg.Voter)
 	case *cosmosGovTypesV1Beta1.MsgVoteWeighted:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVoteWeighted(height, typedMsg.Voter)
+	case *cosmosGovTypesV1.MsgDeposit:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgDeposit(height, typedMsg.Depositor)
+	case *cosmosGovTypesV1Beta1.MsgDeposit:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgDeposit(height, typedMsg.Depositor)
 
 	default:
 		log.Err(errors.New("unknown message type")).Msgf("got type %T", msg)

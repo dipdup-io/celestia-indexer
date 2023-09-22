@@ -37,6 +37,7 @@ package types
 		MsgExecLegacyContent,
 		MsgVote,
 		MsgVoteWeighted,
+		MsgDeposit,
 	)
 */
 //go:generate go-enum --marshal --sql --values --noprefix

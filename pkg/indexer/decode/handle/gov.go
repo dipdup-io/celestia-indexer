@@ -28,6 +28,7 @@ func MsgExecLegacyContent(level types.Level, m *cosmosGovTypesV1.MsgExecLegacyCo
 	return msgType, addresses, err
 }
 
+// MsgVote defines a message to cast a vote.
 func MsgVote(level types.Level, voterAddress string) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgVote
 	addresses, err := createAddresses(addressesData{
@@ -36,10 +37,20 @@ func MsgVote(level types.Level, voterAddress string) (storageTypes.MsgType, []st
 	return msgType, addresses, err
 }
 
+// MsgVoteWeighted defines a message to cast a vote.
 func MsgVoteWeighted(level types.Level, voterAddress string) (storageTypes.MsgType, []storage.AddressWithType, error) {
 	msgType := storageTypes.MsgVoteWeighted
 	addresses, err := createAddresses(addressesData{
 		{t: storageTypes.MsgAddressTypeVoter, address: voterAddress},
+	}, level)
+	return msgType, addresses, err
+}
+
+// MsgDeposit defines a message to submit a deposit to an existing proposal.
+func MsgDeposit(level types.Level, depositorAddress string) (storageTypes.MsgType, []storage.AddressWithType, error) {
+	msgType := storageTypes.MsgDeposit
+	addresses, err := createAddresses(addressesData{
+		{t: storageTypes.MsgAddressTypeDepositor, address: depositorAddress},
 	}, level)
 	return msgType, addresses, err
 }
