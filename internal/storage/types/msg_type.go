@@ -29,12 +29,14 @@ package types
 		MsgRevoke,
 
 		MsgGrantAllowance,
+		MsgRevokeAllowance,
 
 		MsgRegisterEVMAddress,
 
+		MsgSubmitProposal,
+		MsgExecLegacyContent,
 		MsgVote,
 		MsgVoteWeighted,
-		MsgSubmitProposal,
 	)
 */
 //go:generate go-enum --marshal --sql --values --noprefix

@@ -53,14 +53,18 @@ const (
 	MsgRevoke MsgType = "MsgRevoke"
 	// MsgGrantAllowance is a MsgType of type MsgGrantAllowance.
 	MsgGrantAllowance MsgType = "MsgGrantAllowance"
+	// MsgRevokeAllowance is a MsgType of type MsgRevokeAllowance.
+	MsgRevokeAllowance MsgType = "MsgRevokeAllowance"
 	// MsgRegisterEVMAddress is a MsgType of type MsgRegisterEVMAddress.
 	MsgRegisterEVMAddress MsgType = "MsgRegisterEVMAddress"
+	// MsgSubmitProposal is a MsgType of type MsgSubmitProposal.
+	MsgSubmitProposal MsgType = "MsgSubmitProposal"
+	// MsgExecLegacyContent is a MsgType of type MsgExecLegacyContent.
+	MsgExecLegacyContent MsgType = "MsgExecLegacyContent"
 	// MsgVote is a MsgType of type MsgVote.
 	MsgVote MsgType = "MsgVote"
 	// MsgVoteWeighted is a MsgType of type MsgVoteWeighted.
 	MsgVoteWeighted MsgType = "MsgVoteWeighted"
-	// MsgSubmitProposal is a MsgType of type MsgSubmitProposal.
-	MsgSubmitProposal MsgType = "MsgSubmitProposal"
 )
 
 var ErrInvalidMsgType = errors.New("not a valid MsgType")
@@ -88,10 +92,12 @@ func MsgTypeValues() []MsgType {
 		MsgExec,
 		MsgRevoke,
 		MsgGrantAllowance,
+		MsgRevokeAllowance,
 		MsgRegisterEVMAddress,
+		MsgSubmitProposal,
+		MsgExecLegacyContent,
 		MsgVote,
 		MsgVoteWeighted,
-		MsgSubmitProposal,
 	}
 }
 
@@ -128,10 +134,12 @@ var _MsgTypeValue = map[string]MsgType{
 	"MsgExec":                         MsgExec,
 	"MsgRevoke":                       MsgRevoke,
 	"MsgGrantAllowance":               MsgGrantAllowance,
+	"MsgRevokeAllowance":              MsgRevokeAllowance,
 	"MsgRegisterEVMAddress":           MsgRegisterEVMAddress,
+	"MsgSubmitProposal":               MsgSubmitProposal,
+	"MsgExecLegacyContent":            MsgExecLegacyContent,
 	"MsgVote":                         MsgVote,
 	"MsgVoteWeighted":                 MsgVoteWeighted,
-	"MsgSubmitProposal":               MsgSubmitProposal,
 }
 
 // ParseMsgType attempts to convert a string to a MsgType.
