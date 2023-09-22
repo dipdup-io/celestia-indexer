@@ -53,6 +53,8 @@ const (
 	MsgRevoke MsgType = "MsgRevoke"
 	// MsgGrantAllowance is a MsgType of type MsgGrantAllowance.
 	MsgGrantAllowance MsgType = "MsgGrantAllowance"
+	// MsgRevokeAllowance is a MsgType of type MsgRevokeAllowance.
+	MsgRevokeAllowance MsgType = "MsgRevokeAllowance"
 	// MsgRegisterEVMAddress is a MsgType of type MsgRegisterEVMAddress.
 	MsgRegisterEVMAddress MsgType = "MsgRegisterEVMAddress"
 	// MsgVote is a MsgType of type MsgVote.
@@ -88,6 +90,7 @@ func MsgTypeValues() []MsgType {
 		MsgExec,
 		MsgRevoke,
 		MsgGrantAllowance,
+		MsgRevokeAllowance,
 		MsgRegisterEVMAddress,
 		MsgVote,
 		MsgVoteWeighted,
@@ -128,6 +131,7 @@ var _MsgTypeValue = map[string]MsgType{
 	"MsgExec":                         MsgExec,
 	"MsgRevoke":                       MsgRevoke,
 	"MsgGrantAllowance":               MsgGrantAllowance,
+	"MsgRevokeAllowance":              MsgRevokeAllowance,
 	"MsgRegisterEVMAddress":           MsgRegisterEVMAddress,
 	"MsgVote":                         MsgVote,
 	"MsgVoteWeighted":                 MsgVoteWeighted,

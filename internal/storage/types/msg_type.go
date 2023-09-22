@@ -29,6 +29,7 @@ package types
 		MsgRevoke,
 
 		MsgGrantAllowance,
+		MsgRevokeAllowance,
 
 		MsgRegisterEVMAddress,
 
