@@ -262,7 +262,7 @@ func (mask MsgTypeBits) Names() []MsgType {
 	}
 	if mask.Has(Bits(MsgTypeBitsDeposit)) {
 		names[i] = MsgDeposit
-		i++
+		// i++
 	}
 
 	return names
