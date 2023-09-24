@@ -128,7 +128,7 @@ func (s *ModuleTestSuite) TestModule_SequencerOnEmptyState() {
 	s.InitDb("../../../test/data/empty")
 	s.InitApi(nil)
 
-	receiverModule := s.createModuleEmptyState()
+	receiverModule := s.createModuleEmptyState(nil)
 
 	blocksReaderModule := modules.New("ordered-blocks-reader")
 	const orderedBlocksChannel = "ordered-blocks"
@@ -284,7 +284,7 @@ func (s *ModuleTestSuite) TestModule_SequencerGracefullyStops() {
 	s.InitDb("../../../test/data/empty")
 	s.InitApi(nil)
 
-	receiverModule := s.createModuleEmptyState()
+	receiverModule := s.createModuleEmptyState(nil)
 
 	ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelCtx()

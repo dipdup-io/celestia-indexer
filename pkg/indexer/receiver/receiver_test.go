@@ -88,19 +88,11 @@ func (s *ModuleTestSuite) InitApi(configureApi func()) {
 	}
 }
 
-// func getResultBlock(hash types.Hex) types.ResultBlock {
-// 	return types.ResultBlock{
-// 		BlockID: types.BlockId{
-// 			Hash: hash,
-// 		},
-// 	}
-// }
-
-var cfg = ic.Indexer{
+var cfgDefault = ic.Indexer{
 	Name:         testIndexerName,
 	ThreadsCount: 1,
 	StartLevel:   0,
-	BlockPeriod:  1,
+	BlockPeriod:  10,
 }
 
 func (s *ModuleTestSuite) createModule() Module {
@@ -109,13 +101,17 @@ func (s *ModuleTestSuite) createModule() Module {
 
 	state, err := s.storage.State.ByName(ctx, testIndexerName)
 	s.Require().NoError(err)
-
-	receiverModule := NewModule(cfg, s.api, &state)
+	receiverModule := NewModule(cfgDefault, s.api, &state)
 
 	return receiverModule
 }
 
-func (s *ModuleTestSuite) createModuleEmptyState() Module {
+func (s *ModuleTestSuite) createModuleEmptyState(cfgOptional *ic.Indexer) Module {
+	cfg := cfgDefault
+	if cfgOptional != nil {
+		cfg = *cfgOptional
+	}
+
 	receiverModule := NewModule(cfg, s.api, nil)
 	return receiverModule
 }
