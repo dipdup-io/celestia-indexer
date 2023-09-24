@@ -96,14 +96,14 @@ func (s *ModuleTestSuite) InitApi(configureApi func()) {
 // 	}
 // }
 
-func (s *ModuleTestSuite) createModule() Module {
-	cfg := ic.Indexer{
-		Name:         testIndexerName,
-		ThreadsCount: 1,
-		StartLevel:   0,
-		BlockPeriod:  1,
-	}
+var cfg = ic.Indexer{
+	Name:         testIndexerName,
+	ThreadsCount: 1,
+	StartLevel:   0,
+	BlockPeriod:  1,
+}
 
+func (s *ModuleTestSuite) createModule() Module {
 	ctx, cancelCtx := context.WithCancel(context.Background())
 	defer cancelCtx()
 
@@ -112,6 +112,11 @@ func (s *ModuleTestSuite) createModule() Module {
 
 	receiverModule := NewModule(cfg, s.api, &state)
 
+	return receiverModule
+}
+
+func (s *ModuleTestSuite) createModuleEmptyState() Module {
+	receiverModule := NewModule(cfg, s.api, nil)
 	return receiverModule
 }
 
