@@ -48,7 +48,7 @@ func createBlocks(order int, data ...blockConciseData) []types.BlockData {
 	}
 
 	if order == desc {
-		sort.Slice(res[:], func(i, j int) bool {
+		sort.Slice(res, func(i, j int) bool {
 			return res[i].Height > res[j].Height
 		})
 	}
