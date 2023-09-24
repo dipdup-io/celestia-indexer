@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
+	"github.com/dipdup-net/indexer-sdk/pkg/modules/stopper"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"sort"
@@ -277,36 +278,29 @@ func (s *ModuleTestSuite) TestModule_SequencerOnNonEmptyState() {
 	}
 }
 
-//
-// func (s *ModuleTestSuite) TestModule_SequencerGracefullyStops() {
-// 	s.InitDb("../../../test/data/empty")
-// 	s.InitApi(func() {
-// 		s.api.EXPECT().Status(gomock.Any()).Return(nodeTypes.Status{}, nil).MinTimes(0)
-// 	})
-//
-// 	receiverModule := s.createModuleEmptyState()
-//
-// 	ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancelCtx()
-//
-// 	stopperModule := stopper.NewModule(cancelCtx)
-// 	err := stopperModule.AttachTo(&receiverModule, StopOutput, stopper.InputName)
-// 	s.Require().NoError(err)
-//
-// 	stopperCtx, stopperCtxCancel := context.WithCancel(context.Background())
-// 	defer stopperCtxCancel()
-//
-// 	stopperModule.Start(stopperCtx)
-// 	receiverModule.Start(ctx)
-//
-// 	defer func() {
-// 		s.Require().NoError(receiverModule.Close())
-// 	}()
-//
-// 	receiverModule.MustOutput(StopOutput).Push(struct{}{})
-//
-// 	for range ctx.Done() {
-// 		s.Require().ErrorIs(context.Canceled, ctx.Err())
-// 		return
-// 	}
-// }
+func (s *ModuleTestSuite) TestModule_SequencerGracefullyStops() {
+	s.InitDb("../../../test/data/empty")
+	s.InitApi(nil)
+
+	receiverModule := s.createModuleEmptyState()
+
+	ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelCtx()
+
+	stopperModule := stopper.NewModule(cancelCtx)
+	err := stopperModule.AttachTo(&receiverModule, StopOutput, stopper.InputName)
+	s.Require().NoError(err)
+
+	stopperCtx, stopperCtxCancel := context.WithCancel(context.Background())
+	defer stopperCtxCancel()
+
+	stopperModule.Start(stopperCtx)
+	go receiverModule.sequencer(ctx)
+
+	close(receiverModule.blocks)
+
+	for range ctx.Done() {
+		s.Require().ErrorIs(context.Canceled, ctx.Err())
+		return
+	}
+}
