@@ -24,10 +24,12 @@ const (
 	random
 )
 
+var hashOf1000Block, _ = types.HexFromString("6A30C94091DA7C436D64E62111D6890D772E351823C41496B4E52F28F5B000BF")
+
 func createBlocks(order int, data ...blockConciseData) []types.BlockData {
 	res := make([]types.BlockData, len(data))
 
-	var prevBlockHash types.Hex
+	prevBlockHash := hashOf1000Block
 
 	for i, d := range data {
 		res[i].Height = types.Level(d.level)
@@ -194,6 +196,91 @@ func (s *ModuleTestSuite) TestModule_SequencerOnEmptyState() {
 			receiverLevel, receiverHash := receiverModule.Level()
 			s.Require().EqualValues(types.Level(5), receiverLevel)
 			s.Require().EqualValues([]byte{0x05}, receiverHash)
+		})
+	}
+}
+
+func (s *ModuleTestSuite) TestModule_SequencerOnNonEmptyState() {
+	s.InitDb("../../../test/data")
+	s.InitApi(func() {
+		s.api.EXPECT().Status(gomock.Any()).Return(nodeTypes.Status{}, nil).MinTimes(0)
+	})
+
+	receiverModule := s.createModuleEmptyState()
+
+	blocksReaderModule := modules.New("ordered-blocks-reader")
+	const orderedBlocksChannel = "ordered-blocks"
+	blocksReaderModule.CreateInput(orderedBlocksChannel)
+	err := blocksReaderModule.AttachTo(&receiverModule, BlocksOutput, orderedBlocksChannel)
+	s.Require().NoError(err)
+
+	blocksData := []blockConciseData{
+		{level: 1001, hash: []byte{0x10, 0x10, 0x10, 0x01}},
+		{level: 1002, hash: []byte{0x10, 0x10, 0x10, 0x02}},
+		{level: 1003, hash: []byte{0x10, 0x10, 0x10, 0x03}},
+		{level: 1004, hash: []byte{0x10, 0x10, 0x10, 0x04}},
+		{level: 1005, hash: []byte{0x10, 0x10, 0x10, 0x05}},
+	}
+
+	tests := []struct {
+		name   string
+		order  int
+		blocks []types.BlockData
+		want   []blockConciseData
+	}{
+		{
+			name:   "asc order",
+			blocks: createBlocks(asc, blocksData...),
+			want:   blocksData,
+		},
+		{
+			name:   "desc order",
+			blocks: createBlocks(desc, blocksData...),
+			want:   blocksData,
+		},
+		{
+			name:   "random order",
+			blocks: createBlocks(random, blocksData...),
+			want:   blocksData,
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			// ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancelCtx := context.WithCancel(context.Background())
+			defer cancelCtx()
+
+			receiverModule.setLevel(1000, hashOf1000Block)
+			go receiverModule.sequencer(ctx)
+
+			for _, b := range tt.blocks {
+				receiverModule.blocks <- b
+			}
+
+			index := 0
+		out:
+			for {
+				select {
+				case <-ctx.Done():
+					s.T().Error("stop by cancelled context")
+					return
+				case ob := <-blocksReaderModule.MustInput(orderedBlocksChannel).Listen():
+					orderedBlock := ob.(types.BlockData)
+					s.Require().EqualValues(blocksData[index].level, orderedBlock.Height)
+					s.Require().EqualValues(blocksData[index].level, orderedBlock.Block.Height)
+					s.Require().EqualValues(blocksData[index].hash, orderedBlock.BlockID.Hash)
+					index++
+
+					if index == 5 {
+						break out
+					}
+				}
+			}
+
+			receiverLevel, receiverHash := receiverModule.Level()
+			s.Require().EqualValues(types.Level(1005), receiverLevel)
+			s.Require().EqualValues([]byte{0x10, 0x10, 0x10, 0x05}, receiverHash)
 		})
 	}
 }
