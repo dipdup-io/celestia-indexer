@@ -2,11 +2,9 @@ package receiver
 
 import (
 	"context"
-	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/mock/gomock"
 	"math/rand"
 	"sort"
 	"testing"
@@ -125,9 +123,7 @@ var blocksData = []blockConciseData{
 
 func (s *ModuleTestSuite) TestModule_SequencerOnEmptyState() {
 	s.InitDb("../../../test/data/empty")
-	s.InitApi(func() {
-		s.api.EXPECT().Status(gomock.Any()).Return(nodeTypes.Status{}, nil).MinTimes(0)
-	})
+	s.InitApi(nil)
 
 	receiverModule := s.createModuleEmptyState()
 
@@ -162,8 +158,7 @@ func (s *ModuleTestSuite) TestModule_SequencerOnEmptyState() {
 
 	for _, tt := range tests {
 		s.T().Run(tt.name, func(t *testing.T) {
-			// ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
-			ctx, cancelCtx := context.WithCancel(context.Background())
+			ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancelCtx()
 
 			receiverModule.setLevel(0, nil)
@@ -202,11 +197,9 @@ func (s *ModuleTestSuite) TestModule_SequencerOnEmptyState() {
 
 func (s *ModuleTestSuite) TestModule_SequencerOnNonEmptyState() {
 	s.InitDb("../../../test/data")
-	s.InitApi(func() {
-		s.api.EXPECT().Status(gomock.Any()).Return(nodeTypes.Status{}, nil).MinTimes(0)
-	})
+	s.InitApi(nil)
 
-	receiverModule := s.createModuleEmptyState()
+	receiverModule := s.createModule()
 
 	blocksReaderModule := modules.New("ordered-blocks-reader")
 	const orderedBlocksChannel = "ordered-blocks"
@@ -247,8 +240,7 @@ func (s *ModuleTestSuite) TestModule_SequencerOnNonEmptyState() {
 
 	for _, tt := range tests {
 		s.T().Run(tt.name, func(t *testing.T) {
-			// ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
-			ctx, cancelCtx := context.WithCancel(context.Background())
+			ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancelCtx()
 
 			receiverModule.setLevel(1000, hashOf1000Block)
