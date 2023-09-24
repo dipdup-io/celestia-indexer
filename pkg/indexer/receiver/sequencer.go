@@ -20,7 +20,7 @@ func (r *Module) sequencer(ctx context.Context) {
 		case block, ok := <-r.blocks:
 			if !ok {
 				r.Log.Warn().Msg("can't read message from blocks input, channel was dried and closed")
-				r.MustOutput(StopOutput).Push(struct{}{})
+				r.stopAll()
 				return
 			}
 
