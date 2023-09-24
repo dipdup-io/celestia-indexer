@@ -6,7 +6,6 @@ import (
 	ic "github.com/dipdup-io/celestia-indexer/pkg/indexer/config"
 	"github.com/dipdup-io/celestia-indexer/pkg/node/mock"
 	nodeTypes "github.com/dipdup-io/celestia-indexer/pkg/node/types"
-	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules/stopper"
 	"github.com/go-testfixtures/testfixtures/v3"
 	"go.uber.org/mock/gomock"
@@ -26,7 +25,7 @@ type ModuleTestSuite struct {
 	suite.Suite
 	psqlContainer *database.PostgreSQLContainer
 	storage       postgres.Storage
-	api           *mock.MockAPI
+	api           *mock.MockApi
 }
 
 // SetupSuite -
@@ -82,20 +81,20 @@ func (s *ModuleTestSuite) InitDb(path string) {
 
 func (s *ModuleTestSuite) InitApi(configureApi func()) {
 	ctrl := gomock.NewController(s.T())
-	s.api = mock.NewMockAPI(ctrl)
+	s.api = mock.NewMockApi(ctrl)
 
 	if configureApi != nil {
 		configureApi()
 	}
 }
 
-func getResultBlock(hash types.Hex) types.ResultBlock {
-	return types.ResultBlock{
-		BlockID: types.BlockId{
-			Hash: hash,
-		},
-	}
-}
+// func getResultBlock(hash types.Hex) types.ResultBlock {
+// 	return types.ResultBlock{
+// 		BlockID: types.BlockId{
+// 			Hash: hash,
+// 		},
+// 	}
+// }
 
 func (s *ModuleTestSuite) createModule() Module {
 	cfg := ic.Indexer{
@@ -143,12 +142,9 @@ func (s *ModuleTestSuite) TestModule_SuccessOnStop() {
 
 	receiverModule.MustOutput(StopOutput).Push(struct{}{})
 
-	for {
-		select {
-		case <-ctx.Done():
-			s.Require().ErrorIs(context.Canceled, ctx.Err())
-			return
-		}
+	for range ctx.Done() {
+		s.Require().ErrorIs(context.Canceled, ctx.Err())
+		return
 	}
 
 }
