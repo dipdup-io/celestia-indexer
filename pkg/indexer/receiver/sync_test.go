@@ -100,7 +100,6 @@ func (s *ModuleTestSuite) TestModule_SyncReadsBlocks() {
 	})
 
 	ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
-	// ctx, cancelCtx := context.WithCancel(context.Background())
 	defer cancelCtx()
 
 	workersCtx, cancelWorkers := context.WithCancel(ctx)
