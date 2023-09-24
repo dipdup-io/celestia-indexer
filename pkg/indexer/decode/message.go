@@ -46,24 +46,28 @@ func Message(
 	switch typedMsg := msg.(type) {
 
 	// distribution module
-	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawValidatorCommission(height, typedMsg)
+	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawAddress(height, typedMsg)
 	case *cosmosDistributionTypes.MsgWithdrawDelegatorReward:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawDelegatorReward(height, typedMsg)
-	case *cosmosDistributionTypes.MsgSetWithdrawAddress:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSetWithdrawalAddress(height, typedMsg)
+	case *cosmosDistributionTypes.MsgWithdrawValidatorCommission:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgWithdrawValidatorCommission(height, typedMsg)
+	case *cosmosDistributionTypes.MsgFundCommunityPool:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgFundCommunityPool(height, typedMsg)
 
 	// staking module
-	case *cosmosStakingTypes.MsgEditValidator:
-		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handle.MsgEditValidator(height, status, typedMsg)
-	case *cosmosStakingTypes.MsgBeginRedelegate:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgBeginRedelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgCreateValidator:
 		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handle.MsgCreateValidator(height, status, typedMsg)
+	case *cosmosStakingTypes.MsgEditValidator:
+		d.Msg.Type, d.Msg.Addresses, d.Msg.Validator, err = handle.MsgEditValidator(height, status, typedMsg)
 	case *cosmosStakingTypes.MsgDelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgDelegate(height, typedMsg)
+	case *cosmosStakingTypes.MsgBeginRedelegate:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgBeginRedelegate(height, typedMsg)
 	case *cosmosStakingTypes.MsgUndelegate:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgUndelegate(height, typedMsg)
+	case *cosmosStakingTypes.MsgCancelUnbondingDelegation:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgCancelUnbondingDelegation(height, typedMsg)
 
 	// slashing module
 	case *cosmosSlashingTypes.MsgUnjail:
@@ -72,10 +76,15 @@ func Message(
 	// bank module
 	case *cosmosBankTypes.MsgSend:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSend(height, typedMsg)
+	case *cosmosBankTypes.MsgMultiSend:
+		log.Warn().Msg("MsgMultiSend detected")
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgMultiSend(height, typedMsg)
 
 	// vesting module
 	case *cosmosVestingTypes.MsgCreateVestingAccount:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgCreateVestingAccount(height, typedMsg)
+	case *cosmosVestingTypes.MsgCreatePermanentLockedAccount:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgCreatePermanentLockedAccount(height, typedMsg)
 	case *cosmosVestingTypes.MsgCreatePeriodicVestingAccount:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgCreatePeriodicVestingAccount(height, typedMsg)
 
@@ -86,6 +95,8 @@ func Message(
 	// feegrant module
 	case *cosmosFeegrant.MsgGrantAllowance:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgGrantAllowance(height, typedMsg)
+	case *cosmosFeegrant.MsgRevokeAllowance:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgRevokeAllowance(height, typedMsg)
 
 	// qgb module
 	case *qgbTypes.MsgRegisterEVMAddress:
@@ -94,8 +105,18 @@ func Message(
 	// authz module
 	case *authz.MsgGrant:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgGrant(height, typedMsg)
+	case *authz.MsgExec:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgExec(height, typedMsg)
+	case *authz.MsgRevoke:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgRevoke(height, typedMsg)
 
 	// gov module
+	case *cosmosGovTypesV1.MsgSubmitProposal:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSubmitProposal(height, typedMsg.Proposer)
+	case *cosmosGovTypesV1Beta1.MsgSubmitProposal:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSubmitProposal(height, typedMsg.Proposer)
+	case *cosmosGovTypesV1.MsgExecLegacyContent:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgExecLegacyContent(height, typedMsg)
 	case *cosmosGovTypesV1.MsgVote:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVote(height, typedMsg.Voter)
 	case *cosmosGovTypesV1Beta1.MsgVote:
@@ -104,10 +125,10 @@ func Message(
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVoteWeighted(height, typedMsg.Voter)
 	case *cosmosGovTypesV1Beta1.MsgVoteWeighted:
 		d.Msg.Type, d.Msg.Addresses, err = handle.MsgVoteWeighted(height, typedMsg.Voter)
-	case *cosmosGovTypesV1.MsgSubmitProposal:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSubmitProposal(height, typedMsg.Proposer)
-	case *cosmosGovTypesV1Beta1.MsgSubmitProposal:
-		d.Msg.Type, d.Msg.Addresses, err = handle.MsgSubmitProposal(height, typedMsg.Proposer)
+	case *cosmosGovTypesV1.MsgDeposit:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgDeposit(height, typedMsg.Depositor)
+	case *cosmosGovTypesV1Beta1.MsgDeposit:
+		d.Msg.Type, d.Msg.Addresses, err = handle.MsgDeposit(height, typedMsg.Depositor)
 
 	default:
 		log.Err(errors.New("unknown message type")).Msgf("got type %T", msg)

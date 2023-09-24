@@ -14,12 +14,12 @@ import (
 	"github.com/dipdup-io/celestia-indexer/cmd/api/handler/websocket"
 	"github.com/dipdup-io/celestia-indexer/internal/profiler"
 	"github.com/dipdup-io/celestia-indexer/internal/storage/postgres"
-	nodeApi "github.com/dipdup-io/celestia-indexer/pkg/node/celestia_node_api"
+	nodeApi "github.com/dipdup-io/celestia-indexer/pkg/node/dal"
 	"github.com/dipdup-net/go-lib/config"
+	"github.com/grafana/pyroscope-go"
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/pyroscope-io/client/pyroscope"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -238,6 +238,7 @@ func initHandlers(ctx context.Context, e *echo.Echo, cfg Config, db postgres.Sto
 	{
 		txGroup.GET("", txHandlers.List)
 		txGroup.GET("/count", txHandlers.Count)
+		txGroup.GET("/genesis", txHandlers.Genesis)
 		txGroup.GET("/:hash", txHandlers.Get)
 		txGroup.GET("/:hash/events", txHandlers.GetEvents)
 		txGroup.GET("/:hash/messages", txHandlers.GetMessages)

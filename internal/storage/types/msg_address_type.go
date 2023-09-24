@@ -3,12 +3,18 @@ package types
 // swagger:enum MsgAddressType
 /*
 	ENUM(
-		validatorAddress,
-		delegatorAddress,
-		validatorSrcAddress,
-		validatorDstAddress,
+		validator,
+		delegator,
+		depositor,
+
+		validatorSrc,
+		validatorDst,
+
 		fromAddress,
 		toAddress,
+		input,
+		output,
+
 		grantee,
 		granter,
 		signer,
@@ -16,6 +22,7 @@ package types
 
 		voter,
 		proposer,
+		authority,
 	)
 */
 //go:generate go-enum --marshal --sql --values

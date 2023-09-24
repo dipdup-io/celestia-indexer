@@ -198,25 +198,34 @@ const docTemplate = `{
                     {
                         "enum": [
                             "MsgUnknown",
-                            "MsgWithdrawValidatorCommission",
+                            "MsgSetWithdrawAddress",
                             "MsgWithdrawDelegatorReward",
-                            "MsgEditValidator",
-                            "MsgBeginRedelegate",
+                            "MsgWithdrawValidatorCommission",
+                            "MsgFundCommunityPool",
                             "MsgCreateValidator",
+                            "MsgEditValidator",
                             "MsgDelegate",
+                            "MsgBeginRedelegate",
                             "MsgUndelegate",
+                            "MsgCancelUnbondingDelegation",
                             "MsgUnjail",
                             "MsgSend",
+                            "MsgMultiSend",
                             "MsgCreateVestingAccount",
+                            "MsgCreatePermanentLockedAccount",
                             "MsgCreatePeriodicVestingAccount",
                             "MsgPayForBlobs",
                             "MsgGrant",
+                            "MsgExec",
+                            "MsgRevoke",
                             "MsgGrantAllowance",
+                            "MsgRevokeAllowance",
                             "MsgRegisterEVMAddress",
-                            "MsgSetWithdrawAddress",
+                            "MsgSubmitProposal",
+                            "MsgExecLegacyContent",
                             "MsgVote",
                             "MsgVoteWeighted",
-                            "MsgSubmitProposal"
+                            "MsgDeposit"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -1368,25 +1377,34 @@ const docTemplate = `{
                     {
                         "enum": [
                             "MsgUnknown",
-                            "MsgWithdrawValidatorCommission",
+                            "MsgSetWithdrawAddress",
                             "MsgWithdrawDelegatorReward",
-                            "MsgEditValidator",
-                            "MsgBeginRedelegate",
+                            "MsgWithdrawValidatorCommission",
+                            "MsgFundCommunityPool",
                             "MsgCreateValidator",
+                            "MsgEditValidator",
                             "MsgDelegate",
+                            "MsgBeginRedelegate",
                             "MsgUndelegate",
+                            "MsgCancelUnbondingDelegation",
                             "MsgUnjail",
                             "MsgSend",
+                            "MsgMultiSend",
                             "MsgCreateVestingAccount",
+                            "MsgCreatePermanentLockedAccount",
                             "MsgCreatePeriodicVestingAccount",
                             "MsgPayForBlobs",
                             "MsgGrant",
+                            "MsgExec",
+                            "MsgRevoke",
                             "MsgGrantAllowance",
+                            "MsgRevokeAllowance",
                             "MsgRegisterEVMAddress",
-                            "MsgSetWithdrawAddress",
+                            "MsgSubmitProposal",
+                            "MsgExecLegacyContent",
                             "MsgVote",
                             "MsgVoteWeighted",
-                            "MsgSubmitProposal"
+                            "MsgDeposit"
                         ],
                         "type": "string",
                         "description": "Comma-separated message types list",
@@ -1409,6 +1427,12 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Block number",
                         "name": "height",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "If true join messages",
+                        "name": "messages",
                         "in": "query"
                     }
                 ],
@@ -1453,6 +1477,63 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tx/genesis": {
+            "get": {
+                "description": "List genesis transactions info",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "List genesis transactions info",
+                "operationId": "list-genesis -transactions",
+                "parameters": [
+                    {
+                        "maximum": 100,
+                        "type": "integer",
+                        "description": "Count of requested entities",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responses.Tx"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Error"
                         }
                     },
                     "500": {
@@ -2252,6 +2333,12 @@ const docTemplate = `{
                         "MsgUnjail"
                     ]
                 },
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.Message"
+                    }
+                },
                 "messages_count": {
                     "type": "integer",
                     "format": "int64",
@@ -2357,47 +2444,65 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "MsgUnknown",
-                "MsgWithdrawValidatorCommission",
+                "MsgSetWithdrawAddress",
                 "MsgWithdrawDelegatorReward",
-                "MsgEditValidator",
-                "MsgBeginRedelegate",
+                "MsgWithdrawValidatorCommission",
+                "MsgFundCommunityPool",
                 "MsgCreateValidator",
+                "MsgEditValidator",
                 "MsgDelegate",
+                "MsgBeginRedelegate",
                 "MsgUndelegate",
+                "MsgCancelUnbondingDelegation",
                 "MsgUnjail",
                 "MsgSend",
+                "MsgMultiSend",
                 "MsgCreateVestingAccount",
+                "MsgCreatePermanentLockedAccount",
                 "MsgCreatePeriodicVestingAccount",
                 "MsgPayForBlobs",
                 "MsgGrant",
+                "MsgExec",
+                "MsgRevoke",
                 "MsgGrantAllowance",
+                "MsgRevokeAllowance",
                 "MsgRegisterEVMAddress",
-                "MsgSetWithdrawAddress",
+                "MsgSubmitProposal",
+                "MsgExecLegacyContent",
                 "MsgVote",
                 "MsgVoteWeighted",
-                "MsgSubmitProposal"
+                "MsgDeposit"
             ],
             "x-enum-varnames": [
                 "MsgUnknown",
-                "MsgWithdrawValidatorCommission",
+                "MsgSetWithdrawAddress",
                 "MsgWithdrawDelegatorReward",
-                "MsgEditValidator",
-                "MsgBeginRedelegate",
+                "MsgWithdrawValidatorCommission",
+                "MsgFundCommunityPool",
                 "MsgCreateValidator",
+                "MsgEditValidator",
                 "MsgDelegate",
+                "MsgBeginRedelegate",
                 "MsgUndelegate",
+                "MsgCancelUnbondingDelegation",
                 "MsgUnjail",
                 "MsgSend",
+                "MsgMultiSend",
                 "MsgCreateVestingAccount",
+                "MsgCreatePermanentLockedAccount",
                 "MsgCreatePeriodicVestingAccount",
                 "MsgPayForBlobs",
                 "MsgGrant",
+                "MsgExec",
+                "MsgRevoke",
                 "MsgGrantAllowance",
+                "MsgRevokeAllowance",
                 "MsgRegisterEVMAddress",
-                "MsgSetWithdrawAddress",
+                "MsgSubmitProposal",
+                "MsgExecLegacyContent",
                 "MsgVote",
                 "MsgVoteWeighted",
-                "MsgSubmitProposal"
+                "MsgDeposit"
             ]
         }
     }

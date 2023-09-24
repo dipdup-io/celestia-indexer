@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 )
 
@@ -11,7 +12,7 @@ func (r *Module) sequencer(ctx context.Context) {
 	orderedBlocks := map[int64]types.BlockData{}
 	var prevBlockHash []byte
 	l, _ := r.Level()
-	currentBlock := int64(l)
+	currentBlock := int64(l + 1)
 
 	for {
 		select {
@@ -19,16 +20,6 @@ func (r *Module) sequencer(ctx context.Context) {
 			return
 		case block := <-r.blocks:
 			orderedBlocks[block.Block.Height] = block
-
-			if currentBlock == 0 {
-				if err := r.receiveGenesis(ctx); err != nil {
-					return
-					// TODO: handle error on getting genesis, stop indexer
-				}
-
-				currentBlock += 1
-				break
-			}
 
 			if b, ok := orderedBlocks[currentBlock]; ok {
 				if prevBlockHash != nil {

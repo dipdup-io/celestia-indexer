@@ -4,26 +4,44 @@ package types
 /*
 	ENUM(
 		MsgUnknown,
-		MsgWithdrawValidatorCommission,
-		MsgWithdrawDelegatorReward,
-		MsgEditValidator,
-		MsgBeginRedelegate,
-		MsgCreateValidator,
-		MsgDelegate,
-		MsgUndelegate,
-		MsgUnjail,
-		MsgSend,
-		MsgCreateVestingAccount,
-		MsgCreatePeriodicVestingAccount,
-		MsgPayForBlobs,
-		MsgGrant,
-		MsgGrantAllowance,
-		MsgRegisterEVMAddress,
-		MsgSetWithdrawAddress,
 
+		MsgSetWithdrawAddress,
+		MsgWithdrawDelegatorReward,
+		MsgWithdrawValidatorCommission,
+		MsgFundCommunityPool,
+
+		MsgCreateValidator,
+		MsgEditValidator,
+		MsgDelegate,
+		MsgBeginRedelegate,
+		MsgUndelegate,
+		MsgCancelUnbondingDelegation,
+
+		MsgUnjail,
+
+		MsgSend,
+		MsgMultiSend,
+
+		MsgCreateVestingAccount,
+		MsgCreatePermanentLockedAccount,
+		MsgCreatePeriodicVestingAccount,
+
+		MsgPayForBlobs,
+
+		MsgGrant,
+		MsgExec,
+		MsgRevoke,
+
+		MsgGrantAllowance,
+		MsgRevokeAllowance,
+
+		MsgRegisterEVMAddress,
+
+		MsgSubmitProposal,
+		MsgExecLegacyContent,
 		MsgVote,
 		MsgVoteWeighted,
-		MsgSubmitProposal,
+		MsgDeposit,
 	)
 */
 //go:generate go-enum --marshal --sql --values --noprefix

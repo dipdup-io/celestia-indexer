@@ -15,44 +15,62 @@ import (
 const (
 	// MsgUnknown is a MsgType of type MsgUnknown.
 	MsgUnknown MsgType = "MsgUnknown"
-	// MsgWithdrawValidatorCommission is a MsgType of type MsgWithdrawValidatorCommission.
-	MsgWithdrawValidatorCommission MsgType = "MsgWithdrawValidatorCommission"
+	// MsgSetWithdrawAddress is a MsgType of type MsgSetWithdrawAddress.
+	MsgSetWithdrawAddress MsgType = "MsgSetWithdrawAddress"
 	// MsgWithdrawDelegatorReward is a MsgType of type MsgWithdrawDelegatorReward.
 	MsgWithdrawDelegatorReward MsgType = "MsgWithdrawDelegatorReward"
-	// MsgEditValidator is a MsgType of type MsgEditValidator.
-	MsgEditValidator MsgType = "MsgEditValidator"
-	// MsgBeginRedelegate is a MsgType of type MsgBeginRedelegate.
-	MsgBeginRedelegate MsgType = "MsgBeginRedelegate"
+	// MsgWithdrawValidatorCommission is a MsgType of type MsgWithdrawValidatorCommission.
+	MsgWithdrawValidatorCommission MsgType = "MsgWithdrawValidatorCommission"
+	// MsgFundCommunityPool is a MsgType of type MsgFundCommunityPool.
+	MsgFundCommunityPool MsgType = "MsgFundCommunityPool"
 	// MsgCreateValidator is a MsgType of type MsgCreateValidator.
 	MsgCreateValidator MsgType = "MsgCreateValidator"
+	// MsgEditValidator is a MsgType of type MsgEditValidator.
+	MsgEditValidator MsgType = "MsgEditValidator"
 	// MsgDelegate is a MsgType of type MsgDelegate.
 	MsgDelegate MsgType = "MsgDelegate"
+	// MsgBeginRedelegate is a MsgType of type MsgBeginRedelegate.
+	MsgBeginRedelegate MsgType = "MsgBeginRedelegate"
 	// MsgUndelegate is a MsgType of type MsgUndelegate.
 	MsgUndelegate MsgType = "MsgUndelegate"
+	// MsgCancelUnbondingDelegation is a MsgType of type MsgCancelUnbondingDelegation.
+	MsgCancelUnbondingDelegation MsgType = "MsgCancelUnbondingDelegation"
 	// MsgUnjail is a MsgType of type MsgUnjail.
 	MsgUnjail MsgType = "MsgUnjail"
 	// MsgSend is a MsgType of type MsgSend.
 	MsgSend MsgType = "MsgSend"
+	// MsgMultiSend is a MsgType of type MsgMultiSend.
+	MsgMultiSend MsgType = "MsgMultiSend"
 	// MsgCreateVestingAccount is a MsgType of type MsgCreateVestingAccount.
 	MsgCreateVestingAccount MsgType = "MsgCreateVestingAccount"
+	// MsgCreatePermanentLockedAccount is a MsgType of type MsgCreatePermanentLockedAccount.
+	MsgCreatePermanentLockedAccount MsgType = "MsgCreatePermanentLockedAccount"
 	// MsgCreatePeriodicVestingAccount is a MsgType of type MsgCreatePeriodicVestingAccount.
 	MsgCreatePeriodicVestingAccount MsgType = "MsgCreatePeriodicVestingAccount"
 	// MsgPayForBlobs is a MsgType of type MsgPayForBlobs.
 	MsgPayForBlobs MsgType = "MsgPayForBlobs"
 	// MsgGrant is a MsgType of type MsgGrant.
 	MsgGrant MsgType = "MsgGrant"
+	// MsgExec is a MsgType of type MsgExec.
+	MsgExec MsgType = "MsgExec"
+	// MsgRevoke is a MsgType of type MsgRevoke.
+	MsgRevoke MsgType = "MsgRevoke"
 	// MsgGrantAllowance is a MsgType of type MsgGrantAllowance.
 	MsgGrantAllowance MsgType = "MsgGrantAllowance"
+	// MsgRevokeAllowance is a MsgType of type MsgRevokeAllowance.
+	MsgRevokeAllowance MsgType = "MsgRevokeAllowance"
 	// MsgRegisterEVMAddress is a MsgType of type MsgRegisterEVMAddress.
 	MsgRegisterEVMAddress MsgType = "MsgRegisterEVMAddress"
-	// MsgSetWithdrawAddress is a MsgType of type MsgSetWithdrawAddress.
-	MsgSetWithdrawAddress MsgType = "MsgSetWithdrawAddress"
+	// MsgSubmitProposal is a MsgType of type MsgSubmitProposal.
+	MsgSubmitProposal MsgType = "MsgSubmitProposal"
+	// MsgExecLegacyContent is a MsgType of type MsgExecLegacyContent.
+	MsgExecLegacyContent MsgType = "MsgExecLegacyContent"
 	// MsgVote is a MsgType of type MsgVote.
 	MsgVote MsgType = "MsgVote"
 	// MsgVoteWeighted is a MsgType of type MsgVoteWeighted.
 	MsgVoteWeighted MsgType = "MsgVoteWeighted"
-	// MsgSubmitProposal is a MsgType of type MsgSubmitProposal.
-	MsgSubmitProposal MsgType = "MsgSubmitProposal"
+	// MsgDeposit is a MsgType of type MsgDeposit.
+	MsgDeposit MsgType = "MsgDeposit"
 )
 
 var ErrInvalidMsgType = errors.New("not a valid MsgType")
@@ -61,25 +79,34 @@ var ErrInvalidMsgType = errors.New("not a valid MsgType")
 func MsgTypeValues() []MsgType {
 	return []MsgType{
 		MsgUnknown,
-		MsgWithdrawValidatorCommission,
+		MsgSetWithdrawAddress,
 		MsgWithdrawDelegatorReward,
-		MsgEditValidator,
-		MsgBeginRedelegate,
+		MsgWithdrawValidatorCommission,
+		MsgFundCommunityPool,
 		MsgCreateValidator,
+		MsgEditValidator,
 		MsgDelegate,
+		MsgBeginRedelegate,
 		MsgUndelegate,
+		MsgCancelUnbondingDelegation,
 		MsgUnjail,
 		MsgSend,
+		MsgMultiSend,
 		MsgCreateVestingAccount,
+		MsgCreatePermanentLockedAccount,
 		MsgCreatePeriodicVestingAccount,
 		MsgPayForBlobs,
 		MsgGrant,
+		MsgExec,
+		MsgRevoke,
 		MsgGrantAllowance,
+		MsgRevokeAllowance,
 		MsgRegisterEVMAddress,
-		MsgSetWithdrawAddress,
+		MsgSubmitProposal,
+		MsgExecLegacyContent,
 		MsgVote,
 		MsgVoteWeighted,
-		MsgSubmitProposal,
+		MsgDeposit,
 	}
 }
 
@@ -97,25 +124,34 @@ func (x MsgType) IsValid() bool {
 
 var _MsgTypeValue = map[string]MsgType{
 	"MsgUnknown":                      MsgUnknown,
-	"MsgWithdrawValidatorCommission":  MsgWithdrawValidatorCommission,
+	"MsgSetWithdrawAddress":           MsgSetWithdrawAddress,
 	"MsgWithdrawDelegatorReward":      MsgWithdrawDelegatorReward,
-	"MsgEditValidator":                MsgEditValidator,
-	"MsgBeginRedelegate":              MsgBeginRedelegate,
+	"MsgWithdrawValidatorCommission":  MsgWithdrawValidatorCommission,
+	"MsgFundCommunityPool":            MsgFundCommunityPool,
 	"MsgCreateValidator":              MsgCreateValidator,
+	"MsgEditValidator":                MsgEditValidator,
 	"MsgDelegate":                     MsgDelegate,
+	"MsgBeginRedelegate":              MsgBeginRedelegate,
 	"MsgUndelegate":                   MsgUndelegate,
+	"MsgCancelUnbondingDelegation":    MsgCancelUnbondingDelegation,
 	"MsgUnjail":                       MsgUnjail,
 	"MsgSend":                         MsgSend,
+	"MsgMultiSend":                    MsgMultiSend,
 	"MsgCreateVestingAccount":         MsgCreateVestingAccount,
+	"MsgCreatePermanentLockedAccount": MsgCreatePermanentLockedAccount,
 	"MsgCreatePeriodicVestingAccount": MsgCreatePeriodicVestingAccount,
 	"MsgPayForBlobs":                  MsgPayForBlobs,
 	"MsgGrant":                        MsgGrant,
+	"MsgExec":                         MsgExec,
+	"MsgRevoke":                       MsgRevoke,
 	"MsgGrantAllowance":               MsgGrantAllowance,
+	"MsgRevokeAllowance":              MsgRevokeAllowance,
 	"MsgRegisterEVMAddress":           MsgRegisterEVMAddress,
-	"MsgSetWithdrawAddress":           MsgSetWithdrawAddress,
+	"MsgSubmitProposal":               MsgSubmitProposal,
+	"MsgExecLegacyContent":            MsgExecLegacyContent,
 	"MsgVote":                         MsgVote,
 	"MsgVoteWeighted":                 MsgVoteWeighted,
-	"MsgSubmitProposal":               MsgSubmitProposal,
+	"MsgDeposit":                      MsgDeposit,
 }
 
 // ParseMsgType attempts to convert a string to a MsgType.

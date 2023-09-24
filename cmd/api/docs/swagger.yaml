@@ -471,6 +471,10 @@ definitions:
         items:
           $ref: '#/definitions/types.MsgType'
         type: array
+      messages:
+        items:
+          $ref: '#/definitions/responses.Message'
+        type: array
       messages_count:
         example: 1
         format: int64
@@ -563,47 +567,65 @@ definitions:
   types.MsgType:
     enum:
     - MsgUnknown
-    - MsgWithdrawValidatorCommission
+    - MsgSetWithdrawAddress
     - MsgWithdrawDelegatorReward
-    - MsgEditValidator
-    - MsgBeginRedelegate
+    - MsgWithdrawValidatorCommission
+    - MsgFundCommunityPool
     - MsgCreateValidator
+    - MsgEditValidator
     - MsgDelegate
+    - MsgBeginRedelegate
     - MsgUndelegate
+    - MsgCancelUnbondingDelegation
     - MsgUnjail
     - MsgSend
+    - MsgMultiSend
     - MsgCreateVestingAccount
+    - MsgCreatePermanentLockedAccount
     - MsgCreatePeriodicVestingAccount
     - MsgPayForBlobs
     - MsgGrant
+    - MsgExec
+    - MsgRevoke
     - MsgGrantAllowance
+    - MsgRevokeAllowance
     - MsgRegisterEVMAddress
-    - MsgSetWithdrawAddress
+    - MsgSubmitProposal
+    - MsgExecLegacyContent
     - MsgVote
     - MsgVoteWeighted
-    - MsgSubmitProposal
+    - MsgDeposit
     type: string
     x-enum-varnames:
     - MsgUnknown
-    - MsgWithdrawValidatorCommission
+    - MsgSetWithdrawAddress
     - MsgWithdrawDelegatorReward
-    - MsgEditValidator
-    - MsgBeginRedelegate
+    - MsgWithdrawValidatorCommission
+    - MsgFundCommunityPool
     - MsgCreateValidator
+    - MsgEditValidator
     - MsgDelegate
+    - MsgBeginRedelegate
     - MsgUndelegate
+    - MsgCancelUnbondingDelegation
     - MsgUnjail
     - MsgSend
+    - MsgMultiSend
     - MsgCreateVestingAccount
+    - MsgCreatePermanentLockedAccount
     - MsgCreatePeriodicVestingAccount
     - MsgPayForBlobs
     - MsgGrant
+    - MsgExec
+    - MsgRevoke
     - MsgGrantAllowance
+    - MsgRevokeAllowance
     - MsgRegisterEVMAddress
-    - MsgSetWithdrawAddress
+    - MsgSubmitProposal
+    - MsgExecLegacyContent
     - MsgVote
     - MsgVoteWeighted
-    - MsgSubmitProposal
+    - MsgDeposit
 host: https://api.celestia.dipdup.net
 info:
   contact: {}
@@ -715,25 +737,34 @@ paths:
       - description: Comma-separated message types list
         enum:
         - MsgUnknown
-        - MsgWithdrawValidatorCommission
+        - MsgSetWithdrawAddress
         - MsgWithdrawDelegatorReward
-        - MsgEditValidator
-        - MsgBeginRedelegate
+        - MsgWithdrawValidatorCommission
+        - MsgFundCommunityPool
         - MsgCreateValidator
+        - MsgEditValidator
         - MsgDelegate
+        - MsgBeginRedelegate
         - MsgUndelegate
+        - MsgCancelUnbondingDelegation
         - MsgUnjail
         - MsgSend
+        - MsgMultiSend
         - MsgCreateVestingAccount
+        - MsgCreatePermanentLockedAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
         - MsgGrant
+        - MsgExec
+        - MsgRevoke
         - MsgGrantAllowance
+        - MsgRevokeAllowance
         - MsgRegisterEVMAddress
-        - MsgSetWithdrawAddress
+        - MsgSubmitProposal
+        - MsgExecLegacyContent
         - MsgVote
         - MsgVoteWeighted
-        - MsgSubmitProposal
+        - MsgDeposit
         in: query
         name: msg_type
         type: string
@@ -1620,25 +1651,34 @@ paths:
       - description: Comma-separated message types list
         enum:
         - MsgUnknown
-        - MsgWithdrawValidatorCommission
+        - MsgSetWithdrawAddress
         - MsgWithdrawDelegatorReward
-        - MsgEditValidator
-        - MsgBeginRedelegate
+        - MsgWithdrawValidatorCommission
+        - MsgFundCommunityPool
         - MsgCreateValidator
+        - MsgEditValidator
         - MsgDelegate
+        - MsgBeginRedelegate
         - MsgUndelegate
+        - MsgCancelUnbondingDelegation
         - MsgUnjail
         - MsgSend
+        - MsgMultiSend
         - MsgCreateVestingAccount
+        - MsgCreatePermanentLockedAccount
         - MsgCreatePeriodicVestingAccount
         - MsgPayForBlobs
         - MsgGrant
+        - MsgExec
+        - MsgRevoke
         - MsgGrantAllowance
+        - MsgRevokeAllowance
         - MsgRegisterEVMAddress
-        - MsgSetWithdrawAddress
+        - MsgSubmitProposal
+        - MsgExecLegacyContent
         - MsgVote
         - MsgVoteWeighted
-        - MsgSubmitProposal
+        - MsgDeposit
         in: query
         name: msg_type
         type: string
@@ -1654,6 +1694,10 @@ paths:
         in: query
         name: height
         type: integer
+      - description: If true join messages
+        in: query
+        name: messages
+        type: boolean
       produces:
       - application/json
       responses:
@@ -1786,6 +1830,44 @@ paths:
           schema:
             $ref: '#/definitions/handler.Error'
       summary: Get count of transactions in network
+      tags:
+      - transactions
+  /v1/tx/genesis:
+    get:
+      description: List genesis transactions info
+      operationId: list-genesis -transactions
+      parameters:
+      - description: Count of requested entities
+        in: query
+        maximum: 100
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responses.Tx'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: List genesis transactions info
       tags:
       - transactions
   /v1/ws:

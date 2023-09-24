@@ -86,6 +86,7 @@ func (handler *TxHandler) Get(c echo.Context) error {
 //	@Param			from		query	integer			false	"Time from in unix timestamp"			mininum(1)
 //	@Param			to			query	integer			false	"Time to in unix timestamp"				mininum(1)
 //	@Param			height		query	integer			false	"Block number"							mininum(1)
+//	@Param			messages	query	boolean			false	"If true join messages"					mininum(1)
 //	@Produce		json
 //	@Success		200	{array}		responses.Tx
 //	@Failure		400	{object}	Error
@@ -105,6 +106,7 @@ func (handler *TxHandler) List(c echo.Context) error {
 		Status:       req.Status,
 		Height:       req.Height,
 		MessageTypes: types.NewMsgTypeBitMask(),
+		WithMessages: req.Messages,
 	}
 	if req.From > 0 {
 		fltrs.TimeFrom = time.Unix(req.From, 0).UTC()
@@ -221,4 +223,36 @@ func (handler *TxHandler) Count(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusOK, state.TotalTx)
+}
+
+// Genesis godoc
+//
+//	@Summary		List genesis transactions info
+//	@Description	List genesis transactions info
+//	@Tags			transactions
+//	@ID				list-genesis -transactions
+//	@Param			limit		query	integer			false	"Count of requested entities"			mininum(1)	maximum(100)
+//	@Param			offset		query	integer			false	"Offset"								mininum(1)
+//	@Param			sort		query	string			false	"Sort order"					mininum(1)
+//	@Produce		json
+//	@Success		200	{array}		responses.Tx
+//	@Failure		400	{object}	Error
+//	@Failure		500	{object}	Error
+//	@Router			/v1/tx/genesis [get]
+func (handler *TxHandler) Genesis(c echo.Context) error {
+	req, err := bindAndValidate[limitOffsetPagination](c)
+	if err != nil {
+		return badRequestError(c, err)
+	}
+	req.SetDefault()
+
+	txs, err := handler.tx.Genesis(c.Request().Context(), int(req.Limit), int(req.Offset), pgSort(req.Sort))
+	if err := handleError(c, err, handler.tx); err != nil {
+		return err
+	}
+	response := make([]responses.Tx, len(txs))
+	for i := range txs {
+		response[i] = responses.NewTx(txs[i])
+	}
+	return returnArray(c, response)
 }
