@@ -2,6 +2,8 @@ package receiver
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/internal/storage"
+	"github.com/dipdup-io/celestia-indexer/pkg/indexer/rollback"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules"
 	"github.com/dipdup-net/indexer-sdk/pkg/modules/stopper"
@@ -303,4 +305,150 @@ func (s *ModuleTestSuite) TestModule_SequencerGracefullyStops() {
 		s.Require().ErrorIs(context.Canceled, ctx.Err())
 		return
 	}
+}
+
+func (s *ModuleTestSuite) TestModule_SequencerCallsRollback() {
+	s.InitDb("../../../test/data")
+	s.InitApi(nil)
+
+	receiverModule := s.createModule()
+
+	blocksReaderModule := modules.New("ordered-blocks-reader")
+	const orderedBlocksChannel = "ordered-blocks"
+	blocksReaderModule.CreateInput(orderedBlocksChannel)
+	err := blocksReaderModule.AttachTo(&receiverModule, BlocksOutput, orderedBlocksChannel)
+	s.Require().NoError(err)
+
+	rollbackModule := modules.New("rollback")
+	rollbackModule.CreateInput(rollback.InputName)
+	rollbackModule.CreateOutput(rollback.OutputName)
+	err = receiverModule.AttachTo(&rollbackModule, rollback.OutputName, RollbackInput)
+	s.Require().NoError(err)
+	err = rollbackModule.AttachTo(&receiverModule, RollbackOutput, rollback.InputName)
+	s.Require().NoError(err)
+
+	ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelCtx()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-rollbackModule.MustInput(rollback.InputName).Listen():
+				rollbackModule.MustOutput(rollback.OutputName).Push(storage.State{
+					LastHeight: types.Level(4),
+					LastHash:   []byte{0x04},
+				})
+			}
+		}
+	}()
+
+	receiverModule.setLevel(0, nil)
+	go receiverModule.sequencer(ctx)
+
+	blocks := createBlocks(asc, blocksData...)
+
+	blocks[4].Block.LastBlockID.Hash = []byte{0x09} // not equal to hash that is saved in the state of receiver.
+
+	for _, b := range blocks {
+		receiverModule.blocks <- b
+	}
+
+	index := 0
+out:
+	for {
+		select {
+		case <-ctx.Done():
+			s.T().Error("stop by cancelled context")
+			return
+		case ob := <-blocksReaderModule.MustInput(orderedBlocksChannel).Listen():
+			orderedBlock := ob.(types.BlockData)
+			s.Require().EqualValues(blocksData[index].level, orderedBlock.Height)
+			s.Require().EqualValues(blocksData[index].level, orderedBlock.Block.Height)
+			s.Require().EqualValues(blocksData[index].hash, orderedBlock.BlockID.Hash)
+			index++
+
+			if index == 4 {
+				break out
+			}
+		}
+	}
+
+	receiverLevel, receiverHash := receiverModule.Level()
+	s.Require().EqualValues(types.Level(4), receiverLevel)
+	s.Require().EqualValues([]byte{0x04}, receiverHash)
+}
+
+func (s *ModuleTestSuite) TestModule_SequencerCallsRollbackWithinPreSavedBlocks() {
+	s.InitDb("../../../test/data")
+	s.InitApi(nil)
+
+	receiverModule := s.createModule()
+
+	blocksReaderModule := modules.New("ordered-blocks-reader")
+	const orderedBlocksChannel = "ordered-blocks"
+	blocksReaderModule.CreateInput(orderedBlocksChannel)
+	err := blocksReaderModule.AttachTo(&receiverModule, BlocksOutput, orderedBlocksChannel)
+	s.Require().NoError(err)
+
+	rollbackModule := modules.New("rollback")
+	rollbackModule.CreateInput(rollback.InputName)
+	rollbackModule.CreateOutput(rollback.OutputName)
+	err = receiverModule.AttachTo(&rollbackModule, rollback.OutputName, RollbackInput)
+	s.Require().NoError(err)
+	err = rollbackModule.AttachTo(&receiverModule, RollbackOutput, rollback.InputName)
+	s.Require().NoError(err)
+
+	ctx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelCtx()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-rollbackModule.MustInput(rollback.InputName).Listen():
+				rollbackModule.MustOutput(rollback.OutputName).Push(storage.State{
+					LastHeight: types.Level(3),
+					LastHash:   []byte{0x03},
+				})
+			}
+		}
+	}()
+
+	receiverModule.setLevel(0, nil)
+	go receiverModule.sequencer(ctx)
+
+	blocks := createBlocks(desc, blocksData...)
+
+	blocks[1].Block.LastBlockID.Hash = []byte{0x09} // not equal to hash that is saved in the state of receiver.
+
+	for _, b := range blocks {
+		receiverModule.blocks <- b
+	}
+
+	index := 0
+out:
+	for {
+		select {
+		case <-ctx.Done():
+			s.T().Error("stop by cancelled context")
+			return
+		case ob := <-blocksReaderModule.MustInput(orderedBlocksChannel).Listen():
+			orderedBlock := ob.(types.BlockData)
+			s.Require().EqualValues(blocksData[index].level, orderedBlock.Height)
+			s.Require().EqualValues(blocksData[index].level, orderedBlock.Block.Height)
+			s.Require().EqualValues(blocksData[index].hash, orderedBlock.BlockID.Hash)
+			index++
+
+			if index == 3 {
+				break out
+			}
+		}
+	}
+
+	receiverLevel, receiverHash := receiverModule.Level()
+	s.Require().EqualValues(types.Level(3), receiverLevel)
+	s.Require().EqualValues([]byte{0x03}, receiverHash)
 }
