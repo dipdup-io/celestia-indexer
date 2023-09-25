@@ -13,7 +13,6 @@ import (
 )
 
 func (s *ModuleTestSuite) TestModule_SyncGracefullyStops() {
-	s.InitDb("../../../test/data/empty")
 	s.InitApi(func() {
 		s.api.EXPECT().
 			Status(gomock.Any()).
@@ -66,8 +65,6 @@ func getResultBlockResults(level types.Level) types.ResultBlockResults {
 }
 
 func (s *ModuleTestSuite) TestModule_SyncReadsBlocks() {
-	s.InitDb("../../../test/data/empty")
-
 	const blockCount = 5
 	s.InitApi(func() {
 		s.api.EXPECT().

@@ -125,7 +125,6 @@ var blocksData = []blockConciseData{
 }
 
 func (s *ModuleTestSuite) TestModule_SequencerOnEmptyState() {
-	s.InitDb("../../../test/data/empty")
 	s.InitApi(nil)
 
 	receiverModule := s.createModuleEmptyState(nil)
@@ -199,7 +198,6 @@ func (s *ModuleTestSuite) TestModule_SequencerOnEmptyState() {
 }
 
 func (s *ModuleTestSuite) TestModule_SequencerOnNonEmptyState() {
-	s.InitDb("../../../test/data")
 	s.InitApi(nil)
 
 	receiverModule := s.createModule()
@@ -281,7 +279,6 @@ func (s *ModuleTestSuite) TestModule_SequencerOnNonEmptyState() {
 }
 
 func (s *ModuleTestSuite) TestModule_SequencerGracefullyStops() {
-	s.InitDb("../../../test/data/empty")
 	s.InitApi(nil)
 
 	receiverModule := s.createModuleEmptyState(nil)
@@ -308,7 +305,6 @@ func (s *ModuleTestSuite) TestModule_SequencerGracefullyStops() {
 }
 
 func (s *ModuleTestSuite) TestModule_SequencerCallsRollback() {
-	s.InitDb("../../../test/data")
 	s.InitApi(nil)
 
 	receiverModule := s.createModule()
@@ -381,7 +377,6 @@ out:
 }
 
 func (s *ModuleTestSuite) TestModule_SequencerCallsRollbackWithinPreSavedBlocks() {
-	s.InitDb("../../../test/data")
 	s.InitApi(nil)
 
 	receiverModule := s.createModule()
