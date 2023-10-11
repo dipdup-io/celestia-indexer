@@ -63,5 +63,7 @@ cover:
 	go test ./... -coverpkg=./... -coverprofile ./coverage.out
 	go tool cover -func ./coverage.out
 
+license-header:
+	update-license -path=./ -license=./LICENSE-HEADER
 
 .PHONY: init indexer api build clean compose lint test adr mock api-docs check-licenses cover
