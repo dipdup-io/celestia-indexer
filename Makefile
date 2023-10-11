@@ -66,4 +66,4 @@ cover:
 license-header:
 	update-license -path=./ -license=./LICENSE-HEADER
 
-.PHONY: init indexer api build clean compose lint test adr mock api-docs check-licenses cover
+.PHONY: init indexer api build clean compose lint test adr mock api-docs check-licenses cover license-header
