@@ -259,8 +259,8 @@ github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 h1:q0rUy8C/TYNBQS1+CGKw68tLOF
 github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1/go.mod h1:7SFka0XMvUgj3hfZtydOrQY2mwhPclbT2snogU7SQQc=
 github.com/celestiaorg/celestia-app v1.0.0 h1:CJX0y3JE1gEKzb0Hr3/qS0Z/tZgYGJyCHJzc0+SVxYM=
 github.com/celestiaorg/celestia-app v1.0.0/go.mod h1:8FN8f/iZC5D6A7QYJhK86nyRKrmQrzXFucV19vLv9Es=
-github.com/celestiaorg/celestia-core v1.28.0-tm-v0.34.29 h1:6zayAAkDu2Kz3SZceHauYgw2vvV7K9D8tkehY3MlzlM=
-github.com/celestiaorg/celestia-core v1.28.0-tm-v0.34.29/go.mod h1:xrICN0PBhp3AdTaZ8q4wS5Jvi32V02HNjaC2EsWiEKk=
+github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29 h1:Fd7ymPUzExPGNl2gZw4i5S74arMw+iDHLE78M/cCxl4=
+github.com/celestiaorg/celestia-core v1.29.0-tm-v0.34.29/go.mod h1:xrICN0PBhp3AdTaZ8q4wS5Jvi32V02HNjaC2EsWiEKk=
 github.com/celestiaorg/cosmos-sdk v1.18.2-sdk-v0.46.14 h1:nIYxJuRt4HtbtSCzSIm7Zy8Y0bqzwHMw9CuobpBq85k=
 github.com/celestiaorg/cosmos-sdk v1.18.2-sdk-v0.46.14/go.mod h1:xmKETyW1ldBoH3dJd2A0Of8T4rcl8ihSPgl4H7jgB8s=
 github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 h1:CJdIpo8n5MFP2MwK0gSRcOVlDlFdQJO1p+FqdxYzmvc=
