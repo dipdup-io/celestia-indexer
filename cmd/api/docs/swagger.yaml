@@ -1219,13 +1219,19 @@ paths:
         name: version
         required: true
         type: integer
+      - description: Type of message
+        in: query
+        name: type
+        type: string
       - description: Count of requested entities
         in: query
         maximum: 100
+        minimum: 1
         name: limit
         type: integer
       - description: Offset
         in: query
+        minimum: 1
         name: offset
         type: integer
       produces:

@@ -916,13 +916,21 @@
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Type of message",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
                         "maximum": 100,
+                        "minimum": 1,
                         "type": "integer",
                         "description": "Count of requested entities",
                         "name": "limit",
                         "in": "query"
                     },
                     {
+                        "minimum": 1,
                         "type": "integer",
                         "description": "Offset",
                         "name": "offset",
