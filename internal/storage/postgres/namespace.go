@@ -5,7 +5,9 @@ package postgres
 
 import (
 	"context"
+	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	pkgTypes "github.com/dipdup-io/celestia-indexer/pkg/types"
+	"github.com/uptrace/bun"
 
 	"github.com/dipdup-io/celestia-indexer/internal/storage"
 	"github.com/dipdup-net/go-lib/database"
@@ -42,12 +44,17 @@ func (n *Namespace) ByNamespaceIdAndVersion(ctx context.Context, namespaceId []b
 }
 
 // Messages -
-func (n *Namespace) Messages(ctx context.Context, id uint64, limit, offset int) (msgs []storage.NamespaceMessage, err error) {
+func (n *Namespace) Messages(ctx context.Context, id uint64, msgType *types.MsgType, limit, offset int) (msgs []storage.NamespaceMessage, err error) {
 	query := n.DB().NewSelect().Model(&msgs).
 		Where("namespace_message.namespace_id = ?", id).
 		Order("namespace_message.time desc").
 		Relation("Namespace").
-		Relation("Message").
+		Relation("Message", func(q *bun.SelectQuery) *bun.SelectQuery {
+			if msgType != nil {
+				q.Where("message_type =?", msgType.String())
+			}
+			return q
+		}).
 		Relation("Tx")
 	query = limitScope(query, limit)
 	if offset > 0 {

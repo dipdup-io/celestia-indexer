@@ -256,6 +256,7 @@ type getNamespaceMessages struct {
 	Version byte   `param:"version"`
 	Limit   uint64 `query:"limit"   validate:"omitempty,min=1,max=100"`
 	Offset  uint64 `query:"offset"  validate:"omitempty,min=0"`
+	Type    string `query:"type"    validate:"omitempty"`
 }
 
 // GetMessages godoc
@@ -266,8 +267,8 @@ type getNamespaceMessages struct {
 //	@ID				get-namespace-messages
 //	@Param			id		path	string	true	"Namespace id in hexadecimal"	minlength(56)	maxlength(56)
 //	@Param			version	path	integer	true	"Version of namespace"
-//	@Param			limit	query	integer	false	"Count of requested entities"	mininum(1)	maximum(100)
-//	@Param			offset	query	integer	false	"Offset"						mininum(1)
+//	@Param			limit	query	integer	false	"Count of requested entities"	minimum(1)	maximum(100)
+//	@Param			offset	query	integer	false	"Offset"						minimum(1)
 //	@Produce		json
 //	@Success		200	{array}	responses.NamespaceMessage
 //	@Success		204

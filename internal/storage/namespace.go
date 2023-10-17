@@ -7,9 +7,9 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"time"
 
-	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	pkgTypes "github.com/dipdup-io/celestia-indexer/pkg/types"
 
 	"github.com/dipdup-net/indexer-sdk/pkg/storage"
@@ -22,7 +22,7 @@ type INamespace interface {
 
 	ByNamespaceId(ctx context.Context, namespaceId []byte) ([]Namespace, error)
 	ByNamespaceIdAndVersion(ctx context.Context, namespaceId []byte, version byte) (Namespace, error)
-	Messages(ctx context.Context, id uint64, limit, offset int) ([]NamespaceMessage, error)
+	Messages(ctx context.Context, id uint64, msgType *types.MsgType, limit, offset int) ([]NamespaceMessage, error)
 	MessagesByHeight(ctx context.Context, height pkgTypes.Level, limit, offset int) ([]NamespaceMessage, error)
 	CountMessagesByHeight(ctx context.Context, height pkgTypes.Level) (int, error)
 	Active(ctx context.Context, top int) ([]ActiveNamespace, error)
@@ -32,13 +32,13 @@ type INamespace interface {
 type Namespace struct {
 	bun.BaseModel `bun:"namespace" comment:"Table with celestia namespaces."`
 
-	Id          uint64      `bun:"id,pk,autoincrement"                          comment:"Unique internal identity"`
-	FirstHeight types.Level `bun:"first_height,notnull"                         comment:"Block height of the first message changing the namespace"`
-	Version     byte        `bun:"version,unique:namespace_id_version_idx"      comment:"Namespace version"`
-	NamespaceID []byte      `bun:"namespace_id,unique:namespace_id_version_idx" comment:"Namespace identity"`
-	Size        int64       `bun:"size"                                         comment:"Blobs size"`
-	PfbCount    int64       `bun:"pfb_count"                                    comment:"Count of pay for blobs messages for the namespace"`
-	Reserved    bool        `bun:"reserved,default:false"                       comment:"If namespace is reserved flag is true"`
+	Id          uint64         `bun:"id,pk,autoincrement"                          comment:"Unique internal identity"`
+	FirstHeight pkgTypes.Level `bun:"first_height,notnull"                         comment:"Block height of the first message changing the namespace"`
+	Version     byte           `bun:"version,unique:namespace_id_version_idx"      comment:"Namespace version"`
+	NamespaceID []byte         `bun:"namespace_id,unique:namespace_id_version_idx" comment:"Namespace identity"`
+	Size        int64          `bun:"size"                                         comment:"Blobs size"`
+	PfbCount    int64          `bun:"pfb_count"                                    comment:"Count of pay for blobs messages for the namespace"`
+	Reserved    bool           `bun:"reserved,default:false"                       comment:"If namespace is reserved flag is true"`
 }
 
 // TableName -
