@@ -6,6 +6,7 @@ package handler
 import (
 	"encoding/base64"
 	"encoding/hex"
+	storageTypes "github.com/dipdup-io/celestia-indexer/internal/storage/types"
 	"github.com/dipdup-io/celestia-indexer/pkg/types"
 	"net/http"
 
@@ -267,6 +268,7 @@ type getNamespaceMessages struct {
 //	@ID				get-namespace-messages
 //	@Param			id		path	string	true	"Namespace id in hexadecimal"	minlength(56)	maxlength(56)
 //	@Param			version	path	integer	true	"Version of namespace"
+//	@Param			type	query	string	false	"Type of message"
 //	@Param			limit	query	integer	false	"Count of requested entities"	minimum(1)	maximum(100)
 //	@Param			offset	query	integer	false	"Offset"						minimum(1)
 //	@Produce		json
@@ -291,7 +293,13 @@ func (handler *NamespaceHandler) GetMessages(c echo.Context) error {
 		return err
 	}
 
-	messages, err := handler.namespace.Messages(c.Request().Context(), ns.Id, nil, int(req.Limit), int(req.Offset))
+	var msgType *storageTypes.MsgType
+	msgT, err := storageTypes.ParseMsgType(req.Type)
+	if err == nil {
+		msgType = &msgT
+	}
+
+	messages, err := handler.namespace.Messages(c.Request().Context(), ns.Id, msgType, int(req.Limit), int(req.Offset))
 	if err := handleError(c, err, handler.namespace); err != nil {
 		return err
 	}
