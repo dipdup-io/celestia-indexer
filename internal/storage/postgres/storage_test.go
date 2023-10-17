@@ -373,7 +373,7 @@ func (s *StorageTestSuite) TestNamespaceMessages() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
-	msgs, err := s.storage.Namespace.Messages(ctx, 2, 10, 0)
+	msgs, err := s.storage.Namespace.Messages(ctx, 2, nil, 10, 0)
 	s.Require().NoError(err)
 	s.Require().Len(msgs, 2)
 

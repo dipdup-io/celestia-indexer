@@ -292,7 +292,7 @@ func (s *NamespaceTestSuite) TestGetMessages() {
 		Return(testNamespace, nil)
 
 	s.namespaces.EXPECT().
-		Messages(gomock.Any(), testNamespace.Id, 0, 0).
+		Messages(gomock.Any(), testNamespace.Id, nil, 0, 0).
 		Return([]storage.NamespaceMessage{
 			{
 				NamespaceId: testNamespace.Id,
