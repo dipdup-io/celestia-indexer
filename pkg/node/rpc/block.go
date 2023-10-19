@@ -64,7 +64,7 @@ func (api *API) BlockData(ctx context.Context, level pkgTypes.Level) (pkgTypes.B
 	var blockData pkgTypes.BlockData
 
 	if err := api.post(ctx, requests, &responses); err != nil {
-		return blockData, errors.Wrap(err, "api.get")
+		return blockData, errors.Wrap(err, "api.post")
 	}
 
 	if block.Error != nil {

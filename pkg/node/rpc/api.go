@@ -119,7 +119,7 @@ func (api *API) post(ctx context.Context, requests []types.Request, output any) 
 
 	start := time.Now()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, api.cfg.URL, body)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), body)
 	if err != nil {
 		return err
 	}
